@@ -43,7 +43,7 @@ NIX_BINTOOLS_WRAPPER_TARGET_BUILD_x86_64_unknown_linux_gnu='1'
 export NIX_BINTOOLS_WRAPPER_TARGET_BUILD_x86_64_unknown_linux_gnu
 NIX_BINTOOLS_WRAPPER_TARGET_HOST_x86_64_unknown_linux_gnu='1'
 export NIX_BINTOOLS_WRAPPER_TARGET_HOST_x86_64_unknown_linux_gnu
-NIX_BUILD_CORES='4'
+NIX_BUILD_CORES='8'
 export NIX_BUILD_CORES
 NIX_CC='/nix/store/8mjb3ziimfi3rki71q4s0916xkm4cm5p-gcc-wrapper-13.2.0'
 export NIX_CC
@@ -61,7 +61,7 @@ NIX_ENFORCE_NO_NATIVE='1'
 export NIX_ENFORCE_NO_NATIVE
 NIX_HARDENING_ENABLE='bindnow format fortify fortify3 pic relro stackprotector strictoverflow'
 export NIX_HARDENING_ENABLE
-NIX_LDFLAGS='-rpath /home/ryan/code/learning_projects/martelDB/outputs/out/lib  -L/nix/store/5rsrmzdkhihsza9g0pyav04ancng40pf-rust-default-1.78.0/lib -L/nix/store/18aly31g886ddfx2hkg9hhj68085iair-openssl-3.0.13/lib -L/nix/store/5rsrmzdkhihsza9g0pyav04ancng40pf-rust-default-1.78.0/lib -L/nix/store/18aly31g886ddfx2hkg9hhj68085iair-openssl-3.0.13/lib'
+NIX_LDFLAGS='-rpath /home/ryan/code/marteldb/outputs/out/lib  -L/nix/store/5rsrmzdkhihsza9g0pyav04ancng40pf-rust-default-1.78.0/lib -L/nix/store/18aly31g886ddfx2hkg9hhj68085iair-openssl-3.0.13/lib -L/nix/store/5rsrmzdkhihsza9g0pyav04ancng40pf-rust-default-1.78.0/lib -L/nix/store/18aly31g886ddfx2hkg9hhj68085iair-openssl-3.0.13/lib'
 export NIX_LDFLAGS
 NIX_LDFLAGS_FOR_BUILD=' -L/nix/store/5rsrmzdkhihsza9g0pyav04ancng40pf-rust-default-1.78.0/lib -L/nix/store/18aly31g886ddfx2hkg9hhj68085iair-openssl-3.0.13/lib -L/nix/store/5rsrmzdkhihsza9g0pyav04ancng40pf-rust-default-1.78.0/lib -L/nix/store/18aly31g886ddfx2hkg9hhj68085iair-openssl-3.0.13/lib -L/nix/store/5rsrmzdkhihsza9g0pyav04ancng40pf-rust-default-1.78.0/lib -L/nix/store/18aly31g886ddfx2hkg9hhj68085iair-openssl-3.0.13/lib'
 export NIX_LDFLAGS_FOR_BUILD
@@ -169,7 +169,7 @@ declare -a envHostHostHooks=('ccWrapper_addCVars' 'bintoolsWrapper_addLDVars' 'p
 declare -a envHostTargetHooks=('ccWrapper_addCVars' 'bintoolsWrapper_addLDVars' 'pkgConfigWrapper_addPkgConfigPath' )
 declare -a envTargetTargetHooks=()
 declare -a fixupOutputHooks=('if [ -z "${dontPatchELF-}" ]; then patchELF "$prefix"; fi' 'if [[ -z "${noAuditTmpdir-}" && -e "$prefix" ]]; then auditTmpdir "$prefix"; fi' 'if [ -z "${dontGzipMan-}" ]; then compressManPages "$prefix"; fi' '_moveLib64' '_moveSbin' '_moveSystemdUserUnits' 'patchShebangsAuto' '_pruneLibtoolFiles' '_doStrip' )
-guess='4'
+guess='8'
 initialPath='/nix/store/hq8765g3p1i7qbargnqli5mn0jpsdbfl-coreutils-9.5 /nix/store/d1v47ybpl5cv9ycffgbfagfhvbvj8xdx-findutils-4.9.0 /nix/store/3m6fjcs5y3ilbjpbd71dqj2lz89vpkvj-diffutils-3.10 /nix/store/4cps736z7in3d37qc801lwv9z0ib67ps-gnused-4.9 /nix/store/wy37jk2hirzqzx0666w1849kjdgzdam6-gnugrep-3.11 /nix/store/a2ffqcqzbp8k4fmkyhpjq2km0i9wr8d8-gawk-5.2.2 /nix/store/4m4vnjdy44s4sb8hlv4qsph492zz3rly-gnutar-1.35 /nix/store/hragmx5p3izmwinv4441hj5706sxy4xs-gzip-1.13 /nix/store/5giwsjx504zrgzl7cjzxm0s1423wndif-bzip2-1.0.8-bin /nix/store/qwcdasr63dfp74g7djazx48fx9s28i7a-gnumake-4.4.1 /nix/store/h3bhzvz9ipglcybbcvkxvm4vg9lwvqg4-bash-5.2p26 /nix/store/s1zcp7gayl4aw0xp86fli8jyb4kr5ha7-patch-2.7.6 /nix/store/3iiml9pwff4y6zsis1gp4apbry1h1wfr-xz-5.4.6-bin /nix/store/kaiq352476xq7zb1p06yranc5j3jjlz2-file-5.45'
 mesonFlags=''
 export mesonFlags
@@ -177,7 +177,7 @@ name='nix-shell-env'
 export name
 nativeBuildInputs='/nix/store/5rsrmzdkhihsza9g0pyav04ancng40pf-rust-default-1.78.0 /nix/store/5m7d3z1xcwy0gagkginzqvhcrxifzwqf-openssl-3.0.13-dev /nix/store/vbk2n3094zyl9ywijks6a3d7s2i6wnfm-pkg-config-wrapper-0.29.2 /nix/store/0k051qi1wi9iqayf8xvpmq3md3drv46r-cargo-deny-0.14.22 /nix/store/s3zb9qsv655vg4q4v7cr2q2vb736gg38-cargo-edit-0.12.2 /nix/store/r61k6fxwakq9q0ybsqg5k5sdiazx6cxx-cargo-watch-8.5.2 /nix/store/fghscmmjk9vcnbk7gh22iflnblmamszz-cargo-tarpaulin-0.29.0 /nix/store/z8plffwb1rc3pddyvny7fq481lvsfmj9-cargo-audit-0.20.0 /nix/store/5qjhan3kdlncswagxvijbp22dd1rwfpb-cargo-expand-1.0.85 /nix/store/i9pdxax7cdkkrpa4c3hpk743bx3wnhrj-sqlx-cli-0.7.4 /nix/store/vlq2srikjqhkv57jx6pa198g8zxr9ajr-rust-analyzer-2024-04-29'
 export nativeBuildInputs
-out='/home/ryan/code/learning_projects/martelDB/outputs/out'
+out='/home/ryan/code/marteldb/outputs/out'
 export out
 outputBin='out'
 outputDev='out'
@@ -208,7 +208,7 @@ preConfigurePhases=' updateAutotoolsGnuConfigScriptsPhase'
 declare -a preFixupHooks=('_moveToShare' '_multioutDocs' '_multioutDevs' )
 preferLocalBuild='1'
 export preferLocalBuild
-prefix='/home/ryan/code/learning_projects/martelDB/outputs/out'
+prefix='/home/ryan/code/marteldb/outputs/out'
 declare -a propagatedBuildDepFiles=('propagated-build-build-deps' 'propagated-native-build-inputs' 'propagated-build-target-deps' )
 propagatedBuildInputs=''
 export propagatedBuildInputs
