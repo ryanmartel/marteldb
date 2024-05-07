@@ -1,0 +1,18 @@
+[package]
+name = "marteldb"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+lalrpop-util = { version = "0.20.2", features = ["lexer", "unicode"] } 
+
+[build-dependencies]
+lalrpop = "0.20.2"
+
+[lib]
+path = "src/lib.rs"
+
+[[bin]]
+path = "src/main.rs"
+name = "marteldb"
+
