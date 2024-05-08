@@ -16,6 +16,14 @@ impl From<ParseIntError> for LexicalError {
 }
 
 #[derive(Logos, Clone, Debug, PartialEq)]
+#[logos(skip r"[ \t\n\f]+", skip r"#.*\n?", error = LexicalError)]
 pub enum Token {
+    #[regex("[a-zA-Z][_0-9a-zA-Z]*", |lex| lex.slice().parse())]
+    Identifier(String),
+}
 
+impl fmt::Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
+    }
 }
