@@ -20,6 +20,11 @@ impl From<ParseIntError> for LexicalError {
 pub enum Token {
     #[regex("[a-zA-Z][_0-9a-zA-Z]*", |lex| lex.slice().parse())]
     Identifier(String),
+    #[regex("[1-9][0-9]*", |lex| lex.slice().parse())]
+    Integer(i32),
+
+    #[token(";")]
+    Semicolon,
 }
 
 impl fmt::Display for Token {
