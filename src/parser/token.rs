@@ -18,13 +18,23 @@ impl From<ParseIntError> for LexicalError {
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[ \t\n\f]+", skip r"#.*\n?", error = LexicalError)]
 pub enum Token {
+
+    // KEYWORDS
     #[token("INSERT", ignore(case))]
     Insert,
+    #[token("SELECT", ignore(case))]
+    Select,
+    #[token("DELETE", ignore(case))]
+    Delete,
+    #[token("UPDATE", ignore(case))]
+    Update,
+
     #[regex("[a-zA-Z][_0-9a-zA-Z]*", |lex| lex.slice().to_string())]
     Identifier(String),
     #[regex("[1-9][0-9]*", |lex| lex.slice().parse())]
     Integer(i32),
 
+    // ETC Terminals
     #[token(";")]
     Semicolon,
 }
