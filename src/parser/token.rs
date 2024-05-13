@@ -18,6 +18,8 @@ impl From<ParseIntError> for LexicalError {
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[ \t\n\f]+", skip r"#.*\n?", error = LexicalError)]
 pub enum Token {
+    #[token("INSERT", ignore("case"))]
+    Insert,
     #[regex("[a-zA-Z][_0-9a-zA-Z]*", |lex| lex.slice().parse())]
     Identifier(String),
     #[regex("[1-9][0-9]*", |lex| lex.slice().parse())]

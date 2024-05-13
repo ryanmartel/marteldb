@@ -1,5 +1,22 @@
+use crate::token::{Token, LexicalError};
+use crate::ast;
 use std::str::FromStr;
 
 grammar;
 
+extern {
+    type Location = usize;
+    type Error = LexicalError;
 
+    enum Token {
+        "insert" => Token::Insert,
+        ";" => Token::Semicolon,
+        "identifier" => Token::Identifier(<String>),
+    }
+}
+
+pub Statement: ast::Statement = {
+    "insert" <name:"identifier"> ";" => {
+        ast::Statement::Variable { name }
+    },
+}
