@@ -1,6 +1,6 @@
-mod token;
-mod lexer;
-mod ast;
+pub mod token;
+pub mod lexer;
+pub mod ast;
 use lalrpop_util::lalrpop_mod;
 
 lalrpop_mod!(pub calculator1, "/parser/calculator1.rs");
@@ -11,12 +11,3 @@ fn calculator1() {
     assert!(calculator1::TermParser::new().parse("22").is_ok());
 }
 
-#[test]
-fn grammar() {
-    let source = "INSERT dave;";
-    let lexer = Lexer::new(source);
-    let parser = ScriptParser::new();
-    let ast = parser.parse(lexer).unwrap();
-
-    println!("{:?}", ast);
-}
