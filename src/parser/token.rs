@@ -22,69 +22,77 @@ pub enum Token {
     // KEYWORDS
     #[token("ABORT", ignore(case))]
     Abort,
-    #[token("INDEX", ignore(case))]
-    Index,
+    #[token("AND", ignore(case))]
+    And,
+    #[token("AS", ignore(case))]
+    As,
     #[token("BEGIN", ignore(case))]
     Begin,
+    #[token("CASCADE", ignore(case))]
+    Cascade,
     #[token("COMMIT", ignore(case))]
     Commit,
-    #[token("END", ignore(case))]
-    End,
-    #[token("ROLLBACK", ignore(case))]
-    Rollback,
-    #[token("VACUUM", ignore(case))]
-    Vacuum,
     #[token("CREATE", ignore(case))]
     Create,
+    #[token("DELETE", ignore(case))]
+    Delete,
+    #[token("DISTINCT", ignore(case))]
+    Distinct,
     #[token("DROP", ignore(case))]
     Drop,
-    #[token("TABLE", ignore(case))]
-    Table,
+    #[token("END", ignore(case))]
+    End,
+    #[token("FROM", ignore(case))]
+    From,
+    #[token("INDEX", ignore(case))]
+    Index,
     #[token("INSERT", ignore(case))]
     Insert,
     #[token("INTO", ignore(case))]
     Into,
-    #[token("VALUES", ignore(case))]
-    Values,
-    #[token("SELECT", ignore(case))]
-    Select,
-    #[token("FROM", ignore(case))]
-    From,
-    #[token("DELETE", ignore(case))]
-    Delete,
-    #[token("UPDATE", ignore(case))]
-    Update,
-    #[token("SET", ignore(case))]
-    Set,
-    #[token("WHERE", ignore(case))]
-    Where,
-    #[token("ORDER BY", ignore(case))]
-    OrderBy,
     #[token("NOT", ignore(case))]
     Not,
-    #[token("AND", ignore(case))]
-    And,
+    #[token("ON DELETE", ignore(case))]
+    OnDelete,
     #[token("OR", ignore(case))]
     Or,
+    #[token("ORDER BY", ignore(case))]
+    OrderBy,
     #[token("PRIMARY KEY", ignore(case))]
     PrimaryKey,
     #[token("REFERENCES", ignore(case))]
     References,
-    #[token("ON DELETE", ignore(case))]
-    OnDelete,
-    #[token("CASCADE", ignore(case))]
-    Cascade,
+    #[token("ROLLBACK", ignore(case))]
+    Rollback,
+    #[token("SELECT", ignore(case))]
+    Select,
+    #[token("SET", ignore(case))]
+    Set,
+    #[token("TABLE", ignore(case))]
+    Table,
+    #[token("UPDATE", ignore(case))]
+    Update,
+    #[token("VACUUM", ignore(case))]
+    Vacuum,
+    #[token("VALUES", ignore(case))]
+    Values,
+    #[token("WHERE", ignore(case))]
+    Where,
 
 
     // Types
+    #[token("BOOLEAN", ignore(case))]
+    Boolean,
     #[token("INT", ignore(case))]
     TypeInt,
-    #[token("VARCHAR", ignore(case))]
-    Varchar,
-    #[token("NUMERIC", ignore(case))]
-    Numeric,
     #[token("NULL", ignore(case))]
     Null,
+    #[token("NUMERIC", ignore(case))]
+    Numeric,
+    #[token("SERIAL", ignore(case))]
+    Serial,
+    #[token("VARCHAR", ignore(case))]
+    Varchar,
 
 
     #[regex("[a-zA-Z][_0-9a-zA-Z]*", |lex| lex.slice().to_string())]
@@ -111,6 +119,8 @@ pub enum Token {
     DoubleQuote,
     #[token("=")]
     Equals,
+    #[token("-")]
+    Negative,
 }
 
 impl fmt::Display for Token {
