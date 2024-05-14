@@ -9,7 +9,33 @@ extern {
     type Error = LexicalError;
 
     enum Token {
+        "ABORT" => Token::Abort,
+        "AND" => Token::And,
+        "AS" => Token::As,
+        "ASC" => Token::Asc,
+        "BEGIN" => Token::Begin,
+        "CASCADE" => Token::Cascade,
+        "COMMIT" => Token::Commit,
+        "COUNT" => Token::Count,
+        "CREATE" => Token::Create,
+        "DELETE" => Token::Delete,
+        "DESC" => Token::Desc,
+        "DISTINCT" => Token::Distinct,
+        "DROP" => Token::Drop_,
+        "END" => Token::End,
+        "FROM" => Token::From_,
+        "HAVING" => Token::Having,
+        "INDEX" => Token::Index,
         "INSERT" => Token::Insert,
+        "INTO" => Token::Into_,
+        "LIMIT" => Token::Limit,
+        "NOT" => Token::Not,
+        "ON DELETE" => Token::OnDelete,
+        "OR" => Token::Or,
+        "ORDER BY" => Token::OrderBy,
+        "PRIMARY KEY" => Token::PrimaryKey,
+        "REFERENCES" => Token::References,
+
         ";" => Token::Semicolon,
         "identifier" => Token::Identifier(<String>),
     }
