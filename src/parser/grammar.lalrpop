@@ -9,14 +9,14 @@ extern {
     type Error = LexicalError;
 
     enum Token {
-        "insert" => Token::Insert,
+        "INSERT" => Token::Insert,
         ";" => Token::Semicolon,
         "identifier" => Token::Identifier(<String>),
     }
 }
 
 pub Statement: ast::Statement = {
-    "insert" <name:"identifier"> ";" => {
+    "INSERT" <name:"identifier"> ";" => {
         ast::Statement::Variable { name }
     },
 }

@@ -3,11 +3,5 @@ pub mod lexer;
 pub mod ast;
 use lalrpop_util::lalrpop_mod;
 
-lalrpop_mod!(pub calculator1, "/parser/calculator1.rs");
 lalrpop_mod!(pub grammar, "/parser/grammar.rs");
-
-#[test]
-fn calculator1() {
-    assert!(calculator1::TermParser::new().parse("22").is_ok());
-}
 

@@ -20,14 +20,36 @@ impl From<ParseIntError> for LexicalError {
 pub enum Token {
 
     // KEYWORDS
+    #[token("CREATE", ignore(case))]
+    Create,
+    #[token("TABLE", ignore(case))]
+    Table,
     #[token("INSERT", ignore(case))]
     Insert,
+    #[token("INTO", ignore(case))]
+    Into,
+    #[token("VALUES", ignore(case))]
+    Values,
     #[token("SELECT", ignore(case))]
     Select,
+    #[token("FROM", ignore(case))]
+    From,
     #[token("DELETE", ignore(case))]
     Delete,
     #[token("UPDATE", ignore(case))]
     Update,
+    #[token("SET", ignore(case))]
+    Set,
+    #[token("WHERE", ignore(case))]
+    Where,
+    #[token("ORDER BY", ignore(case))]
+    OrderBy,
+
+
+    // Types
+    #[token("INT", ignore(case))]
+    TypeInt,
+
 
     #[regex("[a-zA-Z][_0-9a-zA-Z]*", |lex| lex.slice().to_string())]
     Identifier(String),
@@ -35,8 +57,20 @@ pub enum Token {
     Integer(i32),
 
     // ETC Terminals
+    #[token("*")]
+    All,
     #[token(";")]
     Semicolon,
+    #[token("(")]
+    LParen,
+    #[token(")")]
+    RParen,
+    #[token(",")]
+    Comma,
+    #[token("'")]
+    SingleQuote,
+    #[token("=")]
+    Equals,
 }
 
 impl fmt::Display for Token {
