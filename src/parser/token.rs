@@ -26,16 +26,22 @@ pub enum Token {
     And,
     #[token("AS", ignore(case))]
     As,
+    #[token("ASC", ignore(case))]
+    Asc,
     #[token("BEGIN", ignore(case))]
     Begin,
     #[token("CASCADE", ignore(case))]
     Cascade,
     #[token("COMMIT", ignore(case))]
     Commit,
+    #[token("COUNT", ignore(case))]
+    Count,
     #[token("CREATE", ignore(case))]
     Create,
     #[token("DELETE", ignore(case))]
     Delete,
+    #[token("DESC", ignore(case))]
+    Desc,
     #[token("DISTINCT", ignore(case))]
     Distinct,
     #[token("DROP", ignore(case))]
@@ -44,12 +50,16 @@ pub enum Token {
     End,
     #[token("FROM", ignore(case))]
     From,
+    #[token("HAVING", ignore(case))]
+    Having,
     #[token("INDEX", ignore(case))]
     Index,
     #[token("INSERT", ignore(case))]
     Insert,
     #[token("INTO", ignore(case))]
     Into,
+    #[token("LIMIT", ignore(case))]
+    Limit,
     #[token("NOT", ignore(case))]
     Not,
     #[token("ON DELETE", ignore(case))]
