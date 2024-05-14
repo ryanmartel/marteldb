@@ -20,6 +20,20 @@ impl From<ParseIntError> for LexicalError {
 pub enum Token {
 
     // KEYWORDS
+    #[token("ABORT", ignore(case))]
+    Abort,
+    #[token("INDEX", ignore(case))]
+    Index,
+    #[token("BEGIN", ignore(case))]
+    Begin,
+    #[token("COMMIT", ignore(case))]
+    Commit,
+    #[token("END", ignore(case))]
+    End,
+    #[token("ROLLBACK", ignore(case))]
+    Rollback,
+    #[token("VACUUM", ignore(case))]
+    Vacuum,
     #[token("CREATE", ignore(case))]
     Create,
     #[token("DROP", ignore(case))]
