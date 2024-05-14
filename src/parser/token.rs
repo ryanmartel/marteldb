@@ -16,12 +16,14 @@ impl From<ParseIntError> for LexicalError {
 }
 
 #[derive(Logos, Clone, Debug, PartialEq)]
-#[logos(skip r"[ \t\n\f]+", skip r"#.*\n?", error = LexicalError)]
+#[logos(skip r"[ \t\n\f]+", skip r"--.*\n?", error = LexicalError)]
 pub enum Token {
 
     // KEYWORDS
     #[token("CREATE", ignore(case))]
     Create,
+    #[token("DROP", ignore(case))]
+    Drop,
     #[token("TABLE", ignore(case))]
     Table,
     #[token("INSERT", ignore(case))]
@@ -44,11 +46,21 @@ pub enum Token {
     Where,
     #[token("ORDER BY", ignore(case))]
     OrderBy,
+    #[token("NOT", ignore(case))]
+    Not,
+    #[token("AND", ignore(case))]
+    And,
 
 
     // Types
     #[token("INT", ignore(case))]
     TypeInt,
+    #[token("VARCHAR", ignore(case))]
+    Varchar,
+    #[token("NUMERIC", ignore(case))]
+    Numeric,
+    #[token("NULL", ignore(case))]
+    Null,
 
 
     #[regex("[a-zA-Z][_0-9a-zA-Z]*", |lex| lex.slice().to_string())]
@@ -67,8 +79,12 @@ pub enum Token {
     RParen,
     #[token(",")]
     Comma,
+    #[token(".")]
+    Period,
     #[token("'")]
     SingleQuote,
+    #[token("\"")]
+    DoubleQuote,
     #[token("=")]
     Equals,
 }
