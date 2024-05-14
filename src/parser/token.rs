@@ -50,6 +50,16 @@ pub enum Token {
     Not,
     #[token("AND", ignore(case))]
     And,
+    #[token("OR", ignore(case))]
+    Or,
+    #[token("PRIMARY KEY", ignore(case))]
+    PrimaryKey,
+    #[token("REFERENCES", ignore(case))]
+    References,
+    #[token("ON DELETE", ignore(case))]
+    OnDelete,
+    #[token("CASCADE", ignore(case))]
+    Cascade,
 
 
     // Types
