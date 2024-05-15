@@ -53,7 +53,17 @@ extern {
 
         "identifier" => Token::Identifier(<String>),
         "i32" => Token::Integer(i32),
+
+        "*" => Token::All,
         ";" => Token::Semicolon,
+        "(" => Token::LParen,
+        ")" => Token::RParen,
+        "," => Token::Comma,
+        "." => Token::Period,
+        "'" => Token::SingleQuote,
+        "\"" => Token::DoubleQuote,
+        "=" => Token::Equals,
+        "-" => Token::Negative,
     }
 }
 
