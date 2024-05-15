@@ -1,5 +1,5 @@
-use crate::parser::token::{Token, LexicalError};
-use crate::parser::ast;
+use super::token::{Token, LexicalError};
+use super::ast;
 use std::str::FromStr;
 
 grammar;

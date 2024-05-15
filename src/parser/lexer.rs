@@ -1,6 +1,6 @@
 use logos::{Logos, SpannedIter};
 
-use crate::parser::token::{LexicalError, Token};
+use super::token::{LexicalError, Token};
 
 pub type Spanned<Tok, Loc, Error> = Result<(Loc, Tok, Loc), Error>;
 
