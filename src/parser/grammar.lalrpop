@@ -35,9 +35,25 @@ extern {
         "ORDER BY" => Token::OrderBy,
         "PRIMARY KEY" => Token::PrimaryKey,
         "REFERENCES" => Token::References,
+        "ROLLBACK" => Token::Rollback,
+        "SELECT" => Token::Select,
+        "SET" => Token::Set,
+        "TABLE" => Token::Table,
+        "UPDATE" => Token::Update,
+        "VACUUM" => Token::Vacuum,
+        "VALUES" => Token::Values,
+        "WHERE" => Token::Where,
 
-        ";" => Token::Semicolon,
+        "BOOLEAN" => Token::Boolean,
+        "INT" => Token::TypeInt,
+        "NULL" => Token::Null,
+        "NUMERIC" => Token::Numeric,
+        "SERIAL" => Token::Serial,
+        "VARCHAR" => Token::Varchar,
+
         "identifier" => Token::Identifier(<String>),
+        "i32" => Token::Integer(i32),
+        ";" => Token::Semicolon,
     }
 }
 
