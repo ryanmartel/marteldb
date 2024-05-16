@@ -70,8 +70,11 @@ extern {
 pub Script: Vec<ast::Statement> = {
     <stmts: Statement*> => stmts
 }
-pub Statement: ast::Statement = {
+
+Statement: ast::Statement = {
     "INSERT" <name:"identifier"> ";" => {
         ast::Statement::Variable { name }
     },
 }
+
+pub 
