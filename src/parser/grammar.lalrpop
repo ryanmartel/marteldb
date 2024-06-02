@@ -67,14 +67,15 @@ extern {
     }
 }
 
-pub Script: Vec<ast::Statement> = {
-    <stmts: Statement*> => stmts
+pub Script: Vec<ast::Stmt> = {
+    <stmts: Stmt*> => stmts
 }
 
-Statement: ast::Statement = {
+Stmt: ast::Stmt = {
     "INSERT" <name:"identifier"> ";" => {
-        ast::Statement::Variable { name }
+        ast::Stmt {
+          kind :  ast::StmtKind::Variable { name }
+        }
     },
 }
 
-pub 
