@@ -58,7 +58,6 @@ pub enum Token {
     // Types
     #[token("BOOLEAN", ignore(case))] Boolean,
     #[token("INT", ignore(case))] TypeInt,
-    #[token("NULL", ignore(case))] Null,
     #[token("NUMERIC", ignore(case))] Numeric,
     #[token("SERIAL", ignore(case))] Serial,
     #[token("VARCHAR", ignore(case))] Varchar,
@@ -68,6 +67,17 @@ pub enum Token {
     Identifier(String),
     #[regex("[1-9][0-9]*", |lex| lex.slice().parse())]
     Integer(i32),
+    #[token("FALSE", ignore(case))] False,
+    #[token("NULL", ignore(case))] Null,
+    #[token("TRUE", ignore(case))] True,
+
+    // Operators
+    #[token(">")] Gt,
+    #[token(">=")] GtE,
+    #[token("<")] Lt,
+    #[token("<=")] LtE,
+    #[token("!=|<>")] NE,
+
 
     // ETC Terminals
     #[token("*")] All,

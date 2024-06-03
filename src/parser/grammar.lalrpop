@@ -53,6 +53,16 @@ extern {
 
         "identifier" => Token::Identifier(<String>),
         "i32" => Token::Integer(i32),
+        "FALSE" => Token::False,
+        "TRUE" => Token::True,
+
+
+        ">" => Token::Gt,
+        ">=" => Token::GtE,
+        "<" => Token::Lt,
+        "<=" => Token::LtE,
+        "!=" => Token::NE,
+        "<>" => Token::NE,
 
         "*" => Token::All,
         ";" => Token::Semicolon,
@@ -78,4 +88,5 @@ Stmt: ast::Stmt = {
         }
     },
 }
+
 
