@@ -50,13 +50,104 @@ pub struct SelectStmt {
 }
 
 #[derive(Clone, Debug, PartialEq)]
+pub struct LimitClause {
+    pub expr: Box<Expr>,
+    pub offset: Option<Box<Expr>>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct OrderByClause {
+    pub order_terms: Vec<OrderingTerm>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct OrderingTerm {
+    pub collation: Option<Ident>,
+    // if none, then neither are specified
+    pub asc_or_desc: Option<AscDescVal>,
+    // if none, then neither are specified
+    pub nulls_first_or_last: Option<NullsFirstVal>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct AscDescVal {
+    // true -> ASC, false -> DESC
+    pub val: bool,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct NullsFirstVal {
+    // true -> First, false -> last
+    pub val: bool,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct GroupByClause {
+    pub expr_list: Vec<Expr>,
+    pub having_expr: Option<Box<Expr>>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct WhereClause {
+    pub expr: Box<Expr>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
 pub struct FromClause {
     pub kind: FromClauseKind,
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum FromClauseKind {
-    Join
+    Join(JoinClause),
+    Table(TableOrSubquery),
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct JoinClause {
+    pub joiner: TableOrSubquery,
+    pub joinee: Option<Joinee>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct Joinee {
+    pub op: JoinOp,
+    pub joinee: TableOrSubquery,
+    pub constraint: JoinConstraint,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum JoinConstraint {
+    On(Box<Expr>),
+    Using(Vec<Ident>),
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum JoinOp {
+    Left(OuterVal),
+    Right(OuterVal),
+    Full(OuterVal),
+    Inner,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct OuterVal {
+    pub val: bool,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct TableOrSubquery {
+    pub kind: TableOrSubqueryKind,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum TableOrSubqueryKind {
+    // table-name AS? table-alias
+    Table(Ident, Option<Ident>),
+    // select-stmt AS? table-alias
+    Select(Box<SelectStmt>, Option<Ident>),
+    Join(Box<JoinClause>),
+    TableOrSubqueryList(Vec<TableOrSubquery>),
 }
 
 #[derive(Clone, Debug, PartialEq)]
