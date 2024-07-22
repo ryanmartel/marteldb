@@ -82,12 +82,14 @@ pub Script: Vec<ast::Stmt> = {
 }
 
 Stmt: ast::Stmt = {
+    #[precedence(level="0")]
     "INSERT" <i: Ident> ";" => {
         ast::Stmt {
           kind :  ast::StmtKind::Variable { name: i }
         }
     },
-    "INSERT" <lit: LiteralValue> ";" => {
+    #[precedence(level="1")]
+    "INSERT" Ident "=" <lit: LiteralValue> ";" => {
         ast::Stmt {
           kind :  ast::StmtKind::Lit { value: lit }
         }
@@ -95,26 +97,23 @@ Stmt: ast::Stmt = {
 }
 
 LiteralValue: ast::LiteralValue = {
+    #[precedence(level="0")]
+    "NULL" => ast::LiteralValue { kind : ast::LiteralValueKind::Null },
+    "TRUE" => ast::LiteralValue { kind : ast::LiteralValueKind::True },
+    "FALSE" => ast::LiteralValue { kind : ast::LiteralValueKind::False },
+    #[precedence(level="1")]
     <num:"i32"> => {
         ast::LiteralValue {
             kind : ast::LiteralValueKind::Numeric { value: num }
         }
     },
-    "NULL" => {
+    #[precedence(level="2")]
+    <str_lit:Ident> => {
         ast::LiteralValue {
-            kind : ast::LiteralValueKind::Null
-        }
-    },
-    "TRUE" => {
-        ast::LiteralValue {
-            kind : ast::LiteralValueKind::True
-        }
-    },
-    "FALSE" => {
-        ast::LiteralValue {
-            kind : ast::LiteralValueKind::False
+            kind : ast::LiteralValueKind::StringLit { value: str_lit.name }
         }
     }
+    
 }
 
 Ident: ast::Ident = {
