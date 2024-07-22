@@ -10,7 +10,10 @@ impl Stmt {
 #[derive(Clone, Debug, PartialEq)]
 pub enum StmtKind {
     Variable {
-        name: String,
+       name: Ident
+    },
+    Lit {
+        value: LiteralValue
     },
     // CREATE TABLE
     CreateTable(Box<CreateTableStmt>),
@@ -285,7 +288,7 @@ pub enum UnOpKind {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Ident {
-    name: String,
+    pub name: String,
 }
 
 

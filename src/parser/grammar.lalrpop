@@ -52,7 +52,7 @@ extern {
         "VARCHAR" => Token::Varchar,
 
         "identifier" => Token::Identifier(<String>),
-        "i32" => Token::Integer(i32),
+        "i32" => Token::Integer(<i32>),
         "FALSE" => Token::False,
         "TRUE" => Token::True,
 
@@ -82,14 +82,46 @@ pub Script: Vec<ast::Stmt> = {
 }
 
 Stmt: ast::Stmt = {
-    "INSERT" <name:"identifier"> ";" => {
+    "INSERT" <i: Ident> ";" => {
         ast::Stmt {
-          kind :  ast::StmtKind::Variable { name }
+          kind :  ast::StmtKind::Variable { name: i }
+        }
+    },
+    "INSERT" <lit: LiteralValue> ";" => {
+        ast::Stmt {
+          kind :  ast::StmtKind::Lit { value: lit }
         }
     },
 }
 
 LiteralValue: ast::LiteralValue = {
+    <num:"i32"> => {
+        ast::LiteralValue {
+            kind : ast::LiteralValueKind::Numeric { value: num }
+        }
+    },
+    "NULL" => {
+        ast::LiteralValue {
+            kind : ast::LiteralValueKind::Null
+        }
+    },
+    "TRUE" => {
+        ast::LiteralValue {
+            kind : ast::LiteralValueKind::True
+        }
+    },
+    "FALSE" => {
+        ast::LiteralValue {
+            kind : ast::LiteralValueKind::False
+        }
+    }
+}
 
+Ident: ast::Ident = {
+    <i:"identifier"> => {
+        ast::Ident {
+            name : i
+        }
+    }
 }
 
