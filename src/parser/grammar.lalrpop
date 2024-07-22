@@ -89,4 +89,7 @@ Stmt: ast::Stmt = {
     },
 }
 
+LiteralValue: ast::LiteralValue = {
+
+}
 
