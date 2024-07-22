@@ -88,12 +88,23 @@ Stmt: ast::Stmt = {
           kind :  ast::StmtKind::Variable { name: i }
         }
     },
+    "SELECT" <s: SelectStmt> ";" => {
+        ast::Stmt {
+            kind : ast::StmtKind::Select(Box::new(s))
+        }
+    },
     #[precedence(level="1")]
     "INSERT" Ident "=" <lit: LiteralValue> ";" => {
         ast::Stmt {
           kind :  ast::StmtKind::Lit { value: lit }
         }
     },
+}
+
+SelectStmt: ast::SelectStmt = {
+    <distinct:"DISTINCT"?> <i:Ident> => match distinct {
+        None => ast::SelectStmt { distinct: false}
+    }
 }
 
 LiteralValue: ast::LiteralValue = {
