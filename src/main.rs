@@ -6,6 +6,8 @@ fn main() {
     -- this is a comment
     Insert dan = 42;
     Insert kyle = False;
+    SELECT DISTINCT randy;
+    SELECT trever;
     Insert bob = dan;";
     let lexer = Lexer::new(source);
     let parser = ScriptParser::new();

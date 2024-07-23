@@ -103,8 +103,9 @@ Stmt: ast::Stmt = {
 
 SelectStmt: ast::SelectStmt = {
     <distinct:"DISTINCT"?> <i:Ident> => match distinct {
-        None => ast::SelectStmt { distinct: false}
-    }
+        None => ast::SelectStmt { distinct: false },
+        Some(distinct) => ast::SelectStmt { distinct: true }
+    },
 }
 
 LiteralValue: ast::LiteralValue = {
@@ -131,6 +132,17 @@ Ident: ast::Ident = {
     <i:"identifier"> => {
         ast::Ident {
             name : i
+        }
+    }
+}
+
+// Comma separated list of type T
+Comma<T>: Vec<T> = {
+    <mut v:(<T> ",")*> <e:T?> => match e {
+        None => v,
+        Some(e) => {
+            v.push(e);
+            v
         }
     }
 }

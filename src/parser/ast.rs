@@ -43,13 +43,13 @@ pub struct DropTableStmt {
 #[derive(Clone, Debug, PartialEq)]
 pub struct SelectStmt {
     pub distinct: bool,
-    pub results: Vec<ResultCol>,
-    pub from: Option<FromClause>,
-    pub filter: Option<WhereClause>,
-    pub group_by: Option<GroupByClause>,
-    pub except: Option<Box<SelectStmt>>,
-    pub order_by: Option<OrderByClause>,
-    pub limit: Option<LimitClause>,
+    // pub results: Vec<ResultCol>,
+    // pub from: Option<FromClause>,
+    // pub filter: Option<WhereClause>,
+    // pub group_by: Option<GroupByClause>,
+    // pub except: Option<Box<SelectStmt>>,
+    // pub order_by: Option<OrderByClause>,
+    // pub limit: Option<LimitClause>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
