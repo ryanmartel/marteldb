@@ -28,7 +28,7 @@ extern {
         "INDEX" => Token::Index,
         "INSERT" => Token::Insert,
         "INTO" => Token::Into_,
-        "LIMIT" => Token::Limit,
+//        "LIMIT" => Token::Limit,
         "NOT" => Token::Not,
         "ON DELETE" => Token::OnDelete,
         "OR" => Token::Or,
@@ -64,7 +64,7 @@ extern {
         "!=" => Token::NE,
         "<>" => Token::NE,
 
-        "*" => Token::All,
+        "*" => Token::Asterisk,
         ";" => Token::Semicolon,
         "(" => Token::LParen,
         ")" => Token::RParen,
@@ -73,7 +73,8 @@ extern {
         "'" => Token::SingleQuote,
         "\"" => Token::DoubleQuote,
         "=" => Token::Equals,
-        "-" => Token::Negative,
+        "-" => Token::Minus,
+        "+" => Token::Plus,
     }
 }
 

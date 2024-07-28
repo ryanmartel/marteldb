@@ -1,3 +1,4 @@
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Stmt {
     pub kind: StmtKind,
@@ -27,7 +28,6 @@ pub enum StmtKind {
     Insert(Box<InsertStmt>),
     // UPDATE statement,
     Update(Box<UpdateStmt>),
-
 }
 
 #[derive(Clone, Debug, PartialEq)]

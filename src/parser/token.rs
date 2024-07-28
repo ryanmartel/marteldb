@@ -39,7 +39,7 @@ pub enum Token {
     #[token("INDEX", ignore(case))] Index,
     #[token("INSERT", ignore(case))] Insert,
     #[token("INTO", ignore(case))] Into_,
-    #[token("LIMIT", ignore(case))] Limit,
+    // #[token("LIMIT", ignore(case))] Limit,
     #[token("NOT", ignore(case))] Not,
     #[token("ON DELETE", ignore(case))] OnDelete,
     #[token("OR", ignore(case))] Or,
@@ -80,7 +80,8 @@ pub enum Token {
 
 
     // ETC Terminals
-    #[token("*")] All,
+    #[token("*")] Asterisk,
+
     #[token(";")] Semicolon,
     #[token("(")] LParen,
     #[token(")")] RParen,
@@ -89,7 +90,8 @@ pub enum Token {
     #[token("'")] SingleQuote,
     #[token("\"")] DoubleQuote,
     #[token("=")] Equals,
-    #[token("-")] Negative,
+    #[token("-")] Minus,
+    #[token("+")] Plus,
 }
 
 impl fmt::Display for Token {
