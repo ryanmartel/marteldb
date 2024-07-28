@@ -83,21 +83,9 @@ pub Script: Vec<ast::Stmt> = {
 }
 
 Stmt: ast::Stmt = {
-    #[precedence(level="0")]
-    "INSERT" <i: Ident> ";" => {
-        ast::Stmt {
-          kind :  ast::StmtKind::Variable { name: i }
-        }
-    },
     "SELECT" <s: SelectStmt> ";" => {
         ast::Stmt {
             kind : ast::StmtKind::Select(Box::new(s))
-        }
-    },
-    #[precedence(level="1")]
-    "INSERT" Ident "=" <lit: LiteralValue> ";" => {
-        ast::Stmt {
-          kind :  ast::StmtKind::Lit { value: lit }
         }
     },
 }
