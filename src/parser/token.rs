@@ -1,4 +1,4 @@
-use logos::Logos;
+use logos::{Lexer, Logos, Skip};
 use std::fmt;
 use std::num::ParseIntError;
 
@@ -18,7 +18,6 @@ impl From<ParseIntError> for LexicalError {
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[ \t\n\f]+", skip r"--.*\n?", error = LexicalError)]
 pub enum Token {
-
     // KEYWORDS
     #[token("ABORT", ignore(case))] Abort,
     #[token("AND", ignore(case))] And,
@@ -65,6 +64,10 @@ pub enum Token {
 
     #[regex("[a-zA-Z][_0-9a-zA-Z]*", |lex| lex.slice().to_string())]
     Identifier(String),
+    #[regex("[a-zA-Z][_0-9a-zA-Z]*\\.[a-zA-Z][_0-9a-zA-Z]*", |lex| lex.slice().to_string())]
+    TableCol(String),
+    #[regex("[a-zA-Z][_0-9a-zA-Z]*\\.\\*", |lex| lex.slice().to_string())]
+    TableAll(String),
     #[regex("[1-9][0-9]*", |lex| lex.slice().parse())]
     Integer(i32),
     #[token("FALSE", ignore(case))] False,

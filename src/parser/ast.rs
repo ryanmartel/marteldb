@@ -1,6 +1,8 @@
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Stmt {
+    pub begin: usize,
+    pub end: usize,
     pub kind: StmtKind,
 }
 
@@ -18,7 +20,7 @@ pub enum StmtKind {
 #[derive(Clone, Debug, PartialEq)]
 pub struct SelectStmt {
     pub distinct: bool,
-    // pub results: Vec<ResultCol>,
+    pub results: Vec<ResultCol>,
     // pub from: Option<FromClause>,
     // pub filter: Option<WhereClause>,
     // pub group_by: Option<GroupByClause>,
@@ -27,6 +29,16 @@ pub struct SelectStmt {
     // pub limit: Option<LimitClause>,
 }
 
+#[derive(Clone, Debug, PartialEq)]
+pub struct ResultCol {
+    pub kind: ResultColKind,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum ResultColKind {
+    All(Option<String>),
+    Col(Option<String>, String)
+}
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Expr {

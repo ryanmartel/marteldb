@@ -52,6 +52,8 @@ extern {
         "VARCHAR" => Token::Varchar,
 
         "identifier" => Token::Identifier(<String>),
+        "tableCol" => Token::TableCol(<String>),
+        "tableAll" => Token::TableAll(<String>),
         "i32" => Token::Integer(<i32>),
         "FALSE" => Token::False,
         "TRUE" => Token::True,
@@ -83,19 +85,44 @@ pub Script: Vec<ast::Stmt> = {
 }
 
 Stmt: ast::Stmt = {
-    "SELECT" <s: SelectStmt> ";" => {
+    <start:@L> "SELECT" <s: SelectStmt> ";" <last:@R> => {
         ast::Stmt {
+            begin : start,
+            end : last,
             kind : ast::StmtKind::Select(Box::new(s))
         }
     },
 }
 
 SelectStmt: ast::SelectStmt = {
-    <distinct:"DISTINCT"?> <i:Ident> => match distinct {
-        None => ast::SelectStmt { distinct: false },
-        Some(distinct) => ast::SelectStmt { distinct: true }
+    <distinct:"DISTINCT"?> <r: ResultCols> => match distinct {
+        None => ast::SelectStmt { 
+            distinct: false,
+            results: r
+        },
+        Some(distinct) => ast::SelectStmt {
+            distinct: true,
+            results: r
+        }
     },
 }
+
+ResultCols = Comma<ResultCol>;
+
+ResultCol: ast::ResultCol = {
+    "*" => ast::ResultCol { kind : ast::ResultColKind::All(None) },
+    <tableAll:"tableAll"> => {
+        let (table, _all) = tableAll.split_once('.').unwrap();
+        ast::ResultCol { kind : ast::ResultColKind::All(Some(table.to_string()))}
+    },
+    <tableCol:"tableCol"> => {
+        let (table, col) = tableCol.split_once('.').unwrap(); 
+        ast::ResultCol { kind : ast::ResultColKind::Col(Some(table.to_string()), col.to_string())
+        }
+    },
+    <i:"identifier"> => ast::ResultCol { kind : ast::ResultColKind::Col(None, i)}
+}
+
 
 LiteralValue: ast::LiteralValue = {
     #[precedence(level="0")]
