@@ -94,6 +94,13 @@ Stmt: ast::Stmt = {
             kind : ast::StmtKind::Select(Box::new(s))
         }
     },
+    <start:@L> <i: InsertStmt> ";" <last:@R> => {
+        ast::Stmt {
+            begin : start,
+            end : last,
+            kind : ast::StmtKind::Insert(Box::new(i))
+        }
+    }
 }
 
 SelectStmt: ast::SelectStmt = {
@@ -112,6 +119,25 @@ SelectStmt: ast::SelectStmt = {
         }
     },
 }
+
+InsertStmt: ast::InsertStmt = {
+    "INSERT" "INTO" <i:"identifier"> <c: InsertCols?> "VALUES" <v: Values> => {
+        ast::InsertStmt {
+            table: i,
+            cols: c,
+            values: v
+        }
+    } 
+}
+
+
+Values = { "(" <ValueList> ")" };
+
+ValueList = Comma<LiteralValue>;
+
+InsertCols = { "(" <IdenList> ")"};
+
+IdenList = Comma<"identifier">;
 
 ResultColList = Comma<ResultCol>;
 

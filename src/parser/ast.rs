@@ -10,6 +10,15 @@ pub struct Stmt {
 pub enum StmtKind {
     // SELECT statement
     Select(Box<SelectStmt>),
+    // INSERT
+    Insert(Box<InsertStmt>)
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct InsertStmt {
+    pub table: String,
+    pub cols: Option<Vec<String>>,
+    pub values: Vec<LiteralValue>
 }
 
 #[derive(Clone, Debug, PartialEq)]
