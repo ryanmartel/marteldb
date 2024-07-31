@@ -33,6 +33,7 @@ pub enum Token {
     #[token("DISTINCT", ignore(case))] Distinct,
     #[token("DROP", ignore(case))] Drop_,
     #[token("END", ignore(case))] End,
+    #[token("EXISTS", ignore(case))] Exists,
     #[token("FROM", ignore(case))] From_,
     #[token("HAVING", ignore(case))] Having,
     #[token("INDEX", ignore(case))] Index,
@@ -62,6 +63,8 @@ pub enum Token {
     #[token("VARCHAR", ignore(case))] Varchar,
 
 
+    #[regex("'[0-9a-zA-Z]*'", |lex| lex.slice().to_string())]
+    StringLit(String),
     #[regex("[a-zA-Z][_0-9a-zA-Z]*", |lex| lex.slice().to_string())]
     Identifier(String),
     #[regex("[a-zA-Z][_0-9a-zA-Z]*\\.[a-zA-Z][_0-9a-zA-Z]*", |lex| lex.slice().to_string())]

@@ -23,12 +23,13 @@ extern {
         "DISTINCT" => Token::Distinct,
         "DROP" => Token::Drop_,
         "END" => Token::End,
+        "EXISTS" => Token::Exists,
         "FROM" => Token::From_,
         "HAVING" => Token::Having,
         "INDEX" => Token::Index,
         "INSERT" => Token::Insert,
         "INTO" => Token::Into_,
-//        "LIMIT" => Token::Limit,
+      //  "LIMIT" => Token::Limit,
         "NOT" => Token::Not,
         "ON DELETE" => Token::OnDelete,
         "OR" => Token::Or,
@@ -51,6 +52,7 @@ extern {
         "SERIAL" => Token::Serial,
         "VARCHAR" => Token::Varchar,
 
+        "stringLit" => Token::StringLit(<String>),
         "identifier" => Token::Identifier(<String>),
         "tableCol" => Token::TableCol(<String>),
         "tableAll" => Token::TableAll(<String>),
@@ -85,7 +87,7 @@ pub Script: Vec<ast::Stmt> = {
 }
 
 Stmt: ast::Stmt = {
-    <start:@L> "SELECT" <s: SelectStmt> ";" <last:@R> => {
+    <start:@L> <s: SelectStmt> ";" <last:@R> => {
         ast::Stmt {
             begin : start,
             end : last,
@@ -95,19 +97,23 @@ Stmt: ast::Stmt = {
 }
 
 SelectStmt: ast::SelectStmt = {
-    <distinct:"DISTINCT"?> <r: ResultCols> => match distinct {
+    "SELECT" <distinct:"DISTINCT"?> <r: ResultColList> "FROM" <t: TableList> <w: WhereClause?> => match distinct { 
         None => ast::SelectStmt { 
             distinct: false,
-            results: r
+            results: r,
+            from: t,
+            filter: w
         },
         Some(distinct) => ast::SelectStmt {
             distinct: true,
-            results: r
+            results: r,
+            from: t,
+            filter: w
         }
     },
 }
 
-ResultCols = Comma<ResultCol>;
+ResultColList = Comma<ResultCol>;
 
 ResultCol: ast::ResultCol = {
     "*" => ast::ResultCol { kind : ast::ResultColKind::All(None) },
@@ -117,11 +123,88 @@ ResultCol: ast::ResultCol = {
     },
     <tableCol:"tableCol"> => {
         let (table, col) = tableCol.split_once('.').unwrap(); 
-        ast::ResultCol { kind : ast::ResultColKind::Col(Some(table.to_string()), col.to_string())
+        ast::ResultCol { 
+            kind : ast::ResultColKind::TableColumn(
+                ast::TableColumn {
+                    table: Some(table.to_string()),
+                    column: col.to_string()
+                }
+            )
         }
     },
-    <i:"identifier"> => ast::ResultCol { kind : ast::ResultColKind::Col(None, i)}
+    <i:"identifier"> => ast::ResultCol { 
+        kind : ast::ResultColKind::TableColumn(
+            ast::TableColumn {
+                table: None, 
+                column: i
+            }
+        )
+    }
 }
+
+TableList = Comma<FromTable>;
+
+FromTable: ast::FromTable = {
+    <i:"identifier"> => ast::FromTable { kind : ast::FromTableKind::Single(i)},
+    // TODO: JOIN
+}
+
+WhereClause: ast::WhereClause = {
+    "WHERE" <e: Expr> => {
+        ast::WhereClause {
+            expr: e,
+        }
+    }
+}
+
+Expr: ast::Expr = {
+    #[precedence(level="0")]
+    <lit: LiteralValue> => ast::Expr { kind : ast::ExprKind::Literal(lit)},
+    <tableCol:"tableCol"> => {
+        let (table, col) = tableCol.split_once('.').unwrap();
+        ast::Expr {
+            kind : ast::ExprKind::Column(ast::TableColumn {
+                table: Some(table.to_string()),
+                column: col.to_string()
+            })
+        }
+    },
+    <i:"identifier"> => ast::Expr { kind : ast::ExprKind::Column(ast::TableColumn {
+        table: None,
+        column: i
+        })
+    },
+    "(" <Expr> ")",
+    "(" <s:SelectStmt> ")" => ast::Expr { kind : ast::ExprKind::SelectStmt(Box::new(s))},
+    #[precedence(level="1")] #[assoc(side="right")]
+    <u:UnOp> <e:Expr> => ast::Expr {
+        kind : ast::ExprKind::Unop(u, Box::new(e))
+    },
+    #[precedence(level="2")] #[assoc(side="left")]
+    <e1:Expr> <b:BinOp> <e2:Expr> => ast::Expr {
+        kind : ast::ExprKind::Binop(b, Box::new(e1), Box::new(e2))
+    }
+}
+
+UnOp: ast::UnOp = {
+    "NOT" => ast::UnOp { kind : ast::UnOpKind::Not},
+    "EXISTS" => ast::UnOp { kind : ast::UnOpKind::Exists},
+}
+
+BinOp: ast::BinOp = {
+    "AND" => ast::BinOp { kind : ast::BinOpKind::And},
+    "OR" => ast::BinOp { kind : ast::BinOpKind::Or},
+    "+" => ast::BinOp { kind : ast::BinOpKind::Add},
+    "-" => ast::BinOp { kind : ast::BinOpKind::Sub},
+    "=" => ast::BinOp { kind : ast::BinOpKind::Eq},
+    "<" => ast::BinOp { kind : ast::BinOpKind::Lt},
+    "<=" => ast::BinOp { kind : ast::BinOpKind::LtE},
+    ">" => ast::BinOp { kind : ast::BinOpKind::Gt},
+    ">=" => ast::BinOp { kind : ast::BinOpKind::GtE},
+    "<>" => ast::BinOp { kind : ast::BinOpKind::Ne},
+    "!=" => ast::BinOp { kind : ast::BinOpKind::Ne},
+}
+
 
 
 LiteralValue: ast::LiteralValue = {
@@ -136,9 +219,9 @@ LiteralValue: ast::LiteralValue = {
         }
     },
     #[precedence(level="2")]
-    <str_lit:Ident> => {
+    <str_lit:"stringLit"> => {
         ast::LiteralValue {
-            kind : ast::LiteralValueKind::StringLit { value: str_lit.name }
+            kind : ast::LiteralValueKind::StringLit { value: str_lit }
         }
     }
     

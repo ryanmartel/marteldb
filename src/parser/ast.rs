@@ -6,23 +6,18 @@ pub struct Stmt {
     pub kind: StmtKind,
 }
 
-impl Stmt {
-
-}
-
 #[derive(Clone, Debug, PartialEq)]
 pub enum StmtKind {
     // SELECT statement
     Select(Box<SelectStmt>),
 }
 
-
 #[derive(Clone, Debug, PartialEq)]
 pub struct SelectStmt {
     pub distinct: bool,
     pub results: Vec<ResultCol>,
-    // pub from: Option<FromClause>,
-    // pub filter: Option<WhereClause>,
+    pub from: Vec<FromTable>,
+    pub filter: Option<WhereClause>,
     // pub group_by: Option<GroupByClause>,
     // pub except: Option<Box<SelectStmt>>,
     // pub order_by: Option<OrderByClause>,
@@ -37,7 +32,22 @@ pub struct ResultCol {
 #[derive(Clone, Debug, PartialEq)]
 pub enum ResultColKind {
     All(Option<String>),
-    Col(Option<String>, String)
+    TableColumn(TableColumn)
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct FromTable {
+    pub kind: FromTableKind,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum FromTableKind {
+    Single(String),
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct WhereClause {
+    pub expr: Expr
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -47,7 +57,23 @@ pub struct Expr {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum ExprKind {
+
+    SelectStmt(Box<SelectStmt>),
+    Literal(LiteralValue),
+    Column(TableColumn),
+    // Tri
+    Between(Box<Expr>, Box<Expr>, Box<Expr>),
+    // Binop
+    Binop(BinOp, Box<Expr>, Box<Expr>),
+    // Unop
+    Unop(UnOp, Box<Expr>)
     
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct TableColumn {
+    pub table: Option<String>,
+    pub column: String,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -76,8 +102,15 @@ pub struct BinOp {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum BinOpKind {
+    // SQL specific
+    Is,
+    In,
+
+    // Logical
     And,
     Or,
+
+    // Mathematical
     Add,
     Sub,
     Eq,
@@ -95,10 +128,8 @@ pub struct UnOp {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum UnOpKind {
-    Plus,
-    Minus,
-    NotNull,
     Not,
+    Exists
 }
 
 #[derive(Clone, Debug, PartialEq)]
