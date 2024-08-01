@@ -1,5 +1,7 @@
 use marteldb::parser::lexer::Lexer;
 use marteldb::parser::grammar::ScriptParser;
+use marteldb::parser::prettyprinter::PrettyPrinter;
+use marteldb::parser::visitor::*;
 
 fn main() {
     let source = "SELECT tab.col, tab.col2, tab.col3 FROM tab1, tab2 WHERE this AND  NOT that;
@@ -10,7 +12,12 @@ fn main() {
     let parser = ScriptParser::new();
     let ast = parser.parse(lexer).unwrap();
 
-    println!("{:?}", ast);
+    for i in &ast {
+        let mut pp = PrettyPrinter::new();
+        pp.visit_stmt(i);
+        // println!("{}", 1);
+    }
+    // println!("{:#?}", ast);
 
 }
 

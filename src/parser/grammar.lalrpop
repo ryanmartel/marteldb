@@ -125,9 +125,16 @@ InsertStmt: ast::InsertStmt = {
         ast::InsertStmt {
             table: i,
             cols: c,
-            values: v
+            kind: ast::InsertStmtKind::Single(v)
         }
-    } 
+    },
+    "INSERT" "INTO" <i:"identifier"> <c: InsertCols?> <s: SelectStmt> => {
+        ast::InsertStmt {
+            table: i,
+            cols: c,
+            kind: ast::InsertStmtKind::Bulk(Box::new(s))
+        }
+    }
 }
 
 

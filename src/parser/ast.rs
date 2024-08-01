@@ -1,4 +1,3 @@
-
 #[derive(Clone, Debug, PartialEq)]
 pub struct Stmt {
     pub begin: usize,
@@ -18,7 +17,13 @@ pub enum StmtKind {
 pub struct InsertStmt {
     pub table: String,
     pub cols: Option<Vec<String>>,
-    pub values: Vec<LiteralValue>
+    pub kind: InsertStmtKind
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum InsertStmtKind {
+    Single(Vec<LiteralValue>),
+    Bulk(Box<SelectStmt>)
 }
 
 #[derive(Clone, Debug, PartialEq)]
