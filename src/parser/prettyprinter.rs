@@ -15,10 +15,21 @@ impl Visitor for PrettyPrinter {
         self.dedent();
     }
 
+    fn visit_create_table(&mut self, create_table: &ast::CreateTable) {
+        self.print_space();
+        println!("Create Table: ");
+        self.indent();
+        self.print_space();
+        println!("Table name - {}",create_table.table );
+        self.dedent();
+    }
+
     fn visit_select_stmt(&mut self, select_stmt: &ast::SelectStmt) {
         self.print_space();
         println!("Select Stmt:");
         self.indent();
+        self.print_space();
+        println!("distinct? - {}", select_stmt.distinct);
         walk_select_stmt(self, select_stmt);
         self.dedent();
     }
@@ -43,23 +54,114 @@ impl Visitor for PrettyPrinter {
     }
 
     fn visit_result_col(&mut self, result_col: &ast::ResultCol) {
+        self.print_space();
         println!("Result Col:");
+        self.indent();
+        match result_col.kind {
+            ast::ResultColKind::All(ref table) => {
+                match table {
+                    None => {
+                        self.print_space();
+                        println!("*");
+                    }
+                    Some(tab_str) => {
+                        self.print_space();
+                        println!("{}.*", tab_str);
+                    }
+                }
+            }
+            _ => {}
+        }
         walk_result_col(self, result_col);
+        self.dedent();
     }
 
     fn visit_from_table(&mut self, from_table: &ast::FromTable) {
+        self.print_space();
         println!("From Table:");
+        self.indent();
+        self.print_space();
+        match &from_table.kind {
+            ast::FromTableKind::Single(table) => {
+                println!("table - {}", table);
+            }
+        }
         walk_from_table(self, from_table);
+        self.dedent();
     }
 
     fn visit_where_clause(&mut self, where_clause: &ast::WhereClause) {
+        self.print_space();
         println!("Where clause:");
+        self.indent();
         walk_where_clause(self, where_clause);
+        self.dedent();
     }
 
     fn visit_literal_value(&mut self, literal_value: &ast::LiteralValue) {
+        self.print_space();
         println!("literal value:");
-        walk_literal_value(self, literal_value);
+        self.indent();
+        self.print_space();
+        match &literal_value.kind {
+            ast::LiteralValueKind::Null => {
+                println!("Null");
+            }
+            ast::LiteralValueKind::True => {
+                println!("true");
+            }
+            ast::LiteralValueKind::False => {
+                println!("false");
+            }
+            ast::LiteralValueKind::StringLit(str_lit) => {
+                println!("{}", str_lit);
+            }
+            ast::LiteralValueKind::Numeric(num) => {
+                println!("{}", num);
+            }
+        }
+        self.dedent();
+    }
+
+    fn visit_table_column(&mut self, table_column: &ast::TableColumn) {
+        self.print_space();
+        println!("Table Column: ");
+        self.indent();
+        self.print_space();
+        match &table_column.table {
+            None => {
+                println!("{}", table_column.column);
+            }
+            Some(table) => {
+                println!("{}.{}", table, table_column.column);
+            }
+        }
+        walk_table_column(self, table_column);
+        self.dedent();
+    }
+
+    fn visit_expr(&mut self, expr: &ast::Expr) {
+        self.print_space();
+        println!("Expr: ");
+        self.indent();
+        walk_expr(self, expr);
+        self.dedent();
+    }
+
+    fn visit_binop(&mut self, binop: &ast::BinOp) {
+        self.print_space();
+        println!("BinOp: ");
+        self.indent();
+        walk_binop(self, binop);
+        self.dedent();
+    }
+
+    fn visit_unop(&mut self, unop: &ast::UnOp) {
+        self.print_space();
+        println!("UnOp: ");
+        self.indent();
+        walk_unop(self, unop);
+        self.dedent();
     }
 }
 

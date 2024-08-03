@@ -7,10 +7,18 @@ pub struct Stmt {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum StmtKind {
+    // CREATE TABLE 
+    CreateTable(Box<CreateTable>),
     // SELECT statement
     Select(Box<SelectStmt>),
     // INSERT
     Insert(Box<InsertStmt>)
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct CreateTable {
+    pub table: String,
+
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -76,7 +84,7 @@ pub enum ExprKind {
     Literal(LiteralValue),
     Column(TableColumn),
     // Tri
-    Between(Box<Expr>, Box<Expr>, Box<Expr>),
+    // Between(Box<Expr>, Box<Expr>, Box<Expr>),
     // Binop
     Binop(BinOp, Box<Expr>, Box<Expr>),
     // Unop
@@ -97,12 +105,8 @@ pub struct LiteralValue {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum LiteralValueKind {
-    Numeric {
-        value: i32,
-    },
-    StringLit {
-        value: String,
-    },
+    Numeric(i32),
+    StringLit(String),
     Null,
     True,
     False,

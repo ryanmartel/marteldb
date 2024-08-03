@@ -87,6 +87,14 @@ pub Script: Vec<ast::Stmt> = {
 }
 
 Stmt: ast::Stmt = {
+    
+    <start:@L> <c: CreateTable> ";" <last:@R> => {
+        ast::Stmt {
+            begin : start,
+            end : last,
+            kind : ast::StmtKind::CreateTable(Box::new(c))
+        }
+    },
     <start:@L> <s: SelectStmt> ";" <last:@R> => {
         ast::Stmt {
             begin : start,
@@ -99,6 +107,14 @@ Stmt: ast::Stmt = {
             begin : start,
             end : last,
             kind : ast::StmtKind::Insert(Box::new(i))
+        }
+    }
+}
+
+CreateTable: ast::CreateTable = {
+    "CREATE" "TABLE" <i:"identifier"> "(" ")" => {
+        ast::CreateTable {
+            table: i
         }
     }
 }
@@ -248,13 +264,13 @@ LiteralValue: ast::LiteralValue = {
     #[precedence(level="1")]
     <num:"i32"> => {
         ast::LiteralValue {
-            kind : ast::LiteralValueKind::Numeric { value: num }
+            kind : ast::LiteralValueKind::Numeric(num)
         }
     },
     #[precedence(level="2")]
     <str_lit:"stringLit"> => {
         ast::LiteralValue {
-            kind : ast::LiteralValueKind::StringLit { value: str_lit }
+            kind : ast::LiteralValueKind::StringLit(str_lit)
         }
     }
     

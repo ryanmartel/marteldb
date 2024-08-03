@@ -1,0 +1,6 @@
+[book]
+authors = ["Ryan Martel"]
+language = "en"
+multilingual = false
+src = "src"
+title = "MartelDB"
