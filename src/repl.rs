@@ -18,6 +18,13 @@ pub fn respond(line: &str) -> Result<bool, String> {
     Ok(false)
 }
 
+#[derive(Debug)]
+enum CommandResponse {
+    Exit,
+    Pong,
+    Stmt(String)
+}
+
 #[derive(Parser, Debug)]
 #[command(multicall = true)]
 struct Cli {

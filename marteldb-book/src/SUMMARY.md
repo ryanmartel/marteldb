@@ -2,6 +2,8 @@
 
 [Introduction](./../../README.md)
 
+- [REPL](./repl/repl.md)
+    - [metacommands](./repl/metacommands.md)
 - [Query Pocessing](./query/query_processing.md)
     - [Parsing](./query/parsing.md)
     - [Semantic Analysis](./query/semantic_analysis.md)
