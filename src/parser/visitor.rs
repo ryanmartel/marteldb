@@ -7,7 +7,7 @@ pub trait Visitor: Sized {
         walk_stmt(self, stmt);
     }
 
-    fn visit_create_table(&mut self, create_table: &ast::CreateTable) {
+    fn visit_create_table(&mut self, _create_table: &ast::CreateTable) {
 
     }
 
@@ -48,6 +48,7 @@ pub fn walk_stmt<V: Visitor>(visitor: &mut V, stmt: &ast::Stmt) {
         ast::StmtKind::CreateTable(ref create_table) => {visitor.visit_create_table(create_table)}
         ast::StmtKind::Select(ref select_stmt) => {visitor.visit_select_stmt(select_stmt)}
         ast::StmtKind::Insert(ref insert_stmt) => {visitor.visit_insert_stmt(insert_stmt)}
+        ast::StmtKind::Error => {}
     }
 } 
 
@@ -84,7 +85,7 @@ pub fn walk_result_col<V: Visitor>(visitor: &mut V, result_col: &ast::ResultCol)
     }
 }
 
-pub fn walk_from_table<V: Visitor>(visitor: &mut V, from_table: &ast::FromTable) {
+pub fn walk_from_table<V: Visitor>(_visitor: &mut V, from_table: &ast::FromTable) {
     match from_table.kind {
         ast::FromTableKind::Single(_) => {}
     }
@@ -95,10 +96,10 @@ pub fn walk_where_clause<V: Visitor>(visitor: &mut V, where_clause: &ast::WhereC
 
 }
 
-pub fn walk_literal_value<V: Visitor>(visitor: &mut V, literal_value: &ast::LiteralValue) {
+pub fn walk_literal_value<V: Visitor>(_visitor: &mut V, _literal_value: &ast::LiteralValue) {
 }
 
-pub fn walk_table_column<V: Visitor>(visitor: &mut V, table_column: &ast::TableColumn) {
+pub fn walk_table_column<V: Visitor>(_visitor: &mut V, _table_column: &ast::TableColumn) {
 
 }
 
@@ -120,10 +121,10 @@ pub fn walk_expr<V: Visitor>(visitor: &mut V, expr: &ast::Expr) {
     }
 }
 
-pub fn walk_binop<V: Visitor>(visitor: &mut V, binop: &ast::BinOp) {
+pub fn walk_binop<V: Visitor>(_visitor: &mut V, _binop: &ast::BinOp) {
 
 }
 
-pub fn walk_unop<V: Visitor>(visitor: &mut V, unop: &ast::UnOp) {
+pub fn walk_unop<V: Visitor>(_visitor: &mut V, _unop: &ast::UnOp) {
 
 }

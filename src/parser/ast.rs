@@ -12,7 +12,8 @@ pub enum StmtKind {
     // SELECT statement
     Select(Box<SelectStmt>),
     // INSERT
-    Insert(Box<InsertStmt>)
+    Insert(Box<InsertStmt>),
+    Error
 }
 
 #[derive(Clone, Debug, PartialEq)]

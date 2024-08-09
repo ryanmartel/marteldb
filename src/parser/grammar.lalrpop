@@ -1,8 +1,8 @@
 use super::token::{Token, LexicalError};
 use super::ast;
-use std::str::FromStr;
+use lalrpop_util::ErrorRecovery;
 
-grammar;
+grammar<'err>(errors: &'err mut Vec<ErrorRecovery<usize, Token, LexicalError>>);
 
 extern {
     type Location = usize;
@@ -108,6 +108,13 @@ Stmt: ast::Stmt = {
             end : last,
             kind : ast::StmtKind::Insert(Box::new(i))
         }
+    },
+    ! => { errors.push(<>);
+        ast::Stmt {
+            begin : 0,
+            end : 0,
+            kind : ast::StmtKind::Error
+        }
     }
 }
 
@@ -127,7 +134,7 @@ SelectStmt: ast::SelectStmt = {
             from: t,
             filter: w
         },
-        Some(distinct) => ast::SelectStmt {
+        Some(_distinct) => ast::SelectStmt {
             distinct: true,
             results: r,
             from: t,
@@ -166,12 +173,12 @@ ResultColList = Comma<ResultCol>;
 
 ResultCol: ast::ResultCol = {
     "*" => ast::ResultCol { kind : ast::ResultColKind::All(None) },
-    <tableAll:"tableAll"> => {
-        let (table, _all) = tableAll.split_once('.').unwrap();
+    <table_all:"tableAll"> => {
+        let (table, _all) = table_all.split_once('.').unwrap();
         ast::ResultCol { kind : ast::ResultColKind::All(Some(table.to_string()))}
     },
-    <tableCol:"tableCol"> => {
-        let (table, col) = tableCol.split_once('.').unwrap(); 
+    <table_col:"tableCol"> => {
+        let (table, col) = table_col.split_once('.').unwrap(); 
         ast::ResultCol { 
             kind : ast::ResultColKind::TableColumn(
                 ast::TableColumn {
@@ -209,8 +216,8 @@ WhereClause: ast::WhereClause = {
 Expr: ast::Expr = {
     #[precedence(level="0")]
     <lit: LiteralValue> => ast::Expr { kind : ast::ExprKind::Literal(lit)},
-    <tableCol:"tableCol"> => {
-        let (table, col) = tableCol.split_once('.').unwrap();
+    <table_col:"tableCol"> => {
+        let (table, col) = table_col.split_once('.').unwrap();
         ast::Expr {
             kind : ast::ExprKind::Column(ast::TableColumn {
                 table: Some(table.to_string()),

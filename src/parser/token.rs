@@ -1,4 +1,4 @@
-use logos::{Lexer, Logos, Skip};
+use logos::Logos;
 use std::fmt;
 use std::num::ParseIntError;
 
@@ -12,6 +12,12 @@ pub enum LexicalError {
 impl From<ParseIntError> for LexicalError {
     fn from(err: ParseIntError) -> Self {
         LexicalError::InvalidInteger(err)
+    }
+}
+
+impl fmt::Display for LexicalError {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:?}", self)
     }
 }
 
