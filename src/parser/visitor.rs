@@ -48,7 +48,7 @@ pub fn walk_stmt<V: Visitor>(visitor: &mut V, stmt: &ast::Stmt) {
         ast::StmtKind::CreateTable(ref create_table) => {visitor.visit_create_table(create_table)}
         ast::StmtKind::Select(ref select_stmt) => {visitor.visit_select_stmt(select_stmt)}
         ast::StmtKind::Insert(ref insert_stmt) => {visitor.visit_insert_stmt(insert_stmt)}
-        ast::StmtKind::Error => {}
+        // ast::StmtKind::Error => {}
     }
 } 
 

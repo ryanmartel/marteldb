@@ -10,7 +10,7 @@ pub enum Error {
 
 impl Error {
 
-    fn report(&self) -> Diagnostic<()> {
+    pub fn report(&self) -> Diagnostic<()> {
         match self {
             Error::ParseError(stmt) => Diagnostic::error()
                 .with_code("E0001")
@@ -30,7 +30,7 @@ pub struct Item {
 
 impl Item {
 
-    fn new(range: Range<usize>, content: impl Into<String>) -> Self {
+    pub fn new(range: Range<usize>, content: impl Into<String>) -> Self {
         let content = content.into();
         Item { range, content }
     }

@@ -384,6 +384,7 @@ dependencies = [
  "lalrpop-util",
  "logos",
  "shlex",
+ "termcolor",
 ]
 
 [[package]]

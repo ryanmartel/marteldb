@@ -1,8 +1,9 @@
 use super::token::{Token, LexicalError};
 use super::ast;
-use lalrpop_util::ErrorRecovery;
+//use lalrpop_util::ErrorRecovery;
 
-grammar<'err>(errors: &'err mut Vec<ErrorRecovery<usize, Token, LexicalError>>);
+grammar;
+//grammar<'err>(errors: &'err mut Vec<ErrorRecovery<usize, Token, LexicalError>>);
 
 extern {
     type Location = usize;
@@ -109,13 +110,13 @@ Stmt: ast::Stmt = {
             kind : ast::StmtKind::Insert(Box::new(i))
         }
     },
-    ! => { errors.push(<>);
-        ast::Stmt {
-            begin : 0,
-            end : 0,
-            kind : ast::StmtKind::Error
-        }
-    }
+ //   ! => { errors.push(<>);
+   //     ast::Stmt {
+     //       begin : 0,
+       //     end : 0,
+         //   kind : ast::StmtKind::Error
+        //}
+   // }
 }
 
 CreateTable: ast::CreateTable = {
