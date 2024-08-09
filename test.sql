@@ -1,0 +1,2 @@
+SELECT * FROM tab1;
+SELECT col.* FROM TABLE;

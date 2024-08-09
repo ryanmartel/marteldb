@@ -11,6 +11,8 @@ use codespan_reporting::term::termcolor::{ColorChoice, StandardStream};
 
 use std::io::Write;
 use std::path::Path;
+use std::fs::OpenOptions;
+use std::io::Read;
 
 
 
@@ -33,7 +35,45 @@ fn main() -> Result<(), String> {
                     repl::Response::Quit => {
                         break;
                     }
-                    repl::Response::MetaCommand => {}
+                    repl::Response::MetaCommand(command) => {
+                        match command {
+                            repl::Commands::Source {filePath} => {
+                                let mut f = OpenOptions::new()
+                                    .read(true)
+                                    .open(Path::new(&filePath)).unwrap();
+                                let mut contents  = String::new();
+                                f.read_to_string(&mut contents).unwrap();
+                                println!("{contents}");
+                                let lexer = Lexer::new(&contents);
+                                let parser = ScriptParser::new();
+                                let mut errors = Vec::new();
+                                let ast_res = parser.parse(lexer);
+                                match ast_res {
+                                    Ok(ast) => {
+                                        for i in &ast {
+                                            let mut pp = PrettyPrinter::new();
+                                            pp.visit_stmt(i);
+                                        }
+                                    }
+                                    Err(err) => {
+                                        match err {
+                                            lalrpop_util::ParseError::UnrecognizedToken { token, expected } => {
+                                                errors.push(errors::Error::ParseError(errors::Item::new(token.0..token.2, token.1.to_string())));
+                                            }
+                                            _ => {}
+                                        }
+                                    }
+                                }
+                                let config = codespan_reporting::term::Config::default();
+                                let writer = StandardStream::stderr(ColorChoice::Always);
+                                let file = SimpleFile::new(filePath, &contents);
+                                for diagnostic in errors.iter().map(errors::Error::report) {
+                                    term::emit(&mut writer.lock(), &config, &file, &diagnostic).unwrap();
+                                }
+                            }
+                            _ => {}
+                        }
+                    }
                     repl::Response::Stmt => {
                         let lexer = Lexer::new(line);
                         let parser = ScriptParser::new();

@@ -21,15 +21,20 @@ pub fn respond(line: &str) -> Result<Response, String> {
                 Commands::Ping => {
                     writeln!(std::io::stdout(), "Pong").map_err(|e| e.to_string())?;
                     std::io::stdout().flush().map_err(|e| e.to_string())?;
+                    Ok(Response::MetaCommand(Commands::Ping))
                 }
                 Commands::Init { name } => {
                     writeln!(std::io::stdout(), "Initializing database {name}").map_err(|e| e.to_string())?;
                     std::io::stdout().flush().map_err(|e| e.to_string())?;
+                    Ok(Response::MetaCommand(Commands::Init{ name }))
                 }
                 Commands::Exit => {
                     write!(std::io::stdout(), "Exiting ...").map_err(|e| e.to_string())?;
                     std::io::stdout().flush().map_err(|e| e.to_string())?;
                     return Ok(Response::Quit);
+                }
+                Commands::Source { filePath } => {
+                    Ok(Response::MetaCommand(Commands::Source { filePath }))
                 }
             }
         },
@@ -49,13 +54,12 @@ pub fn respond(line: &str) -> Result<Response, String> {
             }
         }
     }
-    Ok(Response::MetaCommand)
 }
 
 #[derive(Debug)]
 pub enum Response {
     Quit,
-    MetaCommand,
+    MetaCommand(Commands),
     Stmt
 }
 
@@ -67,10 +71,13 @@ struct Cli {
 }
 
 #[derive(Debug, Subcommand)]
-enum Commands {
+pub enum Commands {
     Ping,
     Init {
         name: String,
     },
     Exit,
+    Source {
+        filePath: String,
+    },
 }
