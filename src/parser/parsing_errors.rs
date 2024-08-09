@@ -23,6 +23,7 @@ impl Error {
 }
 
 // Item in the source to be used in the Error enum
+#[allow(unused)]
 pub struct Item {
     range: Range<usize>,
     content: String,
