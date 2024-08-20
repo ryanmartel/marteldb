@@ -284,13 +284,13 @@ LiteralValue: ast::LiteralValue = {
     
 }
 
-Ident: ast::Ident = {
-    <i:"identifier"> => {
-        ast::Ident {
-            name : i
-        }
-    }
-}
+//Ident: ast::Ident = {
+//    <i:"identifier"> => {
+//        ast::Ident {
+//            name : i
+//        }
+//    }
+//}
 
 // Comma separated list of type T
 Comma<T>: Vec<T> = {

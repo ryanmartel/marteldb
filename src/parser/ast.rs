@@ -151,10 +151,10 @@ pub enum UnOpKind {
     Exists
 }
 
-#[derive(Clone, Debug, PartialEq)]
-pub struct Ident {
-    pub name: String,
-}
+// #[derive(Clone, Debug, PartialEq)]
+// pub struct Ident {
+//     pub name: String,
+// }
 
 
 
