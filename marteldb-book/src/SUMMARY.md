@@ -11,8 +11,8 @@
     - [Tuple format](./storage/tuple.md)
     - [Slotted Pages](./storage/slotted_pages.md)
     - [File Organization](./storage/file_organization.md)
-- [Notes](./notes/nodes.md)
-    - [CMU database](./notes/cmu_nodes.md)
+- [Notes](./notes/notes.md)
+    - [CMU database](./notes/cmu_notes.md)
 
 ---
 [References](./references.md)
