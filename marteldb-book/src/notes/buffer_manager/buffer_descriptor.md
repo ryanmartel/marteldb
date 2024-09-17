@@ -83,3 +83,12 @@ The buffer header lock must be held to examine or change tag, state, or wait_bac
 fields. In general, the buffer header lock is a spinlock which is combined with flags, refcount 
 and usagecount into a single atomic variable. This allows some single atomic operations such as 
 increaseing or decreasing refcount without acquiring and releasing the spinlock.
+
+The buf_id field does not change after initialization, so it does not require locking. 
+freeNext is protected by the buffer_strategy_lock not the Buffer Header Lock. 
+Most importantly, **the buffer header lock is NOT used to control access to the data 
+in the buffer!**
+
+There is an assumption that nobody changes the state field while the buffer header 
+lock is held. This allows the holder of the lock to do complex updates in a single 
+write while releasing the lock through the BM_LOCKED flag.

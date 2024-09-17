@@ -180,7 +180,11 @@ fn parse_with_errors(source_name: &str, contents: &str, visitor: &mut impl Visit
         Err(err) => {
             match err {
                 lalrpop_util::ParseError::UnrecognizedToken { token, .. } => {
-                    errors.push(Error::ParseError(Item::new(token.0..token.2, token.1.to_string())));
+                    errors.push(
+                        match token.1.to_string() {
+                            _ => Error::ParseError(Item::new(token.0..token.2, token.1.to_string()))
+                        }
+                    )
                 }
                 _ => {}
             }

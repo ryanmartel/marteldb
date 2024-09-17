@@ -5,7 +5,8 @@ use codespan_reporting::diagnostic::{Diagnostic, Label};
 // Define error types here
 pub enum Error {
     // Phase out, once specific errors are fleshed out
-    ParseError(Item)
+    ParseError(Item),
+    ReservedKeywordError(Item)
 }
 
 impl Error {
@@ -17,6 +18,12 @@ impl Error {
                 .with_message("General Parsing Error")
                 .with_labels(vec![
                     Label::primary((), stmt.range.clone()).with_message("Parsing Error")
+                ]),
+            Error::ReservedKeywordError(stmt) => Diagnostic::error()
+                .with_code("E0002")
+                .with_message(format!("Keyword '{}' Reserved", &stmt.content[stmt.range.clone()]))
+                .with_labels(vec![
+                    Label::primary((), stmt.range.clone()).with_message("Reserved Keyword")
                 ])
         }
     }
