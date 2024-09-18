@@ -1,11 +1,18 @@
 use super::visitor::*;
 use super::ast;
+use super::parsing_errors::*;
+use std::mem;
 
 pub struct PrettyPrinter {
-    spaces: u32
+    spaces: u32,
+    errors: Vec<Error>
 }
 
 impl Visitor for PrettyPrinter {
+
+    fn errors(&mut self) -> Vec<Error> {
+        return mem::take(&mut self.errors);
+    }
     
     fn visit_stmt(&mut self, stmt: &ast::Stmt) {
         self.print_space();
@@ -83,6 +90,9 @@ impl Visitor for PrettyPrinter {
         self.print_space();
         match &from_table.kind {
             ast::FromTableKind::Single(table) => {
+                if table.name.eq_ignore_ascii_case("tab1") {
+                    self.errors.push(Error::UnknownTable(Item::new(table.begin..table.end, table.name.clone())));
+                }
                 println!("table - {}", table);
             }
         }
@@ -169,6 +179,7 @@ impl PrettyPrinter {
     pub fn new() -> Self {
         Self {
             spaces: 0,
+            errors: Vec::new()
         }
     }
 
