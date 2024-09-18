@@ -1,7 +1,9 @@
 use super::ast;
+use super::parsing_errors::Error;
 
 pub trait Visitor: Sized {
 
+    fn errors(&mut self) -> Vec<Error>;
 
     fn visit_stmt(&mut self, stmt: &ast::Stmt) {
         walk_stmt(self, stmt);

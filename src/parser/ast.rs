@@ -1,3 +1,5 @@
+use std::fmt::{self, Display};
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct Stmt {
     pub begin: usize,
@@ -18,14 +20,14 @@ pub enum StmtKind {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct CreateTable {
-    pub table: String,
+    pub table: Ident,
 
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct InsertStmt {
-    pub table: String,
-    pub cols: Option<Vec<String>>,
+    pub table: Ident,
+    pub cols: Option<Vec<Ident>>,
     pub kind: InsertStmtKind
 }
 
@@ -54,7 +56,7 @@ pub struct ResultCol {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum ResultColKind {
-    All(Option<String>),
+    All(Option<Ident>),
     TableColumn(TableColumn)
 }
 
@@ -65,7 +67,7 @@ pub struct FromTable {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum FromTableKind {
-    Single(String),
+    Single(Ident),
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -95,8 +97,8 @@ pub enum ExprKind {
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct TableColumn {
-    pub table: Option<String>,
-    pub column: String,
+    pub table: Option<Ident>,
+    pub column: Ident,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -151,11 +153,18 @@ pub enum UnOpKind {
     Exists
 }
 
-// #[derive(Clone, Debug, PartialEq)]
-// pub struct Ident {
-//     pub name: String,
-// }
+#[derive(Clone, Debug, PartialEq)]
+pub struct Ident {
+    pub begin: usize,
+    pub end: usize,
+    pub name: String,
+}
 
+impl Display for Ident {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        write!(f, "{}", self.name)
+    }
+}
 
 
 

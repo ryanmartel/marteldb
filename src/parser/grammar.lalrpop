@@ -120,7 +120,7 @@ Stmt: ast::Stmt = {
 }
 
 CreateTable: ast::CreateTable = {
-    "CREATE" "TABLE" <i:"identifier"> "(" ")" => {
+    "CREATE" "TABLE" <i: Ident> "(" ")" => {
         ast::CreateTable {
             table: i
         }
@@ -145,14 +145,14 @@ SelectStmt: ast::SelectStmt = {
 }
 
 InsertStmt: ast::InsertStmt = {
-    "INSERT" "INTO" <i:"identifier"> <c: InsertCols?> "VALUES" <v: Values> => {
+    "INSERT" "INTO" <i: Ident> <c: InsertCols?> "VALUES" <v: Values> => {
         ast::InsertStmt {
             table: i,
             cols: c,
             kind: ast::InsertStmtKind::Single(v)
         }
     },
-    "INSERT" "INTO" <i:"identifier"> <c: InsertCols?> <s: SelectStmt> => {
+    "INSERT" "INTO" <i: Ident> <c: InsertCols?> <s: SelectStmt> => {
         ast::InsertStmt {
             table: i,
             cols: c,
@@ -168,28 +168,44 @@ ValueList = Comma<LiteralValue>;
 
 InsertCols = { "(" <IdenList> ")"};
 
-IdenList = Comma<"identifier">;
+IdenList = Comma<Ident>;
 
 ResultColList = Comma<ResultCol>;
 
 ResultCol: ast::ResultCol = {
     "*" => ast::ResultCol { kind : ast::ResultColKind::All(None) },
-    <table_all:"tableAll"> => {
+    <start:@L> <table_all:"tableAll"> <last:@R> => {
+        let split_index = table_all.find('.').unwrap();
         let (table, _all) = table_all.split_once('.').unwrap();
-        ast::ResultCol { kind : ast::ResultColKind::All(Some(table.to_string()))}
+        ast::ResultCol { kind : ast::ResultColKind::All(Some(
+            ast::Ident {
+                begin : start,
+                end : split_index,
+                name : table.to_string()
+            }
+        ))}
     },
-    <table_col:"tableCol"> => {
+    <start:@L> <table_col:"tableCol"> <last:@R> => {
+        let split_index = table_col.find('.').unwrap();
         let (table, col) = table_col.split_once('.').unwrap(); 
         ast::ResultCol { 
             kind : ast::ResultColKind::TableColumn(
                 ast::TableColumn {
-                    table: Some(table.to_string()),
-                    column: col.to_string()
+                    table: Some(ast::Ident {
+                        begin: start,
+                        end: split_index,
+                        name: table.to_string()
+                    }),
+                    column: ast::Ident {
+                        begin: split_index+1,
+                        end: last,
+                        name: col.to_string()
+                    }
                 }
             )
         }
     },
-    <i:"identifier"> => ast::ResultCol { 
+    <i: Ident> => ast::ResultCol { 
         kind : ast::ResultColKind::TableColumn(
             ast::TableColumn {
                 table: None, 
@@ -202,7 +218,7 @@ ResultCol: ast::ResultCol = {
 TableList = Comma<FromTable>;
 
 FromTable: ast::FromTable = {
-    <i:"identifier"> => ast::FromTable { kind : ast::FromTableKind::Single(i)},
+    <i: Ident> => ast::FromTable { kind : ast::FromTableKind::Single(i)},
     // TODO: JOIN
 }
 
@@ -217,16 +233,27 @@ WhereClause: ast::WhereClause = {
 Expr: ast::Expr = {
     #[precedence(level="0")]
     <lit: LiteralValue> => ast::Expr { kind : ast::ExprKind::Literal(lit)},
-    <table_col:"tableCol"> => {
+    <start:@L> <table_col:"tableCol"> <last:@R> => {
+        let split_index = table_col.find('.').unwrap();
         let (table, col) = table_col.split_once('.').unwrap();
         ast::Expr {
-            kind : ast::ExprKind::Column(ast::TableColumn {
-                table: Some(table.to_string()),
-                column: col.to_string()
-            })
+            kind : ast::ExprKind::Column(
+                ast::TableColumn {
+                    table: Some(ast::Ident {
+                        begin: start,
+                        end: split_index,
+                        name: table.to_string()
+                    }),
+                    column: ast::Ident {
+                        begin: split_index+1,
+                        end: last,
+                        name: col.to_string()
+                    }
+                }
+            )
         }
     },
-    <i:"identifier"> => ast::Expr { kind : ast::ExprKind::Column(ast::TableColumn {
+    <i: Ident> => ast::Expr { kind : ast::ExprKind::Column(ast::TableColumn {
         table: None,
         column: i
         })
@@ -284,13 +311,15 @@ LiteralValue: ast::LiteralValue = {
     
 }
 
-//Ident: ast::Ident = {
-//    <i:"identifier"> => {
-//        ast::Ident {
-//            name : i
-//        }
-//    }
-//}
+Ident: ast::Ident = {
+    <start:@L> <i:"identifier"> <last:@R> => {
+        ast::Ident {
+            begin : start,
+            end : last,
+            name : i
+        }
+    }
+}
 
 // Comma separated list of type T
 Comma<T>: Vec<T> = {
