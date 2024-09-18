@@ -18,6 +18,7 @@
         - [Buffer Table](./notes/buffer_manager/buffer_table.md)
         - [Buffer Descriptor](./notes/buffer_manager/buffer_descriptor.md)
     - [Write Ahead Logging WAL](./notes/wal.md)
+    - [Concurrency Control](./notes/concurrency.md)
 - [CMU database](./notes/cmu_notes.md)
 
 ---
