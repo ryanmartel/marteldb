@@ -1,6 +1,7 @@
 # Concurrency Control
 
 ## Table-level locks
+see [postgres explicit locking](https://www.postgresql.org/docs/current/explicit-locking.html) for postgres table level locks
 This is the list of commonly used table-level locks in Postgres. Transactions to not ever 
 conflict with themselves when locking. Non-conflicting locks may be held by multiple 
 transactions  
