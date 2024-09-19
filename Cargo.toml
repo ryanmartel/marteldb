@@ -31,7 +31,7 @@ members = [
 [workspace.dependencies]
 # Local Crates
 parser = { path = "./crates/parser", version = "0.0.0" }
-parser-ast = { path = "./crates/parser-ast", version = "0.0.0" }
+lexer = { path = "./crates/lexer", version = "0.0.0" }
 
 clap = { version = "4.5.13", features = ["derive"] }
 codespan-reporting = "0.11.1"

@@ -9,10 +9,11 @@ path = "src/bin/main.rs"
 
 [dependencies]
 parser.workspace = true
-parser-ast.workspace = true
+lexer.workspace = true
 
 clap = { workspace = true, features = ["derive"] }
 codespan-reporting = { workspace = true }
 shlex = { workspace = true }
 termcolor = { workspace = true }
+lalrpop-util.workspace = true
 

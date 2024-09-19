@@ -160,8 +160,9 @@ version = "0.0.0"
 dependencies = [
  "clap",
  "codespan-reporting",
+ "lalrpop-util",
+ "lexer",
  "parser",
- "parser-ast",
  "shlex",
  "termcolor",
 ]
@@ -328,6 +329,13 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "e2abad23fbc42b3700f2f279844dc832adb2b2eb069b2df918f455c4e18cc646"
 
 [[package]]
+name = "lexer"
+version = "0.0.0"
+dependencies = [
+ "logos",
+]
+
+[[package]]
 name = "libc"
 version = "0.2.154"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -437,17 +445,10 @@ dependencies = [
 name = "parser"
 version = "0.0.0"
 dependencies = [
+ "anyhow",
  "lalrpop",
  "lalrpop-util",
- "logos",
- "parser-ast",
-]
-
-[[package]]
-name = "parser-ast"
-version = "0.0.0"
-dependencies = [
- "anyhow",
+ "lexer",
 ]
 
 [[package]]

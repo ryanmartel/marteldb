@@ -1,15 +1,16 @@
 use clap::error::ErrorKind;
 use clap::{Parser, Subcommand};
 
-use parser::lexer::Lexer;
+use lexer::lexer::Lexer;
 use parser::grammar::ScriptParser;
 use parser::prettyprinter::PrettyPrinter;
 use parser::parsing_errors::{Item, Error};
-use parser_ast::visitor::*;
+use parser::visitor::*;
 
 use codespan_reporting::files::SimpleFile;
 use codespan_reporting::term;
 use codespan_reporting::term::termcolor::{ColorChoice, StandardStream};
+use lalrpop_util;
 
 use std::io::Write;
 use std::path::Path;
