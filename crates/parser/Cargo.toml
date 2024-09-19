@@ -1,0 +1,12 @@
+[package]
+name = "parser"
+version = "0.0.0"
+edition = "2021"
+
+[dependencies]
+parser-ast.workspace = true
+lalrpop-util = { workspace = true , features = ["lexer", "unicode"] } 
+logos = { workspace = true }
+
+[build-dependencies]
+lalrpop.workspace = true

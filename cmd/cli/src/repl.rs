@@ -1,11 +1,11 @@
 use clap::error::ErrorKind;
 use clap::{Parser, Subcommand};
 
-use super::parser::lexer::Lexer;
-use super::parser::grammar::ScriptParser;
-use super::parser::prettyprinter::PrettyPrinter;
-use super::parser::parsing_errors::{Item, Error};
-use super::parser::visitor::*;
+use parser::lexer::Lexer;
+use parser::grammar::ScriptParser;
+use parser::prettyprinter::PrettyPrinter;
+use parser::parsing_errors::{Item, Error};
+use parser_ast::visitor::*;
 
 use codespan_reporting::files::SimpleFile;
 use codespan_reporting::term;

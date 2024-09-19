@@ -1,0 +1,18 @@
+[package]
+name = "cli"
+version = "0.0.0"
+edition = "2021"
+
+[[bin]]
+name = "cli"
+path = "src/bin/main.rs"
+
+[dependencies]
+parser.workspace = true
+parser-ast.workspace = true
+
+clap = { workspace = true, features = ["derive"] }
+codespan-reporting = { workspace = true }
+shlex = { workspace = true }
+termcolor = { workspace = true }
+

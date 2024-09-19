@@ -1,6 +1,4 @@
-use marteldb::repl::Repl;
-use marteldb::storage::page;
-
+use marteldb::repl;
 
 fn main() -> Result<(), String> {
     let r = Repl::new();

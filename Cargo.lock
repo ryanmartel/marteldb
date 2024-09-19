@@ -61,6 +61,12 @@ dependencies = [
 ]
 
 [[package]]
+name = "anyhow"
+version = "1.0.89"
+source = "registry+https://github.com/rust-lang/crates.io-index"
+checksum = "86fdf8605db99b54d3cd748a44c6d04df638eb5dafb219b135d0149bd0db01f6"
+
+[[package]]
 name = "ascii-canvas"
 version = "3.0.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -147,6 +153,18 @@ name = "clap_lex"
 version = "0.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "1462739cb27611015575c0c11df5df7601141071f07518d56fcc1be504cbec97"
+
+[[package]]
+name = "cli"
+version = "0.0.0"
+dependencies = [
+ "clap",
+ "codespan-reporting",
+ "parser",
+ "parser-ast",
+ "shlex",
+ "termcolor",
+]
 
 [[package]]
 name = "codespan-reporting"
@@ -375,19 +393,6 @@ dependencies = [
 ]
 
 [[package]]
-name = "marteldb"
-version = "0.1.0"
-dependencies = [
- "clap",
- "codespan-reporting",
- "lalrpop",
- "lalrpop-util",
- "logos",
- "shlex",
- "termcolor",
-]
-
-[[package]]
 name = "memchr"
 version = "2.7.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -426,6 +431,23 @@ dependencies = [
  "redox_syscall",
  "smallvec",
  "windows-targets",
+]
+
+[[package]]
+name = "parser"
+version = "0.0.0"
+dependencies = [
+ "lalrpop",
+ "lalrpop-util",
+ "logos",
+ "parser-ast",
+]
+
+[[package]]
+name = "parser-ast"
+version = "0.0.0"
+dependencies = [
+ "anyhow",
 ]
 
 [[package]]
@@ -546,6 +568,10 @@ name = "scopeguard"
 version = "1.2.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "94143f37725109f92c262ed2cf5e59bce7498c01bcc1502d7b9afe439a4e9f49"
+
+[[package]]
+name = "server"
+version = "0.0.0"
 
 [[package]]
 name = "shlex"
