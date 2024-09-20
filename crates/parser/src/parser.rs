@@ -5,14 +5,12 @@ use lexer::{lexer::Lexer, token::{LexicalError, Token}};
 
 pub struct ScriptParser {
     statements: Vec<ast::Stmt>,
-    errors: Vec<ParseError>
 }
 
 impl ScriptParser {
     pub fn new() -> Self {
         ScriptParser {
             statements: Vec::new(),
-            errors: Vec::new()
         }
     }
     
@@ -23,7 +21,7 @@ impl ScriptParser {
         let mut lexer = lexer.peekable();
         while let Some(spanned_token) = lexer.next() {
             match spanned_token {
-                Ok((begin, token, end)) => {
+                Ok((left, token, right)) => {
                     match token {
                         Token::Select => {
                             let select_stmt = Box::new(parse_select_stmt(&mut lexer)?);
@@ -31,15 +29,15 @@ impl ScriptParser {
                             let mut e = 0;
                             if let Some(st) = lexer.next() {
                                 match st {
-                                    Ok((begin, Token::Semicolon, end)) => {
-                                        e = end
+                                    Ok((_left, Token::Semicolon, right)) => {
+                                        e = right
                                     }
-                                    _ => return Err(ParseError::UnrecognizedToken { token: (begin, token, end) })
+                                    _ => return Err(ParseError::UnrecognizedToken { token: (left, token, right) })
                                 }
                             }
                             self.statements.push(
                                 ast::Stmt {
-                                    begin: begin,
+                                    begin: left,
                                     kind: ast::StmtKind::Select(select_stmt),
                                     end: e
                                 }
@@ -50,7 +48,7 @@ impl ScriptParser {
                         Token::Insert => {println!("INSERT")}
                         Token::Create => {println!("CREATE")}
                         _ => return Err(ParseError::UnrecognizedToken{
-                            token: (begin, token, end)
+                            token: (left, token, right)
                         })
 
                     }
@@ -68,7 +66,7 @@ fn parse_select_stmt(lexer: &mut Peekable<Lexer>) -> Result<ast::SelectStmt, Par
     // Distinct?
     if let Some(spanned_token) = lexer.peek() {
         match spanned_token {
-            Ok((_begin, token, _end)) => {
+            Ok((_left, token, _right)) => {
                 match token {
                     Token::Distinct => {
                         distinct = true;
@@ -99,7 +97,7 @@ fn parse_result_col_list(lexer: &mut Peekable<Lexer>) -> Result<Vec<ast::ResultC
     let mut empty = true;
     while let Some(spanned_token) = lexer.next() {
         match spanned_token {
-            Ok((begin, token, end)) => {
+            Ok((left, token, right)) => {
                 match token {
                     Token::Asterisk if !awaits_comma => {
                         result_cols.push(ast::ResultCol{
@@ -114,8 +112,8 @@ fn parse_result_col_list(lexer: &mut Peekable<Lexer>) -> Result<Vec<ast::ResultC
                         result_cols.push(ast::ResultCol {
                             kind: ast::ResultColKind::All(Some(
                                           ast::Ident {
-                                              begin : begin,
-                                              end : split_index + begin,
+                                              begin : left,
+                                              end : split_index + left,
                                               name : table.to_string()
                                           }
                                   ))
@@ -130,13 +128,13 @@ fn parse_result_col_list(lexer: &mut Peekable<Lexer>) -> Result<Vec<ast::ResultC
                             kind: ast::ResultColKind::TableColumn(
                                       ast::TableColumn {
                                           table: Some(ast::Ident {
-                                              begin: begin,
-                                              end: begin + split_index,
+                                              begin: left,
+                                              end: left + split_index,
                                               name: table.to_string()
                                           }),
                                           column: ast::Ident {
                                               begin: split_index+1,
-                                              end: end,
+                                              end: right,
                                               name: col.to_string()
                                           }
                                       }
@@ -151,8 +149,8 @@ fn parse_result_col_list(lexer: &mut Peekable<Lexer>) -> Result<Vec<ast::ResultC
                                       ast::TableColumn {
                                           table: None,
                                           column: ast::Ident {
-                                              begin: begin,
-                                              end: end,
+                                              begin: left,
+                                              end: right,
                                               name: iden.to_string()
                                           }
                                       }
@@ -164,7 +162,7 @@ fn parse_result_col_list(lexer: &mut Peekable<Lexer>) -> Result<Vec<ast::ResultC
                     Token::Comma if awaits_comma => awaits_col = true,
                     _ => {
                         if empty {
-                            return Err(ParseError::UnrecognizedToken{token: (begin, token, end)})
+                            return Err(ParseError::UnrecognizedToken{token: (left, token, right)})
                         }
                         return Ok(result_cols);
                     }
