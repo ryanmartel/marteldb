@@ -2,9 +2,8 @@ use clap::error::ErrorKind;
 use clap::{Parser, Subcommand};
 
 use lexer::lexer::Lexer;
-use parser::grammar::ScriptParser;
-use parser::prettyprinter::PrettyPrinter;
-use parser::parsing_errors::{Item, Error};
+use parser::parser::{ParseError, ScriptParser};
+// use parser::prettyprinter::PrettyPrinter;
 use parser::visitor::*;
 
 use codespan_reporting::files::SimpleFile;
@@ -124,7 +123,8 @@ impl Response {
                 std::io::stdout().flush().map_err(|e| e.to_string())?;
             }
             Self::Stmt(line) => {
-                parse_with_errors("STDIN",line, &mut PrettyPrinter::new());
+                // parse_with_errors("STDIN",line, &mut PrettyPrinter::new());
+                parse_with_errors("STDIN", line);
             }
             Self::MetaCommand(command) => {
                 match command {
@@ -134,7 +134,7 @@ impl Response {
                             .open(Path::new(&file_path)).unwrap();
                         let mut contents  = String::new();
                         f.read_to_string(&mut contents).unwrap();
-                        parse_with_errors(&file_path, &contents, &mut PrettyPrinter::new());
+                        // parse_with_errors(&file_path, &contents, &mut PrettyPrinter::new());
                     }
                     Commands::Init => {
                         writeln!(std::io::stdout(), "Initializing data directory").map_err(|e| e.to_string())?;
@@ -167,34 +167,36 @@ enum Commands {
     },
 }
 
-fn parse_with_errors(source_name: &str, contents: &str, visitor: &mut impl Visitor) {
+// fn parse_with_errors(source_name: &str, contents: &str, visitor: &mut impl Visitor) {
+fn parse_with_errors(source_name: &str, contents: &str) {
     let lexer = Lexer::new(contents);
     let parser = ScriptParser::new();
-    let mut errors = Vec::new();
+    // let mut errors = Vec::new();
     let ast_res = parser.parse(lexer);
     match ast_res {
         Ok(ast) => {
-            for i in &ast {
-                visitor.visit_stmt(i);
-            }
+            // for i in &ast {
+            //     visitor.visit_stmt(i);
+            // }
         }
         Err(err) => {
-            match err {
-                lalrpop_util::ParseError::UnrecognizedToken { token, .. } => {
-                    let e = Error::ParseError(Item::new(token.0..token.2, token.1.to_string()));
-                    errors.push(e);
-                }
-                _ => {}
-            }
+            println!("{}",err);
         }
-    }
-    for e in visitor.errors() {
-        errors.push(e);
-    }
-    let config = codespan_reporting::term::Config::default();
-    let writer = StandardStream::stderr(ColorChoice::Always);
-    let file = SimpleFile::new(source_name, contents);
-    for diagnostic in errors.iter().map(Error::report) {
-        term::emit(&mut writer.lock(), &config, &file, &diagnostic).unwrap();
+            // match err {
+            //     lalrpop_util::ParseError::UnrecognizedToken { token, .. } => {
+            //         let e = Error::ParseError(Item::new(token.0..token.2, token.1.to_string()));
+            //         errors.push(e);
+            //     }
+            //     _ => {}
+            // }
     }
 }
+    // for e in visitor.errors() {
+    //     errors.push(e);
+    // }
+    // let config = codespan_reporting::term::Config::default();
+    // let writer = StandardStream::stderr(ColorChoice::Always);
+    // let file = SimpleFile::new(source_name, contents);
+    // for diagnostic in errors.iter().map(Error::report) {
+    //     term::emit(&mut writer.lock(), &config, &file, &diagnostic).unwrap();
+    // }

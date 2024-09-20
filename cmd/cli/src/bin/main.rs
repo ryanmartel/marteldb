@@ -1,4 +1,4 @@
-use marteldb::repl;
+use cli::repl::Repl;
 
 fn main() -> Result<(), String> {
     let r = Repl::new();

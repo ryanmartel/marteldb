@@ -41,8 +41,8 @@ pub enum InsertStmtKind {
 pub struct SelectStmt {
     pub distinct: bool,
     pub results: Vec<ResultCol>,
-    pub from: Vec<FromTable>,
-    pub filter: Option<WhereClause>,
+    // pub from: Vec<FromTable>,
+    // pub filter: Option<WhereClause>,
     // pub group_by: Option<GroupByClause>,
     // pub except: Option<Box<SelectStmt>>,
     // pub order_by: Option<OrderByClause>,

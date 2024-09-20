@@ -1,4 +1,5 @@
 use logos::Logos;
+use std::error::Error;
 use std::fmt;
 use std::num::ParseIntError;
 
@@ -20,6 +21,8 @@ impl fmt::Display for LexicalError {
         write!(f, "{:?}", self)
     }
 }
+
+impl Error for LexicalError {}
 
 #[derive(Logos, Clone, Debug, PartialEq)]
 #[logos(skip r"[ \t\n\f]+", skip r"--.*\n?", error = LexicalError)]

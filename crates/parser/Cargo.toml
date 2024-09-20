@@ -5,9 +5,9 @@ edition = "2021"
 
 [dependencies]
 lexer.workspace = true
-lalrpop-util = { workspace = true , features = ["lexer", "unicode"] } 
+# lalrpop-util = { workspace = true , features = ["lexer", "unicode"] } 
 anyhow.workspace = true
 
 
 [build-dependencies]
-lalrpop.workspace = true
+# lalrpop.workspace = true

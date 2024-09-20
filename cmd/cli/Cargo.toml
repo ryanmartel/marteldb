@@ -7,6 +7,9 @@ edition = "2021"
 name = "cli"
 path = "src/bin/main.rs"
 
+[lib]
+path = "src/lib.rs"
+
 [dependencies]
 parser.workspace = true
 lexer.workspace = true
