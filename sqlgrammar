@@ -1,5 +1,7 @@
 -- STATEMENTS --
 
+<sql-stmt-list> [<stmt> ;]*
+
 <stmt> :=       <alter-table-stmt>
             |   <begin-stmt>
             |   <commit-stmt>
@@ -103,13 +105,57 @@
         | UPDATE SET [column-name | <column-name-list>] = <expr>]+
     [WHERE <expr>]?
 
-<result-column>
-<join-clause>
-<table-or-subquery>
-<ordering-term>
-<compound-operator>
-<type-name>
-<column-constraint>
-<foreign-key-clause>
-<conflict-clause>
-<expr>
+<result-column> := [* | table-name.* | <expr> [AS column-alias]?]
+
+<join-clause> := <table-or-subquery> [<join-operator> <table-or-subquery> <join-constraint>]*
+
+<table-or-subquery> := 
+    [
+          table-name [AS table-alias]? [ [INDEXED BY index-name | NOT INDEXED ] ]?
+        | (<select-stmt>) [AS table-alias]?
+        | ([<join-clause> | table-or-subquery [, table-or-subquery]* ])
+    ]
+
+<ordering-term> := <expr> [COLLATE collation-name]? [ASC|DESC]? [NULLS [FIRST|LAST]]?
+
+<compound-operator> [UNION | UNION ALL | INTERSECT | EXCEPT]
+
+<type-name> := name [(<signed-number>) | (<signed-number>, <signed-number>)]?
+<column-constraint> := 
+      PRIMARY KEY [ASC|DESC]? <conflict-cause>
+    | NOT NULL <conflict-cause>
+    | UNIQUE <conflict-cause>
+    | CHECK (<expr>)
+    | DEFAULT [(<expr>) | <literal-value> | signed-number>]
+    | COLLATE collation-name
+    | <foreign-key-clause>
+
+<foreign-key-clause> := 
+    REFERENCES foreign-table [(column-name [, column-name]?)]? 
+    [ON [DELETE | UPDATE] [SET NULL | SET DEFAULT | CASCADE | RESTRICT | NO ACTION]]?
+
+<conflict-clause> := [ON CONFLICT [ROLLBACK | ABORT | FAIL | IGNORE | REPLACE]]?
+
+<join-operator> [ , | CROSS JOIN 
+      | [NATURAL]? [INNER | [ [LEFT | RIGHT | FULL] [OUTER]? ] ]? JOIN
+    ]
+
+<join-constraint> [ON <expr> | USING (column-name [, column-name]*)]?
+
+<expr> := 
+      <literal-value>
+    | [table-name.]?column-name
+    | unary-operator <expr>
+    | <expr> binary-operator <expr>
+    | (<expr> [, <expr>]*)
+    | <expr> COLLATE collation-name
+    | <expr> [NOT]? [LIKE|MATCH] <expr>
+    | <expr> [IS NULL | NOT NULL]
+    | <expr> IS [NOT]? [DISTINCT FROM]? <expr>
+    | <expr> [NOT]? BETWEEN <expr> AND <expr>
+    | <expr> [NOT]? IN [([<select-stmt> | <expr> [, <expr>]*]?) | table-name]
+    | [[NOT]? EXISTS]? (<select-stmt>)
+
+<literal-value> := numberic-literal | string-literal | NULL | TRUE | FALSE
+
+<signed-number> := [+ | -]?numeric-literal
