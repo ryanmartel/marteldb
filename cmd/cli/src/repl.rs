@@ -1,7 +1,7 @@
 use clap::error::ErrorKind;
 use clap::{Parser, Subcommand};
 
-use lexer::lexer::Lexer;
+// use lexer::lexer::Lexer;
 use parser::parser::{ParseError, ScriptParser};
 // use parser::prettyprinter::PrettyPrinter;
 use parser::visitor::*;
@@ -169,10 +169,10 @@ enum Commands {
 
 // fn parse_with_errors(source_name: &str, contents: &str, visitor: &mut impl Visitor) {
 fn parse_with_errors(source_name: &str, contents: &str) {
-    let lexer = Lexer::new(contents);
-    let parser = ScriptParser::new();
+    // let lexer = Lexer::new(contents);
+    let parser = ScriptParser::new(contents);
     // let mut errors = Vec::new();
-    let ast_res = parser.parse(lexer);
+    let ast_res = parser.parse();
     match ast_res {
         Ok(ast) => {
             // for i in &ast {

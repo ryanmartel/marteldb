@@ -1,15 +1,20 @@
 use std::{error::Error, fmt::Display, iter::Peekable};
 
-use super::ast;
-use lexer::{lexer::Lexer, token::{LexicalError, Token}};
+use logos::{Lexer, Logos, Span};
 
-pub struct ScriptParser {
+
+use super::ast;
+use lexer::token::{LexicalError, Token};
+
+pub struct ScriptParser<'input> {
+    lexer: Lexer<'input, Token>,
     statements: Vec<ast::Stmt>,
 }
 
-impl ScriptParser {
-    pub fn new() -> Self {
+impl<'input> ScriptParser<'input> {
+    pub fn new(input: &'input str) -> Self {
         ScriptParser {
+            lexer: Token::lexer(input),
             statements: Vec::new(),
         }
     }
@@ -17,43 +22,52 @@ impl ScriptParser {
     // <Stmt> :=  SELECT <SelectStmt> ;
     //          | INSERT <InsertStmt> ;
     //          | CREATE <CreateStmt> ;
-    pub fn parse(mut self, lexer: Lexer) -> Result<Vec<ast::Stmt>, ParseError> {
-        let mut lexer = lexer.peekable();
-        while let Some(spanned_token) = lexer.next() {
-            match spanned_token {
-                Ok((left, token, right)) => {
-                    match token {
-                        Token::Select => {
-                            let select_stmt = Box::new(parse_select_stmt(&mut lexer)?);
-                            // consume ; token
-                            let mut e = 0;
-                            if let Some(st) = lexer.next() {
-                                match st {
-                                    Ok((_left, Token::Semicolon, right)) => {
-                                        e = right
-                                    }
-                                    _ => return Err(ParseError::UnrecognizedToken { token: (left, token, right) })
-                                }
+    pub fn parse(mut self) -> Result<Vec<ast::Stmt>, ParseError> {
+        // let mut lexer = self.lexer.peekable();
+        while let Some(token) = self.lexer.next() {
+            let span = self.lexer.span();
+            match token {
+                Ok(Token::Select) => {
+                    // Check for Distinct
+                    let select_stmt = if let Some(token) = self.lexer.next() {
+                        match token {
+                            Ok(Token::Distinct) => {
+                                Box::new(parse_select_stmt(None, &mut self.lexer));
                             }
-                            self.statements.push(
-                                ast::Stmt {
-                                    begin: left,
-                                    kind: ast::StmtKind::Select(select_stmt),
-                                    end: e
-                                }
-                            )
-                            // println!("SELECT");
-                            // parse_select_stmt(&mut lexer);
+                            Err(err) => {
+                                return Err(ParseError::LexingError(err));
+                            }
+                            _ => {
+                                Box::new(parse_select_stmt(Some(token), &mut self.lexer));
+                            }
                         }
-                        Token::Insert => {println!("INSERT")}
-                        Token::Create => {println!("CREATE")}
-                        _ => return Err(ParseError::UnrecognizedToken{
-                            token: (left, token, right)
-                        })
-
                     }
+                    // let select_stmt = Box::new(parse_select_stmt(&mut self.lexer)?);
+                    // consume ; token
+                    let mut e = 0;
+                    if let Some(end_token) = self.lexer.next() {
+                        let end_span = self.lexer.span();
+                        match end_token {
+                            Ok(Token::Semicolon) => {
+                                e = end_span.end;
+                            }
+                            _ => return Err(ParseError::UnrecognizedToken { token: (span.start, token.unwrap(), span.end) })
+                        }
+                    }
+                    self.statements.push(
+                        ast::Stmt {
+                            begin: span.start,
+                            kind: ast::StmtKind::Select(select_stmt),
+                            end: e
+                    }
+                    )
                 }
-                _ => {}
+                Ok(Token::Insert) => {println!("INSERT")}
+                Ok(Token::Create) => {println!("CREATE")}
+                _ => return Err(ParseError::UnrecognizedToken{
+                    token: (span.start, token.unwrap(), span.end)
+                })
+
             }
         }
         Ok(self.statements)
@@ -61,41 +75,35 @@ impl ScriptParser {
 }
 
 // <SelectStmt> :=  (DISTINCT)? <ResultColList> FROM <TableList> (<WhereClause>)?
-fn parse_select_stmt(lexer: &mut Peekable<Lexer>) -> Result<ast::SelectStmt, ParseError> {
+fn parse_select_stmt(current_token: Option<Result<Token, LexicalError>>, lexer: &mut Lexer<Token>) -> Result<ast::SelectStmt, ParseError> {
     let mut distinct = false;
     // Distinct?
-    if let Some(spanned_token) = lexer.peek() {
-        match spanned_token {
-            Ok((_left, token, _right)) => {
-                match token {
-                    Token::Distinct => {
-                        distinct = true;
-                        lexer.next();
-                    }
-                    _ => {}
-                }
-            }
-            _ => {}
-        }
+    if current_token.is_none() {
+        distinct = true;
     }
-    let result_cols = parse_result_col_list(lexer)?;
+    let result_cols = parse_result_col_list(current_token, lexer)?;
     Ok(ast::SelectStmt {
-        distinct: distinct,
+        distinct,
         results: result_cols
     })
 }
-
-// <ResultColList> := <ResultCol> (, ResultCol)?*
-// <ResultCol> :=  *
-//               | tableAll   -- table.*
-//               | tableCol   -- table.col
-//               | ident      -- col
-fn parse_result_col_list(lexer: &mut Peekable<Lexer>) -> Result<Vec<ast::ResultCol>, ParseError> {
+//
+// // <ResultColList> := <ResultCol> (, ResultCol)?*
+// // <ResultCol> :=  *
+// //               | tableAll   -- table.*
+// //               | tableCol   -- table.col
+// //               | ident      -- col
+fn parse_result_col_list(current_token: Option<Result<Token, LexicalError>>, lexer: &mut Lexer<Token>) -> Result<Vec<ast::ResultCol>, ParseError> {
+    let mut current_ready = false;
     let mut result_cols = Vec::new();
     let mut awaits_comma = false;
     let mut awaits_col = false;
     let mut empty = true;
-    while let Some(spanned_token) = lexer.next() {
+    if current_token.is_some() {
+        current_ready = true;
+    }
+    // If there is a carryover token, consume that first
+    while let Some(spanned_token) = if current_ready {current_ready = false; current_token} else {lexer.next()} {
         match spanned_token {
             Ok((left, token, right)) => {
                 match token {

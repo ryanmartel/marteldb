@@ -1,0 +1,115 @@
+-- STATEMENTS --
+
+<stmt> :=       <alter-table-stmt>
+            |   <begin-stmt>
+            |   <commit-stmt>
+            |   <create-index-stmt>
+            |   <create-table-stmt>
+            |   <delete-stmt>
+            |   <drop-index-stmt>
+            |   <drop-table-stmt>
+            |   <insert-stmt>
+            |   <reindex-stmt>
+            |   <release-stmt>
+            |   <rollback-stmt>
+            |   <savepoint-stmt>
+            |   <select-stmt>
+            |   <update-stmt>
+            |   <vacuum-stmt>
+
+<alter-table-stmt> := 
+    ALTER TABLE table-name
+          RENAME TO new-table-name
+        | RENAME (COLUMN)? column-name TO new-column-name
+        | ADD (COLUMN)? <column-def>
+        | DROP (COLUMN)? column-name
+
+<begin-stmt> := BEGIN [TRANSACTION]?
+
+<commit-stmt> := COMMIT [TRANSACTION]?
+
+<create-index-stmt> := 
+    CREATE [UNIQUE]? INDEX [IF NOT EXISTS]? index-name ON table-name 
+        (<indexed-column> [, <indexed-column>]*) [WHERE <expr>]?
+
+<create-table-stmt> := 
+    CREATE TABLE [IF NOT EXISTS]? table-name
+          AS <select-stmt>
+        | (<column-def> [, <column-def>]* [<table-constraint> [, <table-constraint>]*]?)
+
+<delete-stmt> :=
+    DELETE FROM <quantified-table-name> [WHERE <expr>]? [<returning-clause>]?
+
+<drop-index-stmt> := 
+    DROP INDEX [IF EXISTS]? index-name
+
+<drop-table-stmt> :=
+    DROP TABLE [IF EXISTS]? table-name
+
+<insert-stmt> :=
+    INSERT INTO table-name [AS alias]? [(column-name [, column-name]*)]?
+          VALUES (<expr> [, <expr>]*) [<upsert-clause>]?
+        | <select-stmt> [<upsert-clause>]?
+        | DEFAULT VALUES
+    [<returning-clause>]?
+
+<reindex-stmt> := REINDEX [collation-name | table-name | index-name]?
+
+<release-stmt> := RELEASE [SAVEPOINT]? savepoint-name
+
+<rollback-stmt> := ROLLBACK [TRANSACTION]? [TO [SAVEPOINT]? savepoint-name]?
+
+<savepoint-stmt> := SAVEPOINT savepoint-name
+
+<select-stmt> := 
+    SELECT [DISTINCT]? <result-column> [, <result-column>]*
+    [FROM [ <join-clause> | <table-or-subquery> [, <table-or-subquery>]* ] ]?
+    [WHERE <expr>]?
+    [GROUP BY <expr> [, <expr>]* ]?
+    [HAVING <expr>]?
+    [<compound-operator> <select-stmt>]?
+    [ORDER BY <ordering-term> [, <ordering-term>]* ]?
+    [LIMIT <expr> [OFFSET <expr>]? ]?
+
+<update-stmt> := 
+    UPDATE [OR [ABORT|FAIL|IGNORE|REPLACE|ROLLBACK] ]? <quantified-table-name>
+    SET [column-name | <column-name-list>] = <expr> [, [column-name | <column-name-list>] = <expr>]+
+    [FROM [ <join-clause> | <table-or-subquery> [, <table-or-subquery>]* ] ]?
+    [WHERE <expr>]?
+    [<returning-clause>]?
+
+<vacuum-stmt> VACUUM 
+
+-- STATEMENT SUPPORTING STRUCTURES  -- 
+
+<colmn-def> := column-name [<type-name>]? [<column-constraint>]*
+
+<table-constraint> := 
+    [  PRIMARY KEY (<indexed-column> [, <indexed-column>]*) <conflict-cause> 
+     | UNIQUE (<indexed-column> [, <indexed-column>]*) <conflict-cause> 
+     | CHECK (expr)
+     | FOREIGN KEY (column-name [, column-name]*) <foreign-key-clause>
+    ]
+
+<indexed-column> := [column-name | <expr>] [COLLATE collation-name]? [ASC|DESC]?
+
+<quantified-table-name> := table-name [AS alias] [INDEXED BY index-name | NOT INDEXED]?
+
+<returning-clause> := RETURNING [* | <expr> [AS column-alias]?] [, [* | <expr> [AS column-alias]?]]*
+
+<upsert-clause> := 
+    ON CONFLICT [(<indexed-column> [, <indexed-column>]*) [WHERE <expr>]?]? DO
+          NOTHING
+        | UPDATE SET [column-name | <column-name-list>] = <expr>]+
+    [WHERE <expr>]?
+
+<result-column>
+<join-clause>
+<table-or-subquery>
+<ordering-term>
+<compound-operator>
+<type-name>
+<column-constraint>
+<foreign-key-clause>
+<conflict-clause>
+<expr>
