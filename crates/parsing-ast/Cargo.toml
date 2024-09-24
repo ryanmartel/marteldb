@@ -1,7 +1,6 @@
 [package]
-name = "lexer"
+name = "parsing-ast"
 version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-logos.workspace = true

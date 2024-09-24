@@ -12,7 +12,7 @@ path = "src/lib.rs"
 
 [dependencies]
 parser.workspace = true
-lexer.workspace = true
+parsing-lexer.workspace = true
 
 clap = { workspace = true, features = ["derive"] }
 codespan-reporting = { workspace = true }

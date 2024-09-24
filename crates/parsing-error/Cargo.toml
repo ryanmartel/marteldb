@@ -1,6 +1,9 @@
 [package]
-name = "ast"
+name = "parsing-error"
 version = "0.0.0"
 edition = "2021"
+
+[lib]
+path = "./error.rs"
 
 [dependencies]

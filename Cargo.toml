@@ -30,9 +30,10 @@ members = [
 
 [workspace.dependencies]
 # Local Crates
-ast = { path = "./crates/ast", version = "0.0.0" }
 parser = { path = "./crates/parser", version = "0.0.0" }
-lexer = { path = "./crates/lexer", version = "0.0.0" }
+parsing-ast = { path = "./crates/parsing-ast", version = "0.0.0" }
+parsing-error = { path = "./crates/parsing-error", version = "0.0.0" }
+parsing-lexer = { path = "./crates/parsing-lexer", version = "0.0.0" }
 cli = { path = "./cmd/cli", version = "0.0.0" }
 
 clap = { version = "4.5.13", features = ["derive"] }
