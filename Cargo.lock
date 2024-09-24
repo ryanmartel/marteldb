@@ -236,7 +236,7 @@ version = "0.0.0"
 name = "parsing-lexer"
 version = "0.0.0"
 dependencies = [
- "logos",
+ "parsing-ast",
  "parsing-error",
 ]
 
