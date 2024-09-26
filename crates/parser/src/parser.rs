@@ -1,7 +1,5 @@
-use std::ops::Range;
-
 use parsing_error::{ParseError, ParseErrorType};
-use parsing_lexer::lexer::Lexer;
+use parsing_lexer::{lexer::Lexer, token::TokenKind};
 use parsing_lexer::token::Token;
 use parsing_ast::{Script, StmtList};
 
@@ -12,10 +10,7 @@ pub(crate) struct Parser<'src> {
    // Iterator for tokens
    tokens: Lexer<'src>,
 
-   current_token: Token,
-
-   current_span: Range<usize>,
-
+   prev_token_end: u32,
 
    errors: Vec<ParseError>
 }
@@ -26,6 +21,7 @@ impl<'src> Parser<'src> {
         Parser {
             source,
             tokens: Lexer::new(source),
+            prev_token_end: 0,
             errors: Vec::new()
         }
     }
@@ -40,6 +36,7 @@ impl<'src> Parser<'src> {
         let body = self.parse_list_into_vec(
             Parser::parse_statement,
         );
+        self.bump(TokenKind::EndOfFile);
         unimplemented!();
     }
 
@@ -60,17 +57,16 @@ impl<'src> Parser<'src> {
         &mut self,
         mut parse_element: impl FnMut(&mut Parser<'src>),
     ) {
-        unimplemented!()
+        loop {
+            parse_element(self);
+        }
     }
 
-    pub fn span(&self) -> Range<usize> {
-        self.tokens.span()
-    }
 
     // Consume current token if it matches kind. Return True if matches and eaten, 
     // otherwise return false
     fn eat(&mut self, kind: Token) -> bool {
-        if 
+        unimplemented!()
     }
 
 
@@ -79,10 +75,34 @@ impl<'src> Parser<'src> {
     // # PANIC
     //
     // If it does not match, panics
-    fn bump(&mut self, kind: Token) {
-        assert_eq!(self.current_token, kind);
+    fn bump(&mut self, kind: TokenKind) {
+        assert_eq!(self.current_token_kind(), kind);
 
         self.do_bump(kind);
+    }
+
+    // Move the parser to the next token
+    fn do_bump(&mut self, kind:TokenKind) {
+        if !matches!(
+            self.current_token_kind(),
+            // Dont include newlines in the body
+            TokenKind::Newline
+        ) {
+            self.prev_token_end = self.current_token_range().1;
+        }
+        self.tokens.bump(kind);
+    }
+
+    pub(crate) fn current_token_kind(&self) -> TokenKind {
+        self.tokens.current_kind()
+    }
+
+    fn current_token_range(&self) -> (u32, u32) {
+        self.tokens.current_range()
+    }
+
+    pub(crate) fn node_start(&self) -> u32 {
+        self.current_token_range().0
     }
 
 }

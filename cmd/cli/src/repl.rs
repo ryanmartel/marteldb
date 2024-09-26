@@ -1,15 +1,8 @@
 use clap::error::ErrorKind;
 use clap::{Parser, Subcommand};
+use parser::parser;
+use ::parser::parse_script;
 
-// use lexer::lexer::Lexer;
-use parser::parser::{ParseError, ScriptParser};
-// use parser::prettyprinter::PrettyPrinter;
-use parser::visitor::*;
-
-use codespan_reporting::files::SimpleFile;
-use codespan_reporting::term;
-use codespan_reporting::term::termcolor::{ColorChoice, StandardStream};
-use lalrpop_util;
 
 use std::io::Write;
 use std::path::Path;
@@ -124,7 +117,7 @@ impl Response {
             }
             Self::Stmt(line) => {
                 // parse_with_errors("STDIN",line, &mut PrettyPrinter::new());
-                parse_with_errors("STDIN", line);
+                parse_with_errors(line);
             }
             Self::MetaCommand(command) => {
                 match command {
@@ -167,30 +160,34 @@ enum Commands {
     },
 }
 
-// fn parse_with_errors(source_name: &str, contents: &str, visitor: &mut impl Visitor) {
-fn parse_with_errors(source_name: &str, contents: &str) {
-    // let lexer = Lexer::new(contents);
-    let parser = ScriptParser::new(contents);
-    // let mut errors = Vec::new();
-    let ast_res = parser.parse();
-    match ast_res {
-        Ok(ast) => {
-            // for i in &ast {
-            //     visitor.visit_stmt(i);
-            // }
-        }
-        Err(err) => {
-            println!("{}",err);
-        }
-            // match err {
-            //     lalrpop_util::ParseError::UnrecognizedToken { token, .. } => {
-            //         let e = Error::ParseError(Item::new(token.0..token.2, token.1.to_string()));
-            //         errors.push(e);
-            //     }
-            //     _ => {}
-            // }
-    }
+fn parse_with_errors(source: &str) {
+    let parsed = parse_script(source);
+    println!("{:?}", parsed);
 }
+// // fn parse_with_errors(source_name: &str, contents: &str, visitor: &mut impl Visitor) {
+// fn parse_with_errors(source_name: &str, contents: &str) {
+//     // let lexer = Lexer::new(contents);
+//     // let parser = ScriptParser::new(contents);
+//     // let mut errors = Vec::new();
+//     let ast_res = parser.parse();
+//     match ast_res {
+//         Ok(ast) => {
+//             // for i in &ast {
+//             //     visitor.visit_stmt(i);
+//             // }
+//         }
+//         Err(err) => {
+//             println!("{}",err);
+//         }
+//             // match err {
+//             //     lalrpop_util::ParseError::UnrecognizedToken { token, .. } => {
+//             //         let e = Error::ParseError(Item::new(token.0..token.2, token.1.to_string()));
+//             //         errors.push(e);
+//             //     }
+//             //     _ => {}
+//             // }
+//     }
+// }
     // for e in visitor.errors() {
     //     errors.push(e);
     // }

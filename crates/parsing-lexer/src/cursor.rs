@@ -83,4 +83,8 @@ impl<'src> Cursor<'src> {
         }
     }
 
+    pub fn skip_bytes(&mut self, count: u32) {
+        self.chars = self.chars.as_str()[(count as usize)..].chars();
+    }
+
 }
