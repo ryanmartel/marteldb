@@ -11,12 +11,4 @@ path = "src/bin/main.rs"
 path = "src/lib.rs"
 
 [dependencies]
-parser.workspace = true
-parsing-lexer.workspace = true
-
-clap = { workspace = true, features = ["derive"] }
-codespan-reporting = { workspace = true }
-shlex = { workspace = true }
-termcolor = { workspace = true }
-lalrpop-util.workspace = true
 

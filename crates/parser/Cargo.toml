@@ -4,13 +4,5 @@ version = "0.0.0"
 edition = "2021"
 
 [dependencies]
-parsing-lexer.workspace = true
-parsing-error.workspace = true
-parsing-ast.workspace = true
-# lalrpop-util = { workspace = true , features = ["lexer", "unicode"] } 
-anyhow.workspace = true
-logos.workspace = true
+source-index.workspace = true
 
-
-[build-dependencies]
-# lalrpop.workspace = true
