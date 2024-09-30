@@ -95,7 +95,7 @@
 
 <indexed-column> := [column-name | <expr>] [COLLATE collation-name]? [ASC|DESC]?
 
-<quantified-table-name> := table-name [AS alias] [INDEXED BY index-name | NOT INDEXED]?
+<quantified-table-name> := table-name [AS alias]? [INDEXED BY index-name | NOT INDEXED]?
 
 <returning-clause> := RETURNING [* | <expr> [AS column-alias]?] [, [* | <expr> [AS column-alias]?]]*
 
