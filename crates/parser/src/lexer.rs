@@ -112,7 +112,9 @@ impl<'src> Lexer<'src> {
     fn lex_identifier_or_keyword(&mut self, c: char) -> TokenKind {
         self.cursor.eat_while(|c| is_identifier_rest(c));
         // Handle table qualified Identifier
-        if self.cursor.eat_char('.')
+        if self.cursor.eat_char('.') {
+
+        }
         let text = self.token_text();
         match text.to_uppercase().as_str() {
             "SELECT" => TokenKind::Select,
