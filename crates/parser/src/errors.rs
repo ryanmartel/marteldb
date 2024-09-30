@@ -31,4 +31,8 @@ impl Display for LexicalError {
 pub enum LexicalErrorKind {
     #[default]
     InvalidToken,
+
+    InvalidNumber,
+    InvalidFloat,
+    InvalidInt,
 }

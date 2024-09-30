@@ -1,3 +1,6 @@
+use std::f64;
+use std::str::FromStr;
+
 use source_index::{location::Location, span::Span};
 
 use crate::{errors::{LexicalError, LexicalErrorKind}, tokens::{TokenKind, TokenValue}};
@@ -89,6 +92,13 @@ impl<'src> Lexer<'src> {
     fn lex_ascii(&mut self, c: char) -> TokenKind {
         let token = match c {
             c if is_identifier_start(c) => self.lex_identifier_or_keyword(c),
+            '0'..='9' => self.lex_number(c),
+            '-' => {
+                if self.cursor.eat_char('-') {
+                    return self.lex_comment()
+                }
+                TokenKind::Minus
+            }
             '(' => TokenKind::LParen,
             ')' => TokenKind::RParen,
             ';' => TokenKind::Semicolon,
@@ -101,14 +111,73 @@ impl<'src> Lexer<'src> {
 
     fn lex_identifier_or_keyword(&mut self, c: char) -> TokenKind {
         self.cursor.eat_while(|c| is_identifier_rest(c));
+        // Handle table qualified Identifier
+        if self.cursor.eat_char('.')
         let text = self.token_text();
         match text.to_uppercase().as_str() {
             "SELECT" => TokenKind::Select,
             _ => {
+                self.current_value = TokenValue::Identifier(text.to_string());
                 TokenKind::Identifier
+
             }
         }
     }
+
+    fn lex_number(&mut self, c: char) -> TokenKind {
+        let mut owned = String::new();
+        let mut is_float = false;
+
+        // float with leading 0 (0.xxxx)
+        if matches!(c, '0') {
+            is_float = true;
+            owned.push(c);
+            if !self.cursor.eat_char('.') {
+                return self.push_error(LexicalError::new(
+                        LexicalErrorKind::InvalidNumber, self.token_range()
+                ));
+            }
+            owned.push('.');
+            while let Some(digit) = self.cursor.eat_if(|c| is_digit(c)) {
+                owned.push(digit);
+            }
+        } else {
+            owned.push(c);
+            while let Some(digit) = self.cursor.eat_if(|c| is_digit(c)) {
+                owned.push(digit);
+            }
+            // check for float point
+            if self.cursor.eat_char('.') {
+                is_float = true;
+                owned.push('.');
+                // add digits after point
+                while let Some(digit) = self.cursor.eat_if(|c| is_digit(c)) {
+                    owned.push(digit);
+                }
+            }
+        }
+        if is_float {
+            let Ok(val) = f64::from_str(&owned) else {
+                return self.push_error(LexicalError::new(
+                        LexicalErrorKind::InvalidFloat, self.token_range()
+                ));
+            };
+            self.current_value = TokenValue::Float(val);
+            return TokenKind::Float;
+        }
+        let Ok(val) = i32::from_str(&owned) else {
+            return self.push_error(LexicalError::new(
+                    LexicalErrorKind::InvalidInt, self.token_range()
+            ));
+        };
+        self.current_value = TokenValue::Int(val);
+        TokenKind::Int
+    }
+
+    fn lex_comment(&mut self) -> TokenKind {
+        self.cursor.eat_while(|c| !matches!(c, '\n' | '\r'));
+        TokenKind::Comment
+    } 
 
     fn token_text(&self) -> &'src str {
         &self.source[self.token_range()]
@@ -132,6 +201,10 @@ fn is_identifier_start(c: char) -> bool {
 
 fn is_identifier_rest(c: char) -> bool {
     matches!(c, 'a'..='z' | 'A'..='Z' | '_' | '0'..='9' | '-')
+}
+
+fn is_digit(c: char) -> bool {
+    matches!(c, '0'..='9')
 }
 
 #[cfg(test)]
@@ -180,11 +253,52 @@ mod tests {
     #[test]
     fn simple_identifier() {
         let source = "col";
+        let _owned = String::from(source);
         let mut lexer = Lexer::new(source);
         let token = lexer.next_token();
         assert!(matches!(token, TokenKind::Identifier),
             "Did not get Identifier token. received {token}");
+        assert!(matches!(lexer.current_value.clone(), TokenValue::Identifier(_owned)),
+            "Did not get the identifier name, got {:?}", &lexer.current_value);
     }
 
+    #[test]
+    fn simple_numbers() {
+        let source = "17 0.94 8.57 98.99";
+        let mut lexer = Lexer::new(source);
+        let t1 = lexer.next_token();
+        assert!(matches!(t1, TokenKind::Int));
+        assert!(matches!(lexer.current_value, TokenValue::Int(17)),
+            "Did not get right value. got {:?} expected 17", lexer.current_value);
+        let t2 = lexer.next_token();
+        assert!(matches!(t2, TokenKind::Float));
+        assert!(matches!(lexer.current_value, TokenValue::Float(0.94)),
+            "Did not get right value. got {:?} expected 0.94", lexer.current_value);
+        let t3 = lexer.next_token();
+        assert!(matches!(t3, TokenKind::Float));
+        assert!(matches!(lexer.current_value, TokenValue::Float(8.57)),
+            "Did not get right value. got {:?} expected 8.57", lexer.current_value);
+        let t4 = lexer.next_token();
+        assert!(matches!(t4, TokenKind::Float));
+        assert!(matches!(lexer.current_value, TokenValue::Float(98.99)),
+            "Did not get right value. got {:?} expected 98.99", lexer.current_value);
+
+
+    }
+
+    #[test]
+    fn comment_token() {
+        let source = "SELECT 
+            -- This is a comment
+            ;";
+        let mut lexer = Lexer::new(source);
+        let _select = lexer.next_token();
+        let comment = lexer.next_token();
+        assert!(matches!(comment, TokenKind::Comment),
+            "Comment token did not match. got {comment}");
+        let semicolon = lexer.next_token();
+        assert!(matches!(semicolon, TokenKind::Semicolon),
+            "Lost token following comment. expected semicolon, got {semicolon}");
+    }
 
 }

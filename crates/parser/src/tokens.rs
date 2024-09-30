@@ -46,8 +46,15 @@ pub enum TokenKind {
     RParen,
     // matches ';'
     Semicolon,
+    // matches '-'
+    Minus,
+
+    // Types
+    Float,
+    Int,
 
 
+    Comment,
     Unknown,
     EndOfFIle,
 }
@@ -62,4 +69,9 @@ impl Display for TokenKind {
 pub enum TokenValue {
     #[default]
     None,
+
+    Identifier(String),
+    Float(f64),
+    Int(i32),
+
 }

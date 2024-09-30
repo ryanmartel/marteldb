@@ -74,6 +74,14 @@ impl<'src> Cursor<'src> {
         }
     }
 
+    pub fn eat_if(&mut self, mut predicate: impl FnMut(char) -> bool) -> Option<char> {
+        if predicate(self.first()) && !self.is_eof() {
+            self.bump()
+        } else {
+            None
+        }
+    }
+
     /// move forward the cursor by `count` bytes
     pub fn seek_forward(&mut self, count: usize) {
         self.chars = self.chars.as_str()[count..].chars();
