@@ -30,6 +30,6 @@ members = [
 
 [workspace.dependencies]
 # Local Crates
-ast = { pat- = "./crates/ast", version = "0.0.0" }
+ast = { path = "./crates/ast", version = "0.0.0" }
 parser = { path = "./crates/parser", version = "0.0.0" }
 source-index = { path = "./crates/source-index", version = "0.0.0" }

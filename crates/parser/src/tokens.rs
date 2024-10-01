@@ -1,5 +1,6 @@
 use std::fmt::Display;
 
+use ast::name::Name;
 use source_index::{location::Location, span::Span};
 
 pub struct Token {
@@ -34,7 +35,7 @@ impl Token {
 #[derive(Debug, Copy, Clone)]
 pub enum TokenKind {
 
-    Identifier,
+    Name,
 
     // Keywords -------------
     Abort,
@@ -130,12 +131,12 @@ impl Display for TokenKind {
     }
 }
 
-#[derive(Default, Debug, Clone)]
+#[derive(Default, Debug, Clone, PartialEq)]
 pub enum TokenValue {
     #[default]
     None,
 
-    Identifier(String),
+    Name(Name),
     Float(f64),
     Int(i32),
 

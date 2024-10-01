@@ -1,6 +1,7 @@
 use std::f64;
 use std::str::FromStr;
 
+use ast::name::Name;
 use source_index::{location::Location, span::Span};
 
 use crate::{errors::{LexicalError, LexicalErrorKind}, tokens::{TokenKind, TokenValue}};
@@ -111,16 +112,22 @@ impl<'src> Lexer<'src> {
 
     fn lex_identifier_or_keyword(&mut self, c: char) -> TokenKind {
         self.cursor.eat_while(|c| is_identifier_rest(c));
-        // Handle table qualified Identifier
+        // Handle table qualified Identifier. Let parser figure this out.
         if self.cursor.eat_char('.') {
-
+            // table.*
+            if self.cursor.eat_char('*') {
+            } else {
+                // table.column
+                self.cursor.eat_if(|c| is_identifier_start(c));
+                self.cursor.eat_while(|c| is_identifier_rest(c));
+            }
         }
         let text = self.token_text();
         match text.to_uppercase().as_str() {
             "SELECT" => TokenKind::Select,
             _ => {
-                self.current_value = TokenValue::Identifier(text.to_string());
-                TokenKind::Identifier
+                self.current_value = TokenValue::Name(Name::new(text.to_string()));
+                TokenKind::Name
 
             }
         }
@@ -258,10 +265,30 @@ mod tests {
         let _owned = String::from(source);
         let mut lexer = Lexer::new(source);
         let token = lexer.next_token();
-        assert!(matches!(token, TokenKind::Identifier),
-            "Did not get Identifier token. received {token}");
-        assert!(matches!(lexer.current_value.clone(), TokenValue::Identifier(_owned)),
-            "Did not get the identifier name, got {:?}", &lexer.current_value);
+        assert!(matches!(token, TokenKind::Name),
+            "Did not get Name token. received {token}");
+        assert!(matches!(lexer.current_value.clone(), TokenValue::Name(_owned)),
+            "Did not get the Name col, got {:?}", &lexer.current_value);
+    }
+
+    #[test]
+    fn table_qualified_identifiers() {
+        let source = "table.col";
+        let _expected = TokenValue::Name(Name::new(source.to_string()));
+        let mut lexer = Lexer::new(source);
+        let token = lexer.next_token();
+        assert!(matches!(token, TokenKind::Name),
+            "Did not get Name token. Received {token}");
+        assert_eq!(lexer.current_value.clone(), _expected,
+            "Did not get the Name table.col, got {:?}", &lexer.current_value);
+        let source = "table.*";
+        let _expected = TokenValue::Name(Name::new(source.to_string()));
+        let mut lexer = Lexer::new(source);
+        let token = lexer.next_token();
+        assert!(matches!(token, TokenKind::Name),
+            "Did not get Name token. Received {token}");
+        assert_eq!(lexer.current_value.clone(), _expected,
+            "Did not get the Name table.*, got {:?}", &lexer.current_value);
     }
 
     #[test]

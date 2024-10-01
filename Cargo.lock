@@ -5,6 +5,9 @@ version = 3
 [[package]]
 name = "ast"
 version = "0.0.0"
+dependencies = [
+ "source-index",
+]
 
 [[package]]
 name = "cli"
@@ -14,6 +17,7 @@ version = "0.0.0"
 name = "parser"
 version = "0.0.0"
 dependencies = [
+ "ast",
  "source-index",
 ]
 
