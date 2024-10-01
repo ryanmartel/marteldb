@@ -1,3 +1,6 @@
+pub mod parser;
+
+mod errors;
 mod lexer;
 mod tokens;
-mod errors;
+mod token_source;
