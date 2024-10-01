@@ -19,7 +19,7 @@ pub struct Lexer<'src> {
     cursor: Cursor<'src>,
 
     // current token being lexed
-    current_token: TokenKind,
+    current_kind: TokenKind,
 
     // current token value
     current_value: TokenValue,
@@ -36,7 +36,7 @@ impl<'src> Lexer<'src> {
         Lexer {
             source,
             cursor: Cursor::new(source),
-            current_token: TokenKind::Unknown,
+            current_kind: TokenKind::Unknown,
             current_value: TokenValue::None,
             current_span: Span::new(Location::new(0), Location::new(0)),
             errors: Vec::new()
@@ -47,9 +47,9 @@ impl<'src> Lexer<'src> {
     pub fn next_token(&mut self) -> TokenKind {
         self.cursor.start_token();
         self.current_value = TokenValue::None;
-        self.current_token = self.lex_token();
+        self.current_kind = self.lex_token();
 
-        self.current_token
+        self.current_kind
     }
 
     pub fn current_span(&self) -> Span {
@@ -234,6 +234,46 @@ impl<'src> Lexer<'src> {
     fn offset(&self) -> Location {
         Location::new(self.source.len()) - self.cursor.text_len()
     }
+
+    // Create a checkpoint of the lexer
+    pub fn checkpoint(&self) -> LexerCheckpoint {
+        LexerCheckpoint {
+            value: self.current_value.clone(),
+            current_kind: self.current_kind,
+            current_span: self.current_span,
+            cursor_offset: self.offset(),
+            errors_position: self.errors.len()
+        }
+    }
+
+    // Restore lexer to given checkpoint.
+    pub fn rewind(&mut self, checkpoint: LexerCheckpoint) {
+        let LexerCheckpoint {
+            value,
+            current_kind,
+            current_span,
+            cursor_offset,
+            errors_position,
+        } = checkpoint;
+        
+        let mut cursor = Cursor::new(self.source);
+        cursor.seek_forward(*cursor_offset);
+
+        self.current_value = value;
+        self.current_kind = current_kind;
+        self.current_span = current_span;
+        self.cursor = cursor;
+        self.errors.truncate(errors_position);
+    }
+}
+
+pub struct LexerCheckpoint {
+    value: TokenValue,
+    current_kind: TokenKind,
+    current_span: Span,
+    cursor_offset: Location,
+    errors_position: usize,
+
 }
 
 fn is_identifier_start(c: char) -> bool {
@@ -247,6 +287,9 @@ fn is_identifier_rest(c: char) -> bool {
 fn is_digit(c: char) -> bool {
     matches!(c, '0'..='9')
 }
+
+
+
 
 #[cfg(test)]
 mod tests {
