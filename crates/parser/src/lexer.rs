@@ -200,8 +200,9 @@ impl<'src> Lexer<'src> {
                             if num_backslashes%2 == 0 {
                                 break;
                             }
+                            num_backslashes = 0
                         }
-                        _ => {}
+                        _ => num_backslashes = 0,
                         
                     }
                 }
@@ -382,4 +383,28 @@ mod tests {
             "Did not get UnterminatedString, got {:?}", e.error_kind());
     }
 
+    #[test]
+    fn escaped_string_terminator() {
+        let source = "'string\\'s are lit'";
+        let _expected = TokenValue::String(String::from(source));
+        let mut lexer = Lexer::new(source);
+        let token = lexer.next_token();
+        assert!(matches!(token, TokenKind::String),
+            "String token did not match. Got {token}");
+        assert_eq!(_expected, lexer.current_value,
+            "Did not get 'string lit', got {:?}", lexer.current_value);
+    }
+
+    #[test]
+    fn double_bkslh_string() {
+        let source = "'string\\\\'";
+        let _expected = TokenValue::String(String::from(source));
+        let mut lexer = Lexer::new(source);
+        let token = lexer.next_token();
+        assert!(matches!(token, TokenKind::String),
+            "String token did not match. Got {token}");
+        assert_eq!(_expected, lexer.current_value,
+            "Did not get 'string lit', got {:?}", lexer.current_value);
+
+    }
 }
