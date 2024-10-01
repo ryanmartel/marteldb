@@ -18,6 +18,10 @@ impl LexicalError {
             span,
         }
     }
+
+    pub fn error_kind(&self) -> LexicalErrorKind {
+        self.kind
+    }
 }
 
 impl Display for LexicalError {
@@ -27,7 +31,7 @@ impl Display for LexicalError {
     }
 }
 
-#[derive(Default, Debug)]
+#[derive(Default, Debug, Copy, Clone, PartialEq)]
 pub enum LexicalErrorKind {
     #[default]
     InvalidToken,
@@ -35,4 +39,5 @@ pub enum LexicalErrorKind {
     InvalidNumber,
     InvalidFloat,
     InvalidInt,
+    UnterminatedString,
 }

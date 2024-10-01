@@ -37,6 +37,7 @@ pub enum TokenKind {
 
     Name,
 
+
     // Keywords -------------
     Abort,
     All,
@@ -118,6 +119,7 @@ pub enum TokenKind {
     // Types
     Float,
     Int,
+    String,
 
 
     Comment,
@@ -139,5 +141,6 @@ pub enum TokenValue {
     Name(Name),
     Float(f64),
     Int(i32),
+    String(String),
 
 }

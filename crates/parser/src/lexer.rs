@@ -94,6 +94,7 @@ impl<'src> Lexer<'src> {
         let token = match c {
             c if is_identifier_start(c) => self.lex_identifier_or_keyword(c),
             '0'..='9' => self.lex_number(c),
+            '\'' => self.lex_string(),
             '-' => {
                 if self.cursor.eat_char('-') {
                     return self.lex_comment()
@@ -187,6 +188,32 @@ impl<'src> Lexer<'src> {
         self.cursor.eat_while(|c| !matches!(c, '\n' | '\r'));
         TokenKind::Comment
     } 
+
+    fn lex_string(&mut self) -> TokenKind {
+        let mut num_backslashes = 0;
+        loop {
+            match self.cursor.bump() {
+                Some(c) => {
+                    match c {
+                        '\\' => num_backslashes += 1,
+                        '\'' => {
+                            if num_backslashes%2 == 0 {
+                                break;
+                            }
+                        }
+                        _ => {}
+                        
+                    }
+                }
+                None => return self.push_error(LexicalError::new(
+                        LexicalErrorKind::UnterminatedString, self.token_range()
+                ))
+            }
+        }
+        let text = self.token_text();
+        self.current_value = TokenValue::String(text.to_string());
+        TokenKind::String
+    }
 
     fn token_text(&self) -> &'src str {
         &self.source[self.token_range()]
@@ -328,6 +355,31 @@ mod tests {
         let semicolon = lexer.next_token();
         assert!(matches!(semicolon, TokenKind::Semicolon),
             "Lost token following comment. expected semicolon, got {semicolon}");
+    }
+
+    #[test]
+    fn string_literal() {
+        let source = "'string lit'";
+        let _expected = TokenValue::String(String::from(source));
+        let mut lexer = Lexer::new(source);
+        let token = lexer.next_token();
+        assert!(matches!(token, TokenKind::String),
+            "String token did not match. Got {token}");
+        assert_eq!(_expected, lexer.current_value,
+            "Did not get 'string lit', got {:?}", lexer.current_value);
+    }
+
+    #[test]
+    fn unterminated_string() {
+        let source = "'this is a string";
+        let _expected = LexicalErrorKind::UnterminatedString;
+        let mut lexer = Lexer::new(source);
+        let token = lexer.next_token();
+        assert!(matches!(token, TokenKind::Unknown),
+            "String token did not match. Got {token}");
+        let e = lexer.errors.first().unwrap();
+        assert_eq!(_expected, e.error_kind(),
+            "Did not get UnterminatedString, got {:?}", e.error_kind());
     }
 
 }
