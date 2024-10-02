@@ -1,4 +1,5 @@
 use source_index::location::Location;
+use source_index::span::Span;
 
 use crate::errors::ParseError;
 
@@ -35,7 +36,13 @@ impl<'src> Parser<'src> {
         self.tokens.current_span().start()
     }
 
-    fn node_range(&self, start: Location) -> Span {}
+    fn node_span(&self, start: Location) -> Span {
+        if self.prev_token_end <= start {
+            Span::empty(start)
+        } else {
+            Span::new(start, self.prev_token_end)
+        }
+    }
 
     fn current_token_kind(&self) -> TokenKind {
         self.tokens.current_token_kind()

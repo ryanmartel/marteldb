@@ -17,6 +17,14 @@ impl Span {
         }
     }
 
+    // Creates a 0 length span at index
+    pub fn empty(offset: Location) -> Self {
+        Self {
+            start: offset,
+            end: offset,
+        }
+    }
+
     pub fn start(&self) -> Location {
         self.start
     }
