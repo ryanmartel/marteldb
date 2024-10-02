@@ -56,6 +56,10 @@ impl<'src> Lexer<'src> {
         self.current_span
     }
 
+    pub fn current_kind(&self) -> TokenKind {
+        self.current_kind
+    }
+
     // Skips whitespace, checks that the char is in the ascii set,
     // and returns EndOfFile at end of stream
     fn lex_token(&mut self) -> TokenKind {

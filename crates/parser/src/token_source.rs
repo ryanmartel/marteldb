@@ -36,7 +36,18 @@ impl<'src> TokenSource<'src> {
 
     }
 
-    fn current_span(&self) -> Span {
+    pub fn bump(&mut self, kind: TokenKind) {
+        self.tokens.push(Token::new(kind, self.current_span()));
+        self.do_bump();
+    }
+
+    pub fn current_span(&self) -> Span {
         self.lexer.current_span()
     }
+
+    pub fn current_token_kind(&self) -> TokenKind {
+        self.lexer.current_kind()
+    }
+
+
 }
