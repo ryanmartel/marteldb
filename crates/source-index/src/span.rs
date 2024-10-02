@@ -2,7 +2,7 @@ use std::ops::{Index, Range};
 
 use crate::location::Location;
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Span {
     start: Location,
     end: Location,

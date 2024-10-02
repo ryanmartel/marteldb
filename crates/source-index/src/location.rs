@@ -1,7 +1,7 @@
 use std::ops::Sub;
 
 
-#[derive(Debug, Copy, Clone)]
+#[derive(Debug, Copy, Clone, PartialEq)]
 pub struct Location(usize);
 
 impl std::ops::Deref for Location {
