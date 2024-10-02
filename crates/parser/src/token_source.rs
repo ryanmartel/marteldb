@@ -41,6 +41,13 @@ impl<'src> TokenSource<'src> {
         self.do_bump();
     }
 
+    pub fn peek(&mut self) -> TokenKind {
+        let checkpoint = self.lexer.checkpoint();
+        let next = self.next_non_comment_token();
+        self.lexer.rewind(checkpoint);
+        next
+    }
+
     pub fn current_span(&self) -> Span {
         self.lexer.current_span()
     }
@@ -49,5 +56,13 @@ impl<'src> TokenSource<'src> {
         self.lexer.current_kind()
     }
 
-
+    fn next_non_comment_token(&mut self) -> TokenKind {
+        loop {
+            let kind = self.lexer.next_token();
+            if matches!(kind, TokenKind::Comment) {
+                continue;
+            }
+            break kind;
+        }
+    }
 }

@@ -18,7 +18,10 @@ impl<'src> Parser<'src> {
     pub fn parse_begin_statement(&mut self) -> ast::StmtBegin {
         let start = self.node_start();
         self.bump(TokenKind::Begin);
-
+        self.eat(TokenKind::Transaction);
+        ast::StmtBegin {
+            span: self.node_span(start),
+        }
 
     }
 }

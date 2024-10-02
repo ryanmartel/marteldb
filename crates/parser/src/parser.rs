@@ -35,11 +35,31 @@ impl<'src> Parser<'src> {
         self.tokens.current_span().start()
     }
 
+    fn node_range(&self, start: Location) -> Span {}
+
     fn current_token_kind(&self) -> TokenKind {
         self.tokens.current_token_kind()
     }
 
     fn bump(&mut self, kind: TokenKind) {
         self.tokens.bump(kind);
+    }
+
+    fn peek(&mut self) -> TokenKind {
+        self.tokens.peek()
+    }
+
+    // consume the current token if it is of given kind.
+    fn eat(&mut self, kind: TokenKind) -> bool {
+        if self.at(kind) {
+            self.bump(kind);
+            true
+        } else {
+            false
+        }
+    }
+
+    fn at(&self, kind: TokenKind) -> bool {
+        self.current_token_kind() == kind
     }
 }
