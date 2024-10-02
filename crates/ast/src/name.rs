@@ -17,4 +17,3 @@ impl PartialEq for Name {
     }
 }
 
-impl Eq for Name {}

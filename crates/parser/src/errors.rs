@@ -3,6 +3,18 @@ use std::fmt::Display;
 use source_index::span::Span;
 
 #[derive(Debug)]
+pub struct ParseError {
+    kind: ParseErrorKind,
+
+    span: Span,
+}
+
+#[derive(Debug)]
+pub enum ParseErrorKind {
+    Lexical(LexicalErrorKind),
+}
+
+#[derive(Debug)]
 pub struct LexicalError {
 
     kind: LexicalErrorKind,

@@ -41,3 +41,34 @@ where
         value.start.into()..value.end.into()
     }
 }
+
+// A Spanned item in the source text
+pub trait Spanned {
+    // The span of this item in the source text
+    fn span(&self) -> Span;
+
+    // The start offset of this item
+    fn start(&self) -> Location {
+        self.span().start()
+    }
+
+    // The end offset of this item
+    fn end(&self) -> Location {
+        self.span().end()
+    }
+}
+
+impl Spanned for Span {
+    fn span(&self) -> Span {
+        *self
+    }
+}
+
+impl<T> Spanned for &T
+where
+    T: Spanned,
+{
+    fn span(&self) -> Span {
+        T::span(self)
+    }
+}
