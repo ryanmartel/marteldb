@@ -134,6 +134,7 @@ impl<'src> Lexer<'src> {
         let text = self.token_text();
         match text.to_uppercase().as_str() {
             "BEGIN" => TokenKind::Begin,
+            "COMMIT" => TokenKind::Commit,
             "SELECT" => TokenKind::Select,
             _ => {
                 self.current_value = TokenValue::Name(Name::new(text.to_string()));

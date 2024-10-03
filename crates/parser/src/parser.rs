@@ -1,7 +1,7 @@
 use source_index::location::Location;
-use source_index::span::Span;
+use source_index::span::{Span, Spanned};
 
-use crate::errors::ParseError;
+use crate::errors::{ParseError, ParseErrorKind};
 
 use crate::token_source::TokenSource;
 use crate::tokens::TokenKind;
@@ -46,6 +46,25 @@ impl<'src> Parser<'src> {
 
     fn current_token_kind(&self) -> TokenKind {
         self.tokens.current_token_kind()
+    }
+
+    fn current_token_span(&self) -> Span {
+        self.tokens.current_span()
+    }
+
+    fn add_error<T>(&mut self, error: ParseErrorKind, span: T) 
+    where 
+        T: Spanned,
+    {
+        let is_same_location = self.errors
+            .last()
+            .is_some_and(|last| last.span.start() == span.start());
+        if !is_same_location {
+            self.errors.push(ParseError {
+                kind: error,
+                span: span.span(),
+            })
+        }
     }
 
     fn bump(&mut self, kind: TokenKind) {
