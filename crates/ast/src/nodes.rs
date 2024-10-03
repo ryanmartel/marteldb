@@ -5,6 +5,7 @@ use crate::name::Name;
 #[derive(Clone, Debug, PartialEq)]
 pub enum Stmt {
     Begin(StmtBegin),
+    Commit(StmtCommit),
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -15,6 +16,17 @@ pub struct StmtBegin {
 impl From<StmtBegin> for Stmt {
     fn from(value: StmtBegin) -> Self {
         Stmt::Begin(value)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct StmtCommit {
+    pub span: Span,
+}
+
+impl From<StmtCommit> for Stmt {
+    fn from(value: StmtCommit) -> Self {
+        Stmt::Commit(value)
     }
 }
 
