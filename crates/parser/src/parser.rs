@@ -89,3 +89,15 @@ impl<'src> Parser<'src> {
         self.current_token_kind() == kind
     }
 }
+
+#[cfg(test)]
+mod test {
+    use super::*;
+
+    #[test]
+    fn eof_ending() {
+        let source = "";
+        let mut parser = Parser::new(source);
+        assert!(parser.eat(TokenKind::EndOfFile));
+    }
+}

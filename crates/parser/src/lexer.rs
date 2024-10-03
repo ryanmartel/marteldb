@@ -78,7 +78,7 @@ impl<'src> Lexer<'src> {
             }
         } else {
             // reached end of file
-            TokenKind::EndOfFIle
+            TokenKind::EndOfFile
         }
         
     }

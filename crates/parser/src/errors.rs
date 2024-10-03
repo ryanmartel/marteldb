@@ -1,4 +1,4 @@
-use std::{fmt::Display, ops::Deref};
+use std::{fmt::{Display, Write}, ops::Deref};
 
 use source_index::span::Span;
 
@@ -23,6 +23,19 @@ impl ParseError {
 pub enum ParseErrorKind {
     Lexical(LexicalErrorKind),
     MissingSemicolon,
+}
+
+impl Display for ParseErrorKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            ParseErrorKind::MissingSemicolon => {
+                f.write_str("Missing terminating semicolon at end of statement.")
+            }
+            ParseErrorKind::Lexical(ref lexical_error) => {
+                write!(f, "{lexical_error}")
+            }
+        }
+    }
 }
 
 #[derive(Debug)]
@@ -63,4 +76,26 @@ pub enum LexicalErrorKind {
     InvalidFloat,
     InvalidInt,
     UnterminatedString,
+}
+
+impl Display for LexicalErrorKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            LexicalErrorKind::UnterminatedString => {
+                f.write_str("Unterminated string literal")
+            }
+            LexicalErrorKind::InvalidInt => {
+                f.write_str("Integer format not supported or is too large")
+            }
+            LexicalErrorKind::InvalidFloat => {
+                f.write_str("Float format not supported or is too large")
+            }
+            LexicalErrorKind::InvalidNumber => {
+                f.write_str("This number format is not supported")
+            }
+            LexicalErrorKind::InvalidToken => {
+                f.write_str("Unexpected or invalid token found")
+            }
+        }
+    }
 }

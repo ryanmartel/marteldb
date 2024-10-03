@@ -124,7 +124,7 @@ pub enum TokenKind {
 
     Comment,
     Unknown,
-    EndOfFIle,
+    EndOfFile,
 }
 
 impl Display for TokenKind {
