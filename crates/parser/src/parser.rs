@@ -20,7 +20,6 @@ pub struct Parser<'src> {
 }
 
 impl<'src> Parser<'src> {
-
     pub fn new(source: &'src str) -> Self {
         let tokens = TokenSource::new(source);
 
@@ -52,11 +51,12 @@ impl<'src> Parser<'src> {
         self.tokens.current_span()
     }
 
-    fn add_error<T>(&mut self, error: ParseErrorKind, span: T) 
-    where 
+    fn add_error<T>(&mut self, error: ParseErrorKind, span: T)
+    where
         T: Spanned,
     {
-        let is_same_location = self.errors
+        let is_same_location = self
+            .errors
             .last()
             .is_some_and(|last| last.span.start() == span.start());
         if !is_same_location {

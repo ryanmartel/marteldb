@@ -4,14 +4,12 @@ use crate::{errors::ParseErrorKind, tokens::TokenKind};
 
 use super::Parser;
 
-
 impl<'src> Parser<'src> {
-
     pub fn parse_statement(&mut self) -> Stmt {
         let stmt = match self.current_token_kind() {
             TokenKind::Begin => Stmt::Begin(self.parse_begin_statement()),
             TokenKind::Commit => Stmt::Commit(self.parse_commit_statement()),
-            _ => unimplemented!()
+            _ => unimplemented!(),
         };
         if !self.eat(TokenKind::Semicolon) {
             self.add_error(ParseErrorKind::MissingSemicolon, self.current_token_span());
@@ -48,7 +46,7 @@ mod test {
         let source = "BEGIN;";
         let mut parser = Parser::new(source);
         let stmt = parser.parse_statement();
-        assert!(matches!(stmt, Stmt::Begin(ast::StmtBegin{ span: _})));
+        assert!(matches!(stmt, Stmt::Begin(ast::StmtBegin { span: _ })));
     }
 
     #[test]
@@ -57,7 +55,9 @@ mod test {
         let mut parser = Parser::new(source);
         let stmt = parser.parse_statement();
         assert!(parser.errors.len() == 1);
-        assert!(parser.errors.first()
+        assert!(parser
+            .errors
+            .first()
             .is_some_and(|first| matches!(first.kind, ParseErrorKind::MissingSemicolon)));
     }
 
@@ -66,6 +66,6 @@ mod test {
         let source = "COMMIT;";
         let mut parser = Parser::new(source);
         let stmt = parser.parse_statement();
-        assert!(matches!(stmt, Stmt::Commit(ast::StmtCommit{ span: _})));
+        assert!(matches!(stmt, Stmt::Commit(ast::StmtCommit { span: _ })));
     }
 }

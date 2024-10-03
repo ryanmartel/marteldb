@@ -4,15 +4,16 @@ use std::str::FromStr;
 use ast::name::Name;
 use source_index::{location::Location, span::Span};
 
-use crate::{errors::{LexicalError, LexicalErrorKind}, tokens::{TokenKind, TokenValue}};
+use crate::{
+    errors::{LexicalError, LexicalErrorKind},
+    tokens::{TokenKind, TokenValue},
+};
 
 use self::cursor::Cursor;
-
 
 mod cursor;
 
 pub struct Lexer<'src> {
-
     source: &'src str,
 
     // Current index into the source string.
@@ -31,7 +32,6 @@ pub struct Lexer<'src> {
 }
 
 impl<'src> Lexer<'src> {
-
     pub(crate) fn new(source: &'src str) -> Self {
         Lexer {
             source,
@@ -39,10 +39,9 @@ impl<'src> Lexer<'src> {
             current_kind: TokenKind::Unknown,
             current_value: TokenValue::None,
             current_span: Span::new(Location::new(0), Location::new(0)),
-            errors: Vec::new()
+            errors: Vec::new(),
         }
     }
-
 
     pub fn next_token(&mut self) -> TokenKind {
         self.cursor.start_token();
@@ -74,13 +73,14 @@ impl<'src> Lexer<'src> {
             } else {
                 // TokenKind::Unknown
                 self.push_error(LexicalError::new(
-                        LexicalErrorKind::InvalidToken, self.token_range()))
+                    LexicalErrorKind::InvalidToken,
+                    self.token_range(),
+                ))
             }
         } else {
             // reached end of file
             TokenKind::EndOfFile
         }
-        
     }
 
     fn skip_whitespace(&mut self) {
@@ -105,7 +105,7 @@ impl<'src> Lexer<'src> {
             '\'' => self.lex_string(),
             '-' => {
                 if self.cursor.eat_char('-') {
-                    return self.lex_comment()
+                    return self.lex_comment();
                 }
                 TokenKind::Minus
             }
@@ -113,8 +113,9 @@ impl<'src> Lexer<'src> {
             ')' => TokenKind::RParen,
             ';' => TokenKind::Semicolon,
             _ => self.push_error(LexicalError::new(
-                    LexicalErrorKind::InvalidToken, self.token_range()
-            ))
+                LexicalErrorKind::InvalidToken,
+                self.token_range(),
+            )),
         };
         token
     }
@@ -139,7 +140,6 @@ impl<'src> Lexer<'src> {
             _ => {
                 self.current_value = TokenValue::Name(Name::new(text.to_string()));
                 TokenKind::Name
-
             }
         }
     }
@@ -154,7 +154,8 @@ impl<'src> Lexer<'src> {
             owned.push(c);
             if !self.cursor.eat_char('.') {
                 return self.push_error(LexicalError::new(
-                        LexicalErrorKind::InvalidNumber, self.token_range()
+                    LexicalErrorKind::InvalidNumber,
+                    self.token_range(),
                 ));
             }
             owned.push('.');
@@ -179,7 +180,8 @@ impl<'src> Lexer<'src> {
         if is_float {
             let Ok(val) = f64::from_str(&owned) else {
                 return self.push_error(LexicalError::new(
-                        LexicalErrorKind::InvalidFloat, self.token_range()
+                    LexicalErrorKind::InvalidFloat,
+                    self.token_range(),
                 ));
             };
             self.current_value = TokenValue::Float(val);
@@ -187,7 +189,8 @@ impl<'src> Lexer<'src> {
         }
         let Ok(val) = i32::from_str(&owned) else {
             return self.push_error(LexicalError::new(
-                    LexicalErrorKind::InvalidInt, self.token_range()
+                LexicalErrorKind::InvalidInt,
+                self.token_range(),
             ));
         };
         self.current_value = TokenValue::Int(val);
@@ -197,28 +200,28 @@ impl<'src> Lexer<'src> {
     fn lex_comment(&mut self) -> TokenKind {
         self.cursor.eat_while(|c| !matches!(c, '\n' | '\r'));
         TokenKind::Comment
-    } 
+    }
 
     fn lex_string(&mut self) -> TokenKind {
         let mut num_backslashes = 0;
         loop {
             match self.cursor.bump() {
-                Some(c) => {
-                    match c {
-                        '\\' => num_backslashes += 1,
-                        '\'' => {
-                            if num_backslashes%2 == 0 {
-                                break;
-                            }
-                            num_backslashes = 0
+                Some(c) => match c {
+                    '\\' => num_backslashes += 1,
+                    '\'' => {
+                        if num_backslashes % 2 == 0 {
+                            break;
                         }
-                        _ => num_backslashes = 0,
-                        
+                        num_backslashes = 0
                     }
+                    _ => num_backslashes = 0,
+                },
+                None => {
+                    return self.push_error(LexicalError::new(
+                        LexicalErrorKind::UnterminatedString,
+                        self.token_range(),
+                    ))
                 }
-                None => return self.push_error(LexicalError::new(
-                        LexicalErrorKind::UnterminatedString, self.token_range()
-                ))
             }
         }
         let text = self.token_text();
@@ -248,7 +251,7 @@ impl<'src> Lexer<'src> {
             current_kind: self.current_kind,
             current_span: self.current_span,
             cursor_offset: self.offset(),
-            errors_position: self.errors.len()
+            errors_position: self.errors.len(),
         }
     }
 
@@ -261,7 +264,7 @@ impl<'src> Lexer<'src> {
             cursor_offset,
             errors_position,
         } = checkpoint;
-        
+
         let mut cursor = Cursor::new(self.source);
         cursor.seek_forward(*cursor_offset);
 
@@ -279,7 +282,6 @@ pub struct LexerCheckpoint {
     current_span: Span,
     cursor_offset: Location,
     errors_position: usize,
-
 }
 
 fn is_identifier_start(c: char) -> bool {
@@ -293,9 +295,6 @@ fn is_identifier_rest(c: char) -> bool {
 fn is_digit(c: char) -> bool {
     matches!(c, '0'..='9')
 }
-
-
-
 
 #[cfg(test)]
 mod tests {
@@ -327,8 +326,10 @@ mod tests {
         let source = "SELECT";
         let mut lexer = Lexer::new(source);
         let token = lexer.next_token();
-        assert!(matches!(token, TokenKind::Select),
-            "Did not get SELECT token. received {token}");
+        assert!(
+            matches!(token, TokenKind::Select),
+            "Did not get SELECT token. received {token}"
+        );
     }
 
     #[test]
@@ -336,8 +337,10 @@ mod tests {
         let source = "select";
         let mut lexer = Lexer::new(source);
         let token = lexer.next_token();
-        assert!(matches!(token, TokenKind::Select),
-            "Did not get Select token. received {token}");
+        assert!(
+            matches!(token, TokenKind::Select),
+            "Did not get Select token. received {token}"
+        );
     }
 
     #[test]
@@ -346,10 +349,15 @@ mod tests {
         let _owned = String::from(source);
         let mut lexer = Lexer::new(source);
         let token = lexer.next_token();
-        assert!(matches!(token, TokenKind::Name),
-            "Did not get Name token. received {token}");
-        assert!(matches!(lexer.current_value.clone(), TokenValue::Name(_owned)),
-            "Did not get the Name col, got {:?}", &lexer.current_value);
+        assert!(
+            matches!(token, TokenKind::Name),
+            "Did not get Name token. received {token}"
+        );
+        assert!(
+            matches!(lexer.current_value.clone(), TokenValue::Name(_owned)),
+            "Did not get the Name col, got {:?}",
+            &lexer.current_value
+        );
     }
 
     #[test]
@@ -358,18 +366,30 @@ mod tests {
         let _expected = TokenValue::Name(Name::new(source.to_string()));
         let mut lexer = Lexer::new(source);
         let token = lexer.next_token();
-        assert!(matches!(token, TokenKind::Name),
-            "Did not get Name token. Received {token}");
-        assert_eq!(lexer.current_value.clone(), _expected,
-            "Did not get the Name table.col, got {:?}", &lexer.current_value);
+        assert!(
+            matches!(token, TokenKind::Name),
+            "Did not get Name token. Received {token}"
+        );
+        assert_eq!(
+            lexer.current_value.clone(),
+            _expected,
+            "Did not get the Name table.col, got {:?}",
+            &lexer.current_value
+        );
         let source = "table.*";
         let _expected = TokenValue::Name(Name::new(source.to_string()));
         let mut lexer = Lexer::new(source);
         let token = lexer.next_token();
-        assert!(matches!(token, TokenKind::Name),
-            "Did not get Name token. Received {token}");
-        assert_eq!(lexer.current_value.clone(), _expected,
-            "Did not get the Name table.*, got {:?}", &lexer.current_value);
+        assert!(
+            matches!(token, TokenKind::Name),
+            "Did not get Name token. Received {token}"
+        );
+        assert_eq!(
+            lexer.current_value.clone(),
+            _expected,
+            "Did not get the Name table.*, got {:?}",
+            &lexer.current_value
+        );
     }
 
     #[test]
@@ -378,22 +398,32 @@ mod tests {
         let mut lexer = Lexer::new(source);
         let t1 = lexer.next_token();
         assert!(matches!(t1, TokenKind::Int));
-        assert!(matches!(lexer.current_value, TokenValue::Int(17)),
-            "Did not get right value. got {:?} expected 17", lexer.current_value);
+        assert!(
+            matches!(lexer.current_value, TokenValue::Int(17)),
+            "Did not get right value. got {:?} expected 17",
+            lexer.current_value
+        );
         let t2 = lexer.next_token();
         assert!(matches!(t2, TokenKind::Float));
-        assert!(matches!(lexer.current_value, TokenValue::Float(0.94)),
-            "Did not get right value. got {:?} expected 0.94", lexer.current_value);
+        assert!(
+            matches!(lexer.current_value, TokenValue::Float(0.94)),
+            "Did not get right value. got {:?} expected 0.94",
+            lexer.current_value
+        );
         let t3 = lexer.next_token();
         assert!(matches!(t3, TokenKind::Float));
-        assert!(matches!(lexer.current_value, TokenValue::Float(8.57)),
-            "Did not get right value. got {:?} expected 8.57", lexer.current_value);
+        assert!(
+            matches!(lexer.current_value, TokenValue::Float(8.57)),
+            "Did not get right value. got {:?} expected 8.57",
+            lexer.current_value
+        );
         let t4 = lexer.next_token();
         assert!(matches!(t4, TokenKind::Float));
-        assert!(matches!(lexer.current_value, TokenValue::Float(98.99)),
-            "Did not get right value. got {:?} expected 98.99", lexer.current_value);
-
-
+        assert!(
+            matches!(lexer.current_value, TokenValue::Float(98.99)),
+            "Did not get right value. got {:?} expected 98.99",
+            lexer.current_value
+        );
     }
 
     #[test]
@@ -404,11 +434,15 @@ mod tests {
         let mut lexer = Lexer::new(source);
         let _select = lexer.next_token();
         let comment = lexer.next_token();
-        assert!(matches!(comment, TokenKind::Comment),
-            "Comment token did not match. got {comment}");
+        assert!(
+            matches!(comment, TokenKind::Comment),
+            "Comment token did not match. got {comment}"
+        );
         let semicolon = lexer.next_token();
-        assert!(matches!(semicolon, TokenKind::Semicolon),
-            "Lost token following comment. expected semicolon, got {semicolon}");
+        assert!(
+            matches!(semicolon, TokenKind::Semicolon),
+            "Lost token following comment. expected semicolon, got {semicolon}"
+        );
     }
 
     #[test]
@@ -417,10 +451,15 @@ mod tests {
         let _expected = TokenValue::String(String::from(source));
         let mut lexer = Lexer::new(source);
         let token = lexer.next_token();
-        assert!(matches!(token, TokenKind::String),
-            "String token did not match. Got {token}");
-        assert_eq!(_expected, lexer.current_value,
-            "Did not get 'string lit', got {:?}", lexer.current_value);
+        assert!(
+            matches!(token, TokenKind::String),
+            "String token did not match. Got {token}"
+        );
+        assert_eq!(
+            _expected, lexer.current_value,
+            "Did not get 'string lit', got {:?}",
+            lexer.current_value
+        );
     }
 
     #[test]
@@ -429,11 +468,17 @@ mod tests {
         let _expected = LexicalErrorKind::UnterminatedString;
         let mut lexer = Lexer::new(source);
         let token = lexer.next_token();
-        assert!(matches!(token, TokenKind::Unknown),
-            "String token did not match. Got {token}");
+        assert!(
+            matches!(token, TokenKind::Unknown),
+            "String token did not match. Got {token}"
+        );
         let e = lexer.errors.first().unwrap();
-        assert_eq!(_expected, e.error_kind(),
-            "Did not get UnterminatedString, got {:?}", e.error_kind());
+        assert_eq!(
+            _expected,
+            e.error_kind(),
+            "Did not get UnterminatedString, got {:?}",
+            e.error_kind()
+        );
     }
 
     #[test]
@@ -442,10 +487,15 @@ mod tests {
         let _expected = TokenValue::String(String::from(source));
         let mut lexer = Lexer::new(source);
         let token = lexer.next_token();
-        assert!(matches!(token, TokenKind::String),
-            "String token did not match. Got {token}");
-        assert_eq!(_expected, lexer.current_value,
-            "Did not get 'string lit', got {:?}", lexer.current_value);
+        assert!(
+            matches!(token, TokenKind::String),
+            "String token did not match. Got {token}"
+        );
+        assert_eq!(
+            _expected, lexer.current_value,
+            "Did not get 'string lit', got {:?}",
+            lexer.current_value
+        );
     }
 
     #[test]
@@ -454,11 +504,15 @@ mod tests {
         let _expected = TokenValue::String(String::from(source));
         let mut lexer = Lexer::new(source);
         let token = lexer.next_token();
-        assert!(matches!(token, TokenKind::String),
-            "String token did not match. Got {token}");
-        assert_eq!(_expected, lexer.current_value,
-            "Did not get 'string lit', got {:?}", lexer.current_value);
-
+        assert!(
+            matches!(token, TokenKind::String),
+            "String token did not match. Got {token}"
+        );
+        assert_eq!(
+            _expected, lexer.current_value,
+            "Did not get 'string lit', got {:?}",
+            lexer.current_value
+        );
     }
 
     #[test]
@@ -466,7 +520,9 @@ mod tests {
         let source = "BEGIN;";
         let mut lexer = Lexer::new(source);
         let token = lexer.next_token();
-        assert!(matches!(token, TokenKind::Begin),
-            "BEGIN token not found. Got {token}");
+        assert!(
+            matches!(token, TokenKind::Begin),
+            "BEGIN token not found. Got {token}"
+        );
     }
 }

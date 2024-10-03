@@ -9,12 +9,8 @@ pub struct Span {
 }
 
 impl Span {
-
     pub fn new(start: Location, end: Location) -> Self {
-        Self {
-            start,
-            end,
-        }
+        Self { start, end }
     }
 
     // Creates a 0 length span at index
@@ -41,9 +37,9 @@ impl Index<Span> for str {
     }
 }
 
-impl<T> From<Span> for Range<T> 
+impl<T> From<Span> for Range<T>
 where
-    T: From<Location>
+    T: From<Location>,
 {
     fn from(value: Span) -> Self {
         value.start.into()..value.end.into()

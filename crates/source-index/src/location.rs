@@ -1,6 +1,5 @@
 use std::ops::Sub;
 
-
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Ord, Eq)]
 pub struct Location(usize);
 
@@ -13,11 +12,9 @@ impl std::ops::Deref for Location {
 }
 
 impl Location {
-
     pub fn new(l: usize) -> Self {
         Self::from(l)
     }
-    
 }
 
 impl From<usize> for Location {

@@ -1,20 +1,22 @@
 use source_index::span::Span;
 
-use crate::{lexer::Lexer, tokens::{Token, TokenKind}};
+use crate::{
+    lexer::Lexer,
+    tokens::{Token, TokenKind},
+};
 
 pub struct TokenSource<'src> {
     // underlying lexer for the tokens
     lexer: Lexer<'src>,
 
     // vector containing all tokens after parser has finished.
-    tokens: Vec<Token>
+    tokens: Vec<Token>,
 }
 
 impl<'src> TokenSource<'src> {
-    
     pub fn new(source: &'src str) -> Self {
         let lexer = Lexer::new(source);
-        let mut token_source = Self{
+        let mut token_source = Self {
             lexer,
             tokens: Vec::new(),
         };
@@ -33,7 +35,6 @@ impl<'src> TokenSource<'src> {
             }
             break;
         }
-
     }
 
     pub fn bump(&mut self, kind: TokenKind) {

@@ -16,4 +16,3 @@ impl PartialEq for Name {
         self.0 == other.0
     }
 }
-

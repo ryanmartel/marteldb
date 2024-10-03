@@ -11,12 +11,8 @@ pub struct Token {
 }
 
 impl Token {
-
     pub fn new(kind: TokenKind, span: Span) -> Self {
-        Token {
-            kind,
-            span,
-        }
+        Token { kind, span }
     }
 
     pub fn start(&self) -> Location {
@@ -34,9 +30,7 @@ impl Token {
 
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum TokenKind {
-
     Name,
-
 
     // Keywords -------------
     Abort,
@@ -121,7 +115,6 @@ pub enum TokenKind {
     Int,
     String,
 
-
     Comment,
     Unknown,
     EndOfFile,
@@ -142,5 +135,4 @@ pub enum TokenValue {
     Float(f64),
     Int(i32),
     String(String),
-
 }

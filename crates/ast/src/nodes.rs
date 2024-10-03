@@ -37,7 +37,6 @@ pub struct Identifier {
 }
 
 impl Identifier {
-
     pub fn new(id: impl Into<Name>, span: Span) -> Self {
         Self {
             id: id.into(),
@@ -48,7 +47,6 @@ impl Identifier {
     pub fn id(&self) -> &Name {
         &self.id
     }
-
 }
 
 impl Spanned for Identifier {
@@ -56,5 +54,3 @@ impl Spanned for Identifier {
         self.span
     }
 }
-
-

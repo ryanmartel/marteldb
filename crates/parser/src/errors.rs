@@ -1,4 +1,7 @@
-use std::{fmt::{Display, Write}, ops::Deref};
+use std::{
+    fmt::{Display, Write},
+    ops::Deref,
+};
 
 use source_index::span::Span;
 
@@ -10,12 +13,8 @@ pub struct ParseError {
 }
 
 impl ParseError {
-
     pub fn new(kind: ParseErrorKind, span: Span) -> Self {
-        Self {
-            kind,
-            span,
-        }
+        Self { kind, span }
     }
 }
 
@@ -40,19 +39,14 @@ impl Display for ParseErrorKind {
 
 #[derive(Debug)]
 pub struct LexicalError {
-
     kind: LexicalErrorKind,
 
-    span: Span
+    span: Span,
 }
 
 impl LexicalError {
-
     pub fn new(kind: LexicalErrorKind, span: Span) -> Self {
-        Self {
-            kind,
-            span,
-        }
+        Self { kind, span }
     }
 
     pub fn error_kind(&self) -> LexicalErrorKind {
@@ -81,21 +75,15 @@ pub enum LexicalErrorKind {
 impl Display for LexicalErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
-            LexicalErrorKind::UnterminatedString => {
-                f.write_str("Unterminated string literal")
-            }
+            LexicalErrorKind::UnterminatedString => f.write_str("Unterminated string literal"),
             LexicalErrorKind::InvalidInt => {
                 f.write_str("Integer format not supported or is too large")
             }
             LexicalErrorKind::InvalidFloat => {
                 f.write_str("Float format not supported or is too large")
             }
-            LexicalErrorKind::InvalidNumber => {
-                f.write_str("This number format is not supported")
-            }
-            LexicalErrorKind::InvalidToken => {
-                f.write_str("Unexpected or invalid token found")
-            }
+            LexicalErrorKind::InvalidNumber => f.write_str("This number format is not supported"),
+            LexicalErrorKind::InvalidToken => f.write_str("Unexpected or invalid token found"),
         }
     }
 }

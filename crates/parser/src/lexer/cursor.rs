@@ -6,16 +6,14 @@ pub const EOF_CHAR: char = '\0';
 
 /// A Cursor that marks the current lexer location.
 pub(super) struct Cursor<'src> {
-
     chars: Chars<'src>,
 
     source_length: Location,
-    
+
     current: Location,
 }
 
 impl<'src> Cursor<'src> {
-
     pub fn new(source: &'src str) -> Self {
         Self {
             chars: source.chars(),
@@ -112,5 +110,3 @@ mod tests {
         assert!(cursor.eat_char('0'));
     }
 }
-
-
