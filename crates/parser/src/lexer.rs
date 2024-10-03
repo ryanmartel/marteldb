@@ -133,6 +133,7 @@ impl<'src> Lexer<'src> {
         }
         let text = self.token_text();
         match text.to_uppercase().as_str() {
+            "BEGIN" => TokenKind::Begin,
             "SELECT" => TokenKind::Select,
             _ => {
                 self.current_value = TokenValue::Name(Name::new(text.to_string()));
@@ -457,5 +458,14 @@ mod tests {
         assert_eq!(_expected, lexer.current_value,
             "Did not get 'string lit', got {:?}", lexer.current_value);
 
+    }
+
+    #[test]
+    fn begin_lexer() {
+        let source = "BEGIN;";
+        let mut lexer = Lexer::new(source);
+        let token = lexer.next_token();
+        assert!(matches!(token, TokenKind::Begin),
+            "BEGIN token not found. Got {token}");
     }
 }
