@@ -85,6 +85,12 @@ impl<'src> Parser<'src> {
         }
     }
 
+    // consume tokens until the current kind is found. 
+    // stops before eating stop_kind
+    fn eat_until(&mut self, stop_kind: TokenKind) {
+        self.tokens.skip_bump(stop_kind);
+    }
+
     fn at(&self, kind: TokenKind) -> bool {
         self.current_token_kind() == kind
     }
@@ -99,5 +105,16 @@ mod test {
         let source = "";
         let mut parser = Parser::new(source);
         assert!(parser.eat(TokenKind::EndOfFile));
+    }
+
+    #[test]
+    fn skip_bump_test() {
+        let source = "BEGIN BEGIN BEGIN BEGIN;
+        BEGIN;";
+        let mut parser = Parser::new(source);
+        parser.bump(TokenKind::Begin);
+        parser.eat_until(TokenKind::Semicolon);
+        assert!(matches!(parser.current_token_kind(), TokenKind::Semicolon),
+            "should be semicolon, got {}", parser.current_token_kind());
     }
 }

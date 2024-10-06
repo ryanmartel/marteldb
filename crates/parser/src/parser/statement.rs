@@ -9,6 +9,7 @@ impl<'src> Parser<'src> {
         let stmt = match self.current_token_kind() {
             TokenKind::Begin => Stmt::Begin(self.parse_begin_statement()),
             TokenKind::Commit => Stmt::Commit(self.parse_commit_statement()),
+            // TokenKind::Drop => parse_drop_statement(),
             _ => unimplemented!(),
         };
         if !self.eat(TokenKind::Semicolon) {
@@ -35,6 +36,25 @@ impl<'src> Parser<'src> {
             span: self.node_span(start),
         }
     }
+
+    pub fn parse_drop_statement(&mut self) -> Stmt {
+        let start = self.node_start();
+        self.bump(TokenKind::Drop);
+        match self.current_token_kind() {
+            TokenKind::Table => {
+                unimplemented!()
+            }
+            TokenKind::Index => {
+                unimplemented!()
+            }
+            _ => {
+                self.add_error(ParseErrorKind::InvalidDropTarget, self.current_token_span());
+                return Stmt::Invalid(ast::StmtInvalid {span: self.node_span(start)})
+
+            }
+
+        }
+    }
 }
 
 #[cfg(test)]
@@ -53,7 +73,7 @@ mod test {
     fn missing_semicolon_error() {
         let source = "BEGIN";
         let mut parser = Parser::new(source);
-        let stmt = parser.parse_statement();
+        let _stmt = parser.parse_statement();
         assert!(parser.errors.len() == 1);
         assert!(parser
             .errors

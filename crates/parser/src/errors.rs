@@ -5,6 +5,8 @@ use std::{
 
 use source_index::span::Span;
 
+use crate::tokens::TokenKind;
+
 #[derive(Debug, Clone)]
 pub struct ParseError {
     pub kind: ParseErrorKind,
@@ -20,6 +22,11 @@ impl ParseError {
 
 #[derive(Debug, Clone)]
 pub enum ParseErrorKind {
+    ExpectedToken { 
+        found: TokenKind, 
+        expected: TokenKind,
+    },
+    InvalidDropTarget,
     Lexical(LexicalErrorKind),
     MissingSemicolon,
 }
@@ -27,6 +34,12 @@ pub enum ParseErrorKind {
 impl Display for ParseErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            ParseErrorKind::ExpectedToken { found, expected } => {
+                write!(f, "Expected {expected}, Found {found}")
+            }
+            ParseErrorKind::InvalidDropTarget => {
+                f.write_str("Expected either TABLE or INDEX following DROP")
+            }
             ParseErrorKind::MissingSemicolon => {
                 f.write_str("Missing terminating semicolon at end of statement.")
             }

@@ -1,4 +1,4 @@
-use std::ops::Sub;
+use std::{fmt::Display, ops::Sub};
 
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Ord, Eq)]
 pub struct Location(usize);
@@ -14,6 +14,13 @@ impl std::ops::Deref for Location {
 impl Location {
     pub fn new(l: usize) -> Self {
         Self::from(l)
+    }
+}
+
+impl Display for Location {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let loc = self.0;
+        write!(f, "{loc}")
     }
 }
 

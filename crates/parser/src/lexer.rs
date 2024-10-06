@@ -48,6 +48,9 @@ impl<'src> Lexer<'src> {
         self.current_value = TokenValue::None;
         self.current_kind = self.lex_token();
 
+        if !matches!(self.current_kind(), TokenKind::Unknown) {
+            self.current_span = self.token_range();
+        }
         self.current_kind
     }
 
@@ -237,7 +240,7 @@ impl<'src> Lexer<'src> {
         let end = self.offset();
         let len = self.cursor.token_length();
 
-        Span::new(end - len, len)
+        Span::new(end - len, end)
     }
 
     fn offset(&self) -> Location {

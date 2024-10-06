@@ -1,4 +1,4 @@
-use std::ops::{Index, Range};
+use std::{fmt::Display, ops::{Index, Range}};
 
 use crate::location::Location;
 
@@ -43,6 +43,14 @@ where
 {
     fn from(value: Span) -> Self {
         value.start.into()..value.end.into()
+    }
+}
+
+impl Display for Span {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        let loc1 = self.start;
+        let loc2 = self.end;
+        write!(f, "start: {loc1}, end: {loc2}")
     }
 }
 

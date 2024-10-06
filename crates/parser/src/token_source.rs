@@ -42,6 +42,17 @@ impl<'src> TokenSource<'src> {
         self.do_bump();
     }
 
+    // bumps any token as if `[bump]` was called.
+    // Stops on stop token
+    pub fn skip_bump(&mut self, stop_token: TokenKind) {
+        loop {
+            let kind = self.lexer.next_token();
+            if kind == stop_token {
+                return;
+            }
+        }
+    }
+
     pub fn peek(&mut self) -> TokenKind {
         let checkpoint = self.lexer.checkpoint();
         let next = self.next_non_comment_token();
