@@ -43,6 +43,49 @@ impl From<StmtInvalid> for Stmt {
 }
 
 #[derive(Clone, Debug, PartialEq)]
+pub enum Expr {
+    StringLiteral(ExprStringLiteral),
+    BooleanLiteral(ExprBooleanLiteral),
+    NullLiteral(ExprNullLiteral),
+    IntLiteral(ExprIntLiteral),
+    FloatLiteral(ExprFloatLiteral),
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ExprStringLiteral {
+    pub span: Span,
+    pub value: String,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ExprBooleanLiteral {
+    pub span: Span,
+    pub value: bool
+
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ExprNullLiteral {
+    pub span: Span,
+
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ExprIntLiteral {
+    pub span: Span,
+    pub value: i64,
+
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ExprFloatLiteral {
+    pub span: Span,
+    pub value: f64
+
+}
+
+
+#[derive(Clone, Debug, PartialEq)]
 pub struct Identifier {
     pub id: Name,
     pub span: Span,
@@ -66,3 +109,4 @@ impl Spanned for Identifier {
         self.span
     }
 }
+

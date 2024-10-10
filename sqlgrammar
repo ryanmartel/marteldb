@@ -121,6 +121,7 @@
 <compound-operator> [UNION | UNION ALL | INTERSECT | EXCEPT]
 
 <type-name> := name [(<signed-number>) | (<signed-number>, <signed-number>)]?
+
 <column-constraint> := 
       PRIMARY KEY [ASC|DESC]? <conflict-cause>
     | NOT NULL <conflict-cause>

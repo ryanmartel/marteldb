@@ -7,6 +7,7 @@ use crate::token_source::TokenSource;
 use crate::tokens::TokenKind;
 
 mod statement;
+mod expression;
 
 pub struct Parser<'src> {
     // source string

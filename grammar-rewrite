@@ -1,0 +1,183 @@
+<type-name> := 
+    name 
+
+<type-name-numbers> :=
+    
+
+<column-constraint> := 
+      PRIMARY KEY <column-constraint-primary-key>
+    | NOT NULL <conflict-clause>
+    | UNIQUE <conflict-clause>
+    | CHECK (<expr>)
+    | DEFAULT <column-constraint-default>
+    | COLLATE collation-name
+    | <foreign-key-clause>
+
+<column-constraint-primary-key> :=
+      <conflict-clause>
+    | ASC <conflict-clause>
+    | DESC <conflict-clause>
+
+<column-constraint-default> :=
+      (<expr>)
+    | <literal-value>
+    | <signed-number>
+
+
+<conflict-clause> :=
+      ON CONFLICT <conflict-action>
+    | ε
+
+<conflict-action> :=
+      ROLLBACK
+    | ABORT
+    | FAIL
+    | IGNORE
+    | REPLACE
+
+<foreign-key-clause> :=
+    REFERENCES foreign-table <foreign-key-clause-columns> <foreign-key-clause-on>
+
+<foreign-key-clause-columns> := 
+    column-name <foreign-key-clause-column-list>
+    | ε
+
+<foreign-key-clause-column-list> :=
+    , column-name <foreign-key-clause-column-list>
+    | ε
+
+<foreign-key-cluase-on> :=
+    ON <foreign-key-clause-updel>
+    | ε
+
+<foreign-key-caluse-updel> :=
+    DELETE <foreign-key-clause-actions>
+    | UPDATE <foreign-key-clause-actions>
+
+<foreign-key-clause-actions> := 
+    SET <foreign-key-clause-actions-set>
+    | CASCADE
+    | RESTRICT
+    | NO ACTION
+
+<foreign-key-clause-actions-set> :=
+    NULL
+    | DEFAULT
+
+<join-clause> := 
+      <table-or-subquery> <join-clause-chain>
+
+<join-clause-chain> :=
+      <join-operator> <table-or-subquery> <join-constraint> <join-clause-chain>
+    | ε
+
+<table-or-subquery> :=
+      table-name <table-or-subquery-tablename>
+    | ( <table-or-subquery-paren>
+
+<table-or-subquery-tablename> :=
+      AS table-alias <table-or-subquery-as>
+    | INDEXED BY index-name
+    | NOT INDEXED
+    | ε
+
+<table-or-subquery-as> :=
+      INDEXED BY index-name
+    | NOT INDEXED
+    | ε
+
+<table-or-subquery-paren> :=
+      <select-stmt> ) <table-or-subquery-select>
+    | <join-clause> )
+    | <table-or-subquery> [, <table-or-subquery>]* )
+
+<table-or-subquery-select> :=
+      AS table-alias
+    | ε
+
+<join-operator> := 
+      ,
+    | CROSS JOIN
+    | NATURAL <join-operator-natural>
+    | LEFT <join-operator-left>
+    | RIGHT <join-operator-right>
+    | FULL <join-operator-full>
+    | INNER JOIN
+    | JOIN
+
+<join-operator-natural> :=
+      INNER JOIN
+    | LEFT <join-operator-left>
+    | RIGHT <join-operator-right>
+    | FULL <join-operator-full>
+    
+<join-operator-left> :=
+      OUTER JOIN
+    | JOIN
+
+<join-operator-right> :=
+      OUTER JOIN
+    | JOIN
+
+<join-operator-full> :=
+      OUTER JOIN
+    | JOIN
+
+
+<join-constraint> :=
+      ON <expr>
+    | USING (column-name [, column-name]*)
+    | ε
+
+<expr> :=
+      <literal-value> <expr'>
+    | table-name.column-name <expr'>
+    | column-name <expr'>
+    | unary-operator <expr> <expr'>
+    | ( <expr-paren> ) <expr'>
+*1  | NOT EXISTS (<select-stmt>) <expr'>
+    | EXISTS (<select-stmt>) <expr'>
+
+<expr-paren> :=
+      <select-stmt>
+    | <expr> [, <expr>*]*
+
+<expr'> :=
+      binary-operator <expr> <expr'>
+    | COLLATE collation-name <expr'>
+    | LIKE <expr> <expr'>
+    | MATCH <expr> <expr'>
+    | IS <expr'-is> <expr'>
+    | NOT <expr'-not> <expr'>
+    | BETWEEN <expr> AND <expr> <expr'>
+    | IN <expr'-in> <expr'>
+    | ε
+
+<expr'-is> :=
+*1    <expr>
+    | DISTINCT FROM <expr>
+    | NULL
+*1  | NOT <expr'-is-not>
+
+<expr'-is-not> :=
+      DISTINCT FROM <expr>
+    | <expr>
+
+<expr'-not> := 
+      IN <expr'-in>
+    | BETWEEN <expr> AND <expr>
+    | NULL
+    | LIKE <expr>
+    | MATCH <expr>
+      
+
+<expr'-in> :=
+      table-name
+    | (<expr-paren>)
+
+<literal-value> := numberic-literal | string-literal | NULL | TRUE | FALSE
+
+<signed-number> :=
+      numeric-literal
+    | -numeric-literal
+    | +numeric-liternal
