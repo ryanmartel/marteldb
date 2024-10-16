@@ -1,8 +1,92 @@
-<type-name> := 
-    name 
+<returning-clause> := 
+      RETURNING 
 
-<type-name-numbers> :=
-    
+<upsert-clause> := 
+      ON CONFLICT <upsert-clause-paren> DO 
+
+<upsert-clause-action> :=
+      NOTHING
+    | UPDATE SET <upsert-clause-update-cols> = <expr> <upsert-clause-update-rest> <upsert-clause-where>
+
+<upsert-clause-update-rest> :=
+      , <upsert-clause-update-cols> = <expr> <upsert-clause-update-rest>
+    | ε
+
+<upsert-clause-update-cols> :=
+      column-name
+    | <column-name-list>
+
+<upsert-clause-paren> :=
+      ( <upsert-clause-columns> ) <upsert-clause-where> 
+    | ε
+
+<upsert-clause-where> :=
+      WHERE <expr>
+    | ε
+
+<upsert-clause-columns> :=
+      <indexed-column> [, <indexed-column]*
+    | ε
+
+<column-name-list> :=
+      ( column-name <column-name-list-rest> )
+
+<column-name-list-rest> :=
+      , column-name <column-name-list-rest>
+    | ε
+
+<indexed-column> := 
+      <column-name> <collation> <order>
+    | <expr> <collation> <order>
+
+<result-column> :=
+      *
+    | table-name.*
+    | <expr> <result-column-as-alias>
+
+<result-column-as-alias> :=
+      AS column-alias
+    | ε
+
+<ordering-term> :=
+      <expr> <collation> <order> <ordering-term-nulls>
+
+<ordering-term-nulls> :=
+      NULLS <ordering-term-null-order>
+    | ε
+
+<ordering-term-null-order> :=
+      FIRST
+    | LAST
+
+<order> :=
+      ASC
+    | DESC
+    | ε
+
+<collation> :=
+      COLLATE collation-name
+    | ε
+
+<compound-operator> :=
+      UNION <compound-operator-all>
+    | INTERSECT
+    | EXCEPT
+
+<compound-operator-all> :=
+      ALL
+    | ε
+
+<type-name> := 
+    name <type-name-number-field>
+
+<type-name-number-field> :=
+      ( <signed-number> <type-name-second-number> )
+    | ε
+
+<type-name-second-number> :=
+      , <signed-number>
+    | ε
 
 <column-constraint> := 
       PRIMARY KEY <column-constraint-primary-key>
@@ -175,9 +259,10 @@
       table-name
     | (<expr-paren>)
 
-<literal-value> := numberic-literal | string-literal | NULL | TRUE | FALSE
-
 <signed-number> :=
       numeric-literal
     | -numeric-literal
     | +numeric-liternal
+
+<literal-value> := numberic-literal | string-literal | NULL | TRUE | FALSE
+
