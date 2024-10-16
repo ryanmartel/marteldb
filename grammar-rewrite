@@ -1,5 +1,22 @@
+
+
+<indexed-column> :=
+      column-name <collation> <order>
+    | <expr> <collation> <order>
+
+<quantified-table-name> :=
+      table-name <table-as-indexed>
+
 <returning-clause> := 
-      RETURNING 
+      RETURNING <returning-clause-result>
+
+<returning-clause-results> := 
+      * <returning-clause-rest>
+    | <expr> <column-as-alias> <returning-clause-rest>
+
+<returning-clause-rest> :=
+      , <returning-clause-results>
+    | ε
 
 <upsert-clause> := 
       ON CONFLICT <upsert-clause-paren> DO 
@@ -42,9 +59,9 @@
 <result-column> :=
       *
     | table-name.*
-    | <expr> <result-column-as-alias>
+    | <expr> <column-as-alias>
 
-<result-column-as-alias> :=
+<column-as-alias> :=
       AS column-alias
     | ε
 
@@ -156,26 +173,23 @@
     | ε
 
 <table-or-subquery> :=
-      table-name <table-or-subquery-tablename>
+      table-name <table-as-indexed>
     | ( <table-or-subquery-paren>
 
-<table-or-subquery-tablename> :=
-      AS table-alias <table-or-subquery-as>
-    | INDEXED BY index-name
-    | NOT INDEXED
-    | ε
+<table-as-indexed> :=
+      <table-as-alias> <table-indexed>
 
-<table-or-subquery-as> :=
+<table-indexed> :=
       INDEXED BY index-name
     | NOT INDEXED
     | ε
 
 <table-or-subquery-paren> :=
-      <select-stmt> ) <table-or-subquery-select>
+      <select-stmt> ) <table-as-alias>
     | <join-clause> )
     | <table-or-subquery> [, <table-or-subquery>]* )
 
-<table-or-subquery-select> :=
+<table-as-alias> :=
       AS table-alias
     | ε
 
