@@ -1,8 +1,39 @@
 
+<alter-table-statement> :=
+      ALTER TABLE table-name 
 
+<
+
+-- STATEMENT SUPPORTING STRUCTURES --
+
+<column-def> := 
+      column-name <column-def-type-name> <column-def-constraint-list>
+
+<column-def-type-name> :=
+      <type-name>
+    | ε
+
+<column-def-constraint-list> :=
+      <column-constraint> <column-def-constraint-list>
+    | ε
+
+<table-constraint> :=
+      PRIMARY KEY (<indexed-column-list>) <conflict-clause>
+    | UNIQUE (<indexed-column-list>) <conflict-clause>
+    | CHECK (<expr>)
+    | FOREIGN KEY ( <column-name-list> ) <foreign-key-clause>
+      
 <indexed-column> :=
       column-name <collation> <order>
     | <expr> <collation> <order>
+
+<indexed-column-list> :=
+      <indexed-column> <indexed-column-rest>
+    | ε
+
+<indexed-column-rest> :=
+      , <indexed-column> <indexed-column-rest>
+    | ε
 
 <quantified-table-name> :=
       table-name <table-as-indexed>
@@ -31,7 +62,7 @@
 
 <upsert-clause-update-cols> :=
       column-name
-    | <column-name-list>
+    | ( <column-name-list> )
 
 <upsert-clause-paren> :=
       ( <upsert-clause-columns> ) <upsert-clause-where> 
@@ -46,7 +77,7 @@
     | ε
 
 <column-name-list> :=
-      ( column-name <column-name-list-rest> )
+      column-name <column-name-list-rest>
 
 <column-name-list-rest> :=
       , column-name <column-name-list-rest>
@@ -197,30 +228,21 @@
       ,
     | CROSS JOIN
     | NATURAL <join-operator-natural>
-    | LEFT <join-operator-left>
-    | RIGHT <join-operator-right>
-    | FULL <join-operator-full>
+    | LEFT <join-operator-outer>
+    | RIGHT <join-operator-outer>
+    | FULL <join-operator-outer>
     | INNER JOIN
     | JOIN
 
 <join-operator-natural> :=
       INNER JOIN
-    | LEFT <join-operator-left>
-    | RIGHT <join-operator-right>
-    | FULL <join-operator-full>
+    | LEFT <join-operator-outer>
+    | RIGHT <join-operator-outer>
+    | FULL <join-operator-outer>
     
-<join-operator-left> :=
+<join-operator-outer> :=
       OUTER JOIN
     | JOIN
-
-<join-operator-right> :=
-      OUTER JOIN
-    | JOIN
-
-<join-operator-full> :=
-      OUTER JOIN
-    | JOIN
-
 
 <join-constraint> :=
       ON <expr>
