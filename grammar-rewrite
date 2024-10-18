@@ -1,10 +1,227 @@
+<stmt> :=
+      <alter-table-stmt>
+    | <begin-stmt>
+    | <commit-stmt>
+    | <create-stmt>
+    | <delete-stmt>
+    | <drop-stmt>
+    | <insert-stmt>
+    | <reindex-stmt>
+    | <release-stmt>
+    | <rollback-stmt>
+    | <savepoint-stmt>
+    | <select-stmt>
+    | <update-stmt>
+    | <vacuum-stmt>
 
-<alter-table-statement> :=
-      ALTER TABLE table-name 
+<alter-table-stmt> :=
+      ALTER TABLE table-name <alter-table-actions>
 
-<
+<alter-table-actions> :=
+      RENAME <alter-table-rename>
+    | ADD <alter-table-column-opt> <column-def>
+    | DROP <alter-table-column-opt> column-name
+
+<alter-table-rename> :=
+      TO new-table-name
+    | <alter-table-column-opt> column-name TO new-column-name
+
+<alter-table-column-opt> :=
+      COLUMN
+    | ε
+
+<begin-stmt> :=
+      BEGIN <transaction-opt>
+
+
+<commit-stmt> :=
+      COMMIT <transaction-opt>
+
+<transaction-opt> :=
+      TRANSACTION
+    | ε
+
+<create-stmt> :=
+      CREATE <create-stmt-types>
+
+<create-stmt-types> :=
+      <create-index-stmt>
+    | <create-table-stmt>
+
+<create-index-stmt> := 
+      <unique-opt> INDEX <not-exists-opt> index-name ON table-name (<indexed-column-list>) <where-expr>
+
+<create-table-stmt> :=
+      TABLE <not-exists-opt> table-name <create-table-source>
+
+<create-table-source> :=
+      AS <select-stmt>
+    | (<column-def-list> <table-constraint-rest>)
+
+<unique-opt> := 
+      UNIQUE
+    | ε
+
+<not-exists-opt> := 
+      IF NOT EXISTS
+    | ε
+
+<delete-stmt> :=
+      DELETE FROM <quantified-table-name> <where-expr> <returning-opt>
+
+<drop-stmt> :=
+    DROP <drop-stmt-types>
+
+<drop-stmt-types> :=
+      INDEX <not-exists-opt> index-name
+    | TABLE <not-exists-opt> table-name
+
+<insert-stmt> :=
+      INSERT INTO table-name <table-as-alias> <column-list-opt> <insert-actions> <returning-opt>
+
+<insert-actions> :=
+      VALUES ( <expr-list> ) <upsert-clause-opt>
+    | <select-stmt> <upsert-clause-opt>
+    | DEFAULT VALUES
+
+<reindex-stmt> := 
+      REINDEX <reindex-target>
+
+<reindex-target> :=
+      collation-name
+    | table-name
+    | index-name
+    | ε
+
+<release-stmt> := 
+      RELEASE <savepoint-opt> savepoint-name
+
+<savepoint-opt> :=
+      SAVEPOINT
+    | ε
+
+<rollback-stmt> :=
+      ROLLBACK <transaction-opt> <rollback-to>
+
+<rollback-to> :=
+      TO <savepoint-opt> savepoint-name
+    | ε
+
+<savepoint-stmt> :=
+      SAVEPOINT savepoint-name
+
+<select-stmt> :=
+      SELECT <distinct-opt> <result-column-list> <from-opt> <where-expr> <group-by> <having-expr> <compound-select> <order-by> <limit-opt>
+
+<from-opt> :=
+      FROM <from-target>
+    | ε
+
+<from-target> :=
+      <join-clause>
+    | <table-or-subquery-list>
+
+<group-by> :=
+      GROUP BY <expr-list>
+    | ε
+
+<having-expr> :=
+      HAVING <expr>
+    | ε
+
+<compound-select> :=
+      <compound-operator> <select-stmt>
+    | ε
+
+<order-by> :=
+      ORDER BY <ordering-term-list>
+    | ε
+
+<limit-opt> :=
+      LIMIT <expr> <offset-opt>
+    | ε
+
+<offset-opt> :=
+      OFFSET <expr>
+    | ε
+
+<update-stmt> :=
+      UPDATE <update-or> <quantified-table-name> SET <update-set-list> <from-opt> <where-expr> <returning-opt>
+
+<update-set-list> :=
+      <update-set-target> = <expr> <update-set-rest>
+
+<update-set-rest> :=
+      , <update-set-target> = <expr> <update-set-rest>
+    | ε
+
+<update-set-target> :=
+      column-name
+    | ( <column-name-list> )
+
+<update-or> :=
+      OR <update-or-action>
+    | ε
+
+<update-or-action> :=
+      ABORT
+    | FAIL
+    | IGNORE
+    | REPLACE
+    | ROLLBACK
+
+<vacuum-stmt> :=
+      VACUUM
+
+<ordering-term-list> :=
+      <ordering-term> <ordering-term-rest>
+
+<ordering-term-rest> :=
+      , <ordering-term> <ordering-term-rest>
+    | ε
+
+<table-or-subquery-list> :=
+      <table-or-subquery> <table-or-subquery-rest>
+
+<table-or-subquery-rest> :=
+      , <table-or-subquery> <table-or-subquery-rest>
+    | ε
+
+
+<distinct-opt> :=
+      DISTINCT
+    | ε
+
+<result-column-list> :=
+      <result-column> <result-column-rest>
+
+<result-column-rest> :=
+      , <result-column-rest>
+    | ε
+
+<upsert-clause-opt> :=
+      <upsert-clause>
+    | ε
+
+<expr-list> :=
+      <expr> <expr-rest>
+
+<expr-rest> :=
+      , <expr> <expr-rest>
+    | ε
+
+<column-list-opt> :=
+      ( <column-list> )
+    | ε
 
 -- STATEMENT SUPPORTING STRUCTURES --
+
+<column-def-list> :=
+      <column-def> <column-def-rest>
+
+<column-def-rest> :=
+      , <column-def> <column-def-rest>
+    | ε
 
 <column-def> := 
       column-name <column-def-type-name> <column-def-constraint-list>
@@ -15,6 +232,10 @@
 
 <column-def-constraint-list> :=
       <column-constraint> <column-def-constraint-list>
+    | ε
+
+<table-constraint-rest> :=
+      , <table-constraint> <table-constraint-rest>
     | ε
 
 <table-constraint> :=
@@ -38,6 +259,10 @@
 <quantified-table-name> :=
       table-name <table-as-indexed>
 
+<returning-opt> :=
+      <returning-clause>
+    | ε
+
 <returning-clause> := 
       RETURNING <returning-clause-result>
 
@@ -54,7 +279,7 @@
 
 <upsert-clause-action> :=
       NOTHING
-    | UPDATE SET <upsert-clause-update-cols> = <expr> <upsert-clause-update-rest> <upsert-clause-where>
+    | UPDATE SET <upsert-clause-update-cols> = <expr> <upsert-clause-update-rest> <where-expr>
 
 <upsert-clause-update-rest> :=
       , <upsert-clause-update-cols> = <expr> <upsert-clause-update-rest>
@@ -65,10 +290,10 @@
     | ( <column-name-list> )
 
 <upsert-clause-paren> :=
-      ( <upsert-clause-columns> ) <upsert-clause-where> 
+      ( <upsert-clause-columns> ) <where-expr> 
     | ε
 
-<upsert-clause-where> :=
+<where-expr> :=
       WHERE <expr>
     | ε
 
@@ -126,7 +351,7 @@
     | ε
 
 <type-name> := 
-    name <type-name-number-field>
+      name <type-name-number-field>
 
 <type-name-number-field> :=
       ( <signed-number> <type-name-second-number> )
@@ -168,32 +393,32 @@
     | REPLACE
 
 <foreign-key-clause> :=
-    REFERENCES foreign-table <foreign-key-clause-columns> <foreign-key-clause-on>
+      REFERENCES foreign-table <foreign-key-clause-columns> <foreign-key-clause-on>
 
 <foreign-key-clause-columns> := 
-    column-name <foreign-key-clause-column-list>
+      column-name <foreign-key-clause-column-list>
     | ε
 
 <foreign-key-clause-column-list> :=
-    , column-name <foreign-key-clause-column-list>
+      , column-name <foreign-key-clause-column-list>
     | ε
 
 <foreign-key-cluase-on> :=
-    ON <foreign-key-clause-updel>
+      ON <foreign-key-clause-updel>
     | ε
 
 <foreign-key-caluse-updel> :=
-    DELETE <foreign-key-clause-actions>
+      DELETE <foreign-key-clause-actions>
     | UPDATE <foreign-key-clause-actions>
 
 <foreign-key-clause-actions> := 
-    SET <foreign-key-clause-actions-set>
+      SET <foreign-key-clause-actions-set>
     | CASCADE
     | RESTRICT
     | NO ACTION
 
 <foreign-key-clause-actions-set> :=
-    NULL
+      NULL
     | DEFAULT
 
 <join-clause> := 
