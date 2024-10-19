@@ -112,10 +112,37 @@ impl<'src> Lexer<'src> {
                 }
                 TokenKind::Minus
             }
+            '*' => TokenKind::Star,
+            '/' => TokenKind::Slash,
+            '%' => TokenKind::Percent,
             '=' => TokenKind::Equals,
+            '>' => {
+                if self.cursor.eat_char('=') {
+                    TokenKind::GreaterEqual
+                } else {
+                    TokenKind::Greater
+                }
+            }
+            '<' => {
+                if self.cursor.eat_char('=') {
+                    TokenKind::LessEqual
+                } else if self.cursor.eat_char('>') {
+                    TokenKind::NotEqual
+                } else {
+                    TokenKind::Less
+                }
+            }
+            '!' => {
+                if self.cursor.eat_char('=') {
+                    TokenKind::NotEqual
+                } else {
+                    TokenKind::Exclamation
+                }
+            }
             '+' => TokenKind::Plus,
             '(' => TokenKind::LParen,
             ')' => TokenKind::RParen,
+            ',' => TokenKind::Comma,
             ';' => TokenKind::Semicolon,
             _ => self.push_error(LexicalError::new(
                 LexicalErrorKind::InvalidToken,

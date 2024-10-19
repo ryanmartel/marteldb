@@ -107,8 +107,28 @@ pub enum TokenKind {
     Minus,
     // matches '+'
     Plus,
+    // matches '/'
+    Slash,
+    // matches '*'
+    Star,
+    // matches '%'
+    Percent,
     // matches '='
     Equals,
+    // matches >
+    Greater,
+    // matches >=
+    GreaterEqual,
+    // matches <
+    Less,
+    // matches <=
+    LessEqual,
+    // matches !
+    Exclamation,
+    // matches != or <>
+    NotEqual,
+    // matches ','
+    Comma,
 
     // Types
     Float,
