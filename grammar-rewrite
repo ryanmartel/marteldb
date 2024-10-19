@@ -160,15 +160,8 @@
     | ( <column-name-list> )
 
 <update-or> :=
-      OR <update-or-action>
+      OR <conflict-action>
     | ε
-
-<update-or-action> :=
-      ABORT
-    | FAIL
-    | IGNORE
-    | REPLACE
-    | ROLLBACK
 
 <vacuum-stmt> :=
       VACUUM
@@ -203,18 +196,9 @@
       <upsert-clause>
     | ε
 
-<expr-list> :=
-      <expr> <expr-rest>
-
-<expr-rest> :=
-      , <expr> <expr-rest>
-    | ε
-
 <column-list-opt> :=
       ( <column-list> )
     | ε
-
--- STATEMENT SUPPORTING STRUCTURES --
 
 <column-def-list> :=
       <column-def> <column-def-rest>
@@ -275,7 +259,7 @@
     | ε
 
 <upsert-clause> := 
-      ON CONFLICT <upsert-clause-paren> DO 
+      ON CONFLICT <upsert-clause-paren> DO <upsert-clause-action>
 
 <upsert-clause-action> :=
       NOTHING
@@ -290,15 +274,11 @@
     | ( <column-name-list> )
 
 <upsert-clause-paren> :=
-      ( <upsert-clause-columns> ) <where-expr> 
+      ( <indexed-column-list> ) <where-expr> 
     | ε
 
 <where-expr> :=
       WHERE <expr>
-    | ε
-
-<upsert-clause-columns> :=
-      <indexed-column> [, <indexed-column]*
     | ε
 
 <column-name-list> :=
@@ -393,15 +373,7 @@
     | REPLACE
 
 <foreign-key-clause> :=
-      REFERENCES foreign-table <foreign-key-clause-columns> <foreign-key-clause-on>
-
-<foreign-key-clause-columns> := 
-      column-name <foreign-key-clause-column-list>
-    | ε
-
-<foreign-key-clause-column-list> :=
-      , column-name <foreign-key-clause-column-list>
-    | ε
+      REFERENCES foreign-table ( <column-name-list> ) <foreign-key-clause-on>
 
 <foreign-key-cluase-on> :=
       ON <foreign-key-clause-updel>
@@ -429,11 +401,8 @@
     | ε
 
 <table-or-subquery> :=
-      table-name <table-as-indexed>
+      table-name <table-as-alias> <table-indexed>
     | ( <table-or-subquery-paren>
-
-<table-as-indexed> :=
-      <table-as-alias> <table-indexed>
 
 <table-indexed> :=
       INDEXED BY index-name
@@ -443,7 +412,7 @@
 <table-or-subquery-paren> :=
       <select-stmt> ) <table-as-alias>
     | <join-clause> )
-    | <table-or-subquery> [, <table-or-subquery>]* )
+    | <table-or-subquery-list> )
 
 <table-as-alias> :=
       AS table-alias
@@ -471,54 +440,54 @@
 
 <join-constraint> :=
       ON <expr>
-    | USING (column-name [, column-name]*)
+    | USING ( <column-name-list> )
     | ε
 
-<expr> :=
+<expr> := 
       <literal-value> <expr'>
     | table-name.column-name <expr'>
     | column-name <expr'>
     | unary-operator <expr> <expr'>
     | ( <expr-paren> ) <expr'>
-*1  | NOT EXISTS (<select-stmt>) <expr'>
-    | EXISTS (<select-stmt>) <expr'>
-
-<expr-paren> :=
-      <select-stmt>
-    | <expr> [, <expr>*]*
+    | <not-opt> EXISTS ( <select-stmt> ) <expr'>
 
 <expr'> :=
       binary-operator <expr> <expr'>
     | COLLATE collation-name <expr'>
-    | LIKE <expr> <expr'>
-    | MATCH <expr> <expr'>
-    | IS <expr'-is> <expr'>
-    | NOT <expr'-not> <expr'>
-    | BETWEEN <expr> AND <expr> <expr'>
-    | IN <expr'-in> <expr'>
+    | IS <is-follow> <expr'>
+    | <not-opt> <not-follow> <expr'>
+
+<not-opt> :=
+      NOT
     | ε
 
-<expr'-is> :=
-*1    <expr>
-    | DISTINCT FROM <expr>
-    | NULL
-*1  | NOT <expr'-is-not>
 
-<expr'-is-not> :=
-      DISTINCT FROM <expr>
-    | <expr>
+<like-match> :=
+      LIKE
+    | MATCH
 
-<expr'-not> := 
-      IN <expr'-in>
+<is-follow> :=
+      NULL
+    | <not-opt> <distinct-from-opt> <expr>
+
+<not-follow> :=
+      NULL
+    | <like-match> <expr>
     | BETWEEN <expr> AND <expr>
-    | NULL
-    | LIKE <expr>
-    | MATCH <expr>
-      
+    | IN <expr-in>
 
-<expr'-in> :=
+<expr-in> :=
       table-name
-    | (<expr-paren>)
+    | ( <expr-paren> )
+
+<distinct-from-opt> :=
+      DISTINCT FROM
+    | ε
+
+<expr-paren> :=
+      <expr-list>
+    | <select-stmt>
+    | ε
 
 <signed-number> :=
       numeric-literal
