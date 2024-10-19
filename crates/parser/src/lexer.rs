@@ -158,10 +158,25 @@ impl<'src> Lexer<'src> {
         if self.cursor.eat_char('.') {
             // table.*
             if self.cursor.eat_char('*') {
-            } else {
+                let text = self.token_text();
+                // Discard '.*' and just store table name
+                self.current_value = TokenValue::TableAll(Name::new(text[0..text.len()-2].to_string()));
+                return TokenKind::TableAll;
+            } else if is_identifier_start(c) {
                 // table.column
                 self.cursor.eat_if(|c| is_identifier_start(c));
                 self.cursor.eat_while(|c| is_identifier_rest(c));
+
+                let text = self.token_text();
+                let (table, col) = text.split_once('.').unwrap();
+
+                self.current_value = TokenValue::TableCol(Name::new(table.to_string()), Name::new(col.to_string()));
+                return TokenKind::TableCol;
+            } else {
+                return self.push_error(LexicalError::new(
+                        LexicalErrorKind::InvalidToken,
+                        self.token_range(),
+                ));
             }
         }
         let text = self.token_text();
@@ -454,32 +469,32 @@ mod tests {
 
     #[test]
     fn table_qualified_identifiers() {
-        let source = "table.col";
-        let _expected = TokenValue::Name(Name::new(source.to_string()));
+        let source = "tble.col";
+        let _expected = TokenValue::TableCol(Name::new("tble".to_string()), Name::new("col".to_string()));
         let mut lexer = Lexer::new(source);
         let token = lexer.next_token();
         assert!(
-            matches!(token, TokenKind::Name),
-            "Did not get Name token. Received {token}"
+            matches!(token, TokenKind::TableCol),
+            "Did not get TableCol token. Received {token}"
         );
         assert_eq!(
             lexer.current_value.clone(),
             _expected,
-            "Did not get the Name table.col, got {:?}",
+            "Did not get the values tble.col, got {:?}",
             &lexer.current_value
         );
-        let source = "table.*";
-        let _expected = TokenValue::Name(Name::new(source.to_string()));
+        let source = "tble.*";
+        let _expected = TokenValue::TableAll(Name::new("tble".to_string()));
         let mut lexer = Lexer::new(source);
         let token = lexer.next_token();
         assert!(
-            matches!(token, TokenKind::Name),
-            "Did not get Name token. Received {token}"
+            matches!(token, TokenKind::TableAll),
+            "Did not get TableAll token. Received {token}"
         );
         assert_eq!(
             lexer.current_value.clone(),
             _expected,
-            "Did not get the Name table.*, got {:?}",
+            "Did not get the value tble.*, got {:?}",
             &lexer.current_value
         );
     }
@@ -617,4 +632,5 @@ mod tests {
             "BEGIN token not found. Got {token}"
         );
     }
+
 }

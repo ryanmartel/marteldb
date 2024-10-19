@@ -31,6 +31,8 @@ impl Token {
 #[derive(Debug, Copy, Clone, PartialEq)]
 pub enum TokenKind {
     Name,
+    TableAll,
+    TableCol,
 
     // Keywords -------------
     Abort,
@@ -152,6 +154,9 @@ pub enum TokenValue {
     None,
 
     Name(Name),
+    TableAll(Name),
+    TableCol(Name, Name),
+
     Float(f64),
     Int(i32),
     String(String),
