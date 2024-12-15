@@ -44,8 +44,8 @@ impl From<StmtInvalid> for Stmt {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Expr {
-    // BinOp(ExprBinOp),
-    // UnaryOp(ExprUnaryOp),
+    BinOp(ExprBinaryOp),
+    UnaryOp(ExprUnaryOp),
     StringLiteral(ExprStringLiteral),
     BooleanLiteral(ExprBooleanLiteral),
     NullLiteral(ExprNullLiteral),
@@ -86,6 +86,20 @@ pub struct ExprFloatLiteral {
 
 }
 
+#[derive(Clone, Debug, PartialEq)]
+pub struct ExprBinaryOp {
+    pub span: Span,
+    pub left: Box<Expr>,
+    pub op: BinaryOperator,
+    pub right: Box<Expr>,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ExprUnaryOp {
+    pub span: Span,
+    pub op: UnaryOperator,
+    pub operand: Box<Expr>,
+}
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct Identifier {
@@ -110,5 +124,36 @@ impl Spanned for Identifier {
     fn span(&self) -> Span {
         self.span
     }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum BooleanOperator {
+    And,
+    Or,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum BinaryOperator {
+    Add,
+    Sub,
+    Mult,
+    Div,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum CmpOperator {
+    Gt,
+    GtE,
+    Lt,
+    LtE,
+    NotEq,
+    Eq
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum UnaryOperator {
+    Not,
+    Positive,
+    Negative,
 }
 
