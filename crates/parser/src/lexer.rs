@@ -62,6 +62,13 @@ impl<'src> Lexer<'src> {
         self.current_kind
     }
 
+    /// Take the token value in the lexer and replace it with the default.
+    ///
+    /// any subsequent call on the same token witll return [`TokenValue::None`]
+    pub fn take_value(&mut self) -> TokenValue {
+        std::mem::take(&mut self.current_value)
+    }
+
     // Skips whitespace, checks that the char is in the ascii set,
     // and returns EndOfFile at end of stream
     fn lex_token(&mut self) -> TokenKind {

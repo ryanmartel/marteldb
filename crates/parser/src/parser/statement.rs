@@ -10,7 +10,9 @@ impl<'src> Parser<'src> {
             TokenKind::Begin => Stmt::Begin(self.parse_begin_statement()),
             TokenKind::Commit => Stmt::Commit(self.parse_commit_statement()),
             TokenKind::Drop => self.parse_drop_statement(),
+            TokenKind::Savepoint => Stmt::Savepoint(self.parse_savepoint_statement()),
             _ => {
+                print!("Tokenkind {}", self.current_token_kind());
                 unimplemented!();
             }
         };
@@ -58,7 +60,17 @@ impl<'src> Parser<'src> {
 
         }
     }
-}
+
+    pub fn parse_savepoint_statement(&mut self) -> ast::StmtSavepoint {
+        let start = self.node_start();
+        self.bump(TokenKind::Savepoint);
+        let id = self.parse_identifier();
+        ast::StmtSavepoint {
+            span: self.node_span(start),
+            id,
+            }
+        }
+    }
 
 #[cfg(test)]
 mod test {
@@ -90,6 +102,27 @@ mod test {
         let mut parser = Parser::new(source);
         let stmt = parser.parse_statement();
         assert!(matches!(stmt, Stmt::Commit(ast::StmtCommit { span: _ })));
+    }
+
+    #[test]
+    fn savepoint_without_identifier_stmt() {
+        let source = "SAVEPOINT;";
+        let mut parser = Parser::new(source);
+        let stmt = parser.parse_statement();
+        assert!(matches!(stmt, Stmt::Savepoint(ast::StmtSavepoint { span: _ , id: _})));
+        assert!(parser.
+            errors
+            .first()
+            .is_some_and(|first| matches!(first.kind, ParseErrorKind::ExpectedIdentifier { found: _ })));
+    }
+
+    #[test]
+    fn savepoint_stmt() {
+        let source = "SAVEPOINT s1;";
+        let mut parser = Parser::new(source);
+        let stmt = parser.parse_statement();
+        assert!(matches!(stmt, Stmt::Savepoint(ast::StmtSavepoint { span: _ , id: _})));
+        assert!(parser.errors.len() == 0);
     }
 
     #[test]

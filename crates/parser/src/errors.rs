@@ -7,7 +7,7 @@ use source_index::span::Span;
 
 use crate::tokens::TokenKind;
 
-#[derive(Debug, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub struct ParseError {
     pub kind: ParseErrorKind,
 
@@ -20,8 +20,11 @@ impl ParseError {
     }
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, PartialEq, Clone)]
 pub enum ParseErrorKind {
+    ExpectedIdentifier {
+        found: TokenKind
+    },
     ExpectedToken { 
         found: TokenKind, 
         expected: TokenKind,
@@ -34,6 +37,9 @@ pub enum ParseErrorKind {
 impl Display for ParseErrorKind {
     fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
         match self {
+            ParseErrorKind::ExpectedIdentifier { found } => {
+                write!(f, "Expected an identifier, found {found} instead.")
+            }
             ParseErrorKind::ExpectedToken { found, expected } => {
                 write!(f, "Expected {expected}, Found {found}")
             }

@@ -2,7 +2,7 @@ use source_index::span::Span;
 
 use crate::{
     lexer::Lexer,
-    tokens::{Token, TokenKind},
+    tokens::{Token, TokenKind, TokenValue},
 };
 
 pub struct TokenSource<'src> {
@@ -14,6 +14,7 @@ pub struct TokenSource<'src> {
 }
 
 impl<'src> TokenSource<'src> {
+
     pub fn new(source: &'src str) -> Self {
         let lexer = Lexer::new(source);
         let mut token_source = Self {
@@ -40,6 +41,11 @@ impl<'src> TokenSource<'src> {
     pub fn bump(&mut self, kind: TokenKind) {
         self.tokens.push(Token::new(kind, self.current_span()));
         self.do_bump();
+    }
+
+    /// Calls underlying lexer's [`take_value`]
+    pub fn take_value(&mut self) -> TokenValue {
+        self.lexer.take_value()
     }
 
     // bumps any token as if `[bump]` was called.
@@ -76,5 +82,19 @@ impl<'src> TokenSource<'src> {
             }
             break kind;
         }
+    }
+
+    pub fn finish(mut self) -> Vec<Token> {
+        assert_eq!(
+            self.current_token_kind(),
+            TokenKind::EndOfFile,
+            "Token source should be at end of file"
+        );
+
+        if let Some(last) = self.tokens.pop() {
+            assert_eq!(last.kind(), TokenKind::EndOfFile);
+        }
+
+        self.tokens
     }
 }

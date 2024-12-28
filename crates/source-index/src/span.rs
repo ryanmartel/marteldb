@@ -2,7 +2,7 @@ use std::{fmt::Display, ops::{Index, Range}};
 
 use crate::location::Location;
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub struct Span {
     start: Location,
     end: Location,

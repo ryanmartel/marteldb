@@ -2,11 +2,19 @@ use source_index::span::{Span, Spanned};
 
 use crate::name::Name;
 
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct Stmts {
+    pub span: Span,
+    pub body: Vec<Stmt>
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub enum Stmt {
     Begin(StmtBegin),
     Commit(StmtCommit),
     Invalid(StmtInvalid),
+    Savepoint(StmtSavepoint),
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -39,6 +47,18 @@ pub struct StmtInvalid {
 impl From<StmtInvalid> for Stmt {
     fn from(value: StmtInvalid) -> Self {
         Stmt::Invalid(value)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct StmtSavepoint {
+    pub span: Span,
+    pub id: Identifier,
+}
+
+impl From<StmtSavepoint> for Stmt {
+    fn from(value: StmtSavepoint) -> Self {
+        Stmt::Savepoint(value)
     }
 }
 

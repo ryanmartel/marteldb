@@ -3,6 +3,7 @@ use std::fmt::Display;
 use ast::name::Name;
 use source_index::{location::Location, span::Span};
 
+#[derive(PartialEq, Clone, Debug, Eq, Copy)]
 pub struct Token {
     /// The kind of token.
     kind: TokenKind,
@@ -26,9 +27,13 @@ impl Token {
     pub fn span(&self) -> Span {
         self.span
     }
+
+    pub fn kind(&self) -> TokenKind {
+        self.kind
+    }
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum TokenKind {
     Name,
     TableAll,

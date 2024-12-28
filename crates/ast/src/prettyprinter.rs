@@ -1,0 +1,43 @@
+use crate::visitor::Visitor;
+use crate::{self as ast, Stmt};
+
+
+pub struct PrettyPrinter {
+
+}
+
+impl PrettyPrinter {
+    pub fn new() -> Self {
+        PrettyPrinter {}
+    }
+}
+
+impl Visitor for PrettyPrinter {
+    fn visit_stmt(&mut self, stmt: &Stmt) {
+        match stmt {
+            Stmt::Begin(ast::StmtBegin {
+                span,
+            }) => {
+                println!("BEGIN (span {}, {})", span.start(), span.end());
+            }
+            Stmt::Commit(ast::StmtCommit {
+                span,
+            }) => {
+                println!("COMMIT (span {}, {})", span.start(), span.end());
+            }
+            Stmt::Invalid(ast::StmtInvalid {
+                span,
+            }) => {
+                println!("INVALID (span {}, {})", span.start(), span.end());
+            }
+            Stmt::Savepoint(ast::StmtSavepoint {
+                span,
+                id,
+            }) => {
+                println!("SAVEPOINT (span {}, {})", span.start(), span.end());
+                println!("\tid: {}", &id.id);
+
+            }
+        }
+    }
+}

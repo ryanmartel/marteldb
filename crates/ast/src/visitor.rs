@@ -17,5 +17,8 @@ pub fn walk_stmt<V: Visitor>(visitor: &mut V, stmt: &Stmt) {
         Stmt::Invalid(ast::StmtInvalid{..}) => {
 
         }
+        Stmt::Savepoint(ast::StmtSavepoint{..}) => {
+            
+        }
     }
 }

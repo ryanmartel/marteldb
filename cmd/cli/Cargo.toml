@@ -11,4 +11,5 @@ path = "src/bin/main.rs"
 path = "src/lib.rs"
 
 [dependencies]
-
+parser.workspace = true
+ast.workspace = true

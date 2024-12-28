@@ -1,4 +1,4 @@
-use std::{fmt::Display, ops::Sub};
+use std::{fmt::Display, ops::Sub, ops::Add};
 
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Ord, Eq)]
 pub struct Location(usize);
@@ -41,5 +41,13 @@ impl Sub for Location {
 
     fn sub(self, other: Self) -> Self::Output {
         Self(self.0 - other.0)
+    }
+}
+
+impl Add for Location {
+    type Output = Self;
+
+    fn add(self, other: Self) -> Self::Output {
+        Self(self.0 + other.0)
     }
 }

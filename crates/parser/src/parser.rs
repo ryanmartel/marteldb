@@ -1,10 +1,12 @@
+use ast::{Stmt, Stmts};
 use source_index::location::Location;
 use source_index::span::{Span, Spanned};
 
 use crate::errors::{ParseError, ParseErrorKind};
 
 use crate::token_source::TokenSource;
-use crate::tokens::TokenKind;
+use crate::tokens::{TokenKind, TokenValue};
+use crate::{Parsed, Tokens};
 
 mod statement;
 mod expression;
@@ -18,6 +20,8 @@ pub struct Parser<'src> {
     errors: Vec<ParseError>,
 
     prev_token_end: Location,
+
+    start_offset: Location,
 }
 
 impl<'src> Parser<'src> {
@@ -29,8 +33,10 @@ impl<'src> Parser<'src> {
             errors: Vec::new(),
             tokens,
             prev_token_end: Location::new(0),
+            start_offset: Location::new(0)
         }
     }
+
 
     fn node_start(&self) -> Location {
         self.tokens.current_span().start()
@@ -69,7 +75,15 @@ impl<'src> Parser<'src> {
     }
 
     fn bump(&mut self, kind: TokenKind) {
+        self.prev_token_end = self.current_token_span().end();
         self.tokens.bump(kind);
+    }
+
+    /// Take the token value from token source and bump the current token.
+    fn bump_value(&mut self, kind: TokenKind) -> TokenValue {
+        let value = self.tokens.take_value();
+        self.bump(kind);
+        value
     }
 
     fn peek(&mut self) -> TokenKind {
@@ -94,6 +108,52 @@ impl<'src> Parser<'src> {
 
     fn at(&self, kind: TokenKind) -> bool {
         self.current_token_kind() == kind
+    }
+
+    pub fn parse(mut self) -> Parsed {
+
+        let stmts = self.parse_stmts();
+
+        assert_eq!(
+            self.current_token_kind(),
+            TokenKind::EndOfFile,
+            "Parser should be at end of file!"
+        );
+
+        let errors = self.errors;
+        let tokens = self.tokens.finish();
+
+        return Parsed {
+            stmts,
+            tokens: Tokens::new(tokens),
+            errors,
+        }
+    }
+
+    fn parse_stmts(&mut self) -> Stmts {
+        let body = self.parse_list_into_vec(Parser::parse_statement);
+        self.bump(TokenKind::EndOfFile);
+
+        Stmts {
+            body,
+            span: Span::new(self.start_offset, self.current_token_span().end())
+        }
+    }
+
+    fn parse_list_into_vec(&mut self, parse_element: impl Fn(&mut Parser<'src>) -> Stmt) -> Vec<Stmt> {
+        let mut stmts = Vec::new();
+        self.parse_list(|p| stmts.push(parse_element(p)));
+        stmts
+    }
+
+    fn parse_list(&mut self, mut parse_element: impl FnMut(&mut Parser<'src>)) {
+
+        loop {
+            if self.at(TokenKind::EndOfFile) {
+                break;
+            }
+            parse_element(self);
+        }
     }
 }
 
