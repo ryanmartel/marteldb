@@ -74,6 +74,9 @@ impl<'src> Parser<'src> {
 
 #[cfg(test)]
 mod test {
+    use ast::name::Name;
+    use source_index::{location::Location, span::Span};
+
     use super::*;
 
     #[test]
@@ -81,7 +84,15 @@ mod test {
         let source = "BEGIN;";
         let mut parser = Parser::new(source);
         let stmt = parser.parse_statement();
-        assert!(matches!(stmt, Stmt::Begin(ast::StmtBegin { span: _ })));
+        let expected_span = Span::new(Location::new(0), Location::new(5));
+        assert_eq!(stmt,
+            Stmt::Begin(
+                ast::StmtBegin { 
+                    span: expected_span
+                }
+            )
+        );
+            
     }
 
     #[test]
@@ -121,8 +132,16 @@ mod test {
         let source = "SAVEPOINT s1;";
         let mut parser = Parser::new(source);
         let stmt = parser.parse_statement();
-        assert!(matches!(stmt, Stmt::Savepoint(ast::StmtSavepoint { span: _ , id: _})));
+        let expected_span = Span::new(Location::new(0), Location::new(12));
+        let expected_id_span = Span::new(Location::new(10), Location::new(12));
+        let expected_id = ast::Identifier::new(Name::new("s1".to_string()), expected_id_span);
         assert!(parser.errors.len() == 0);
+        assert_eq!(stmt,
+            Stmt::Savepoint(ast::StmtSavepoint {
+                span: expected_span,
+                id: expected_id
+            })
+            );
     }
 
     #[test]

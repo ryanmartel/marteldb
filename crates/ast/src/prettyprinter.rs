@@ -35,7 +35,7 @@ impl Visitor for PrettyPrinter {
                 id,
             }) => {
                 println!("SAVEPOINT (span {}, {})", span.start(), span.end());
-                println!("\tid: {}", &id.id);
+                println!("\tid: {} (span {}, {})", &id.id, &id.span.start(), &id.span.end());
 
             }
         }
