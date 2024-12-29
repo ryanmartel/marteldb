@@ -1,4 +1,7 @@
-use std::{fmt::Display, ops::{Index, Range}};
+use std::{
+    fmt::Display,
+    ops::{Index, Range},
+};
 
 use crate::location::Location;
 

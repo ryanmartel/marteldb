@@ -23,10 +23,10 @@ impl ParseError {
 #[derive(Debug, PartialEq, Clone)]
 pub enum ParseErrorKind {
     ExpectedIdentifier {
-        found: TokenKind
+        found: TokenKind,
     },
-    ExpectedToken { 
-        found: TokenKind, 
+    ExpectedToken {
+        found: TokenKind,
         expected: TokenKind,
     },
     InvalidDropTarget,

@@ -1,7 +1,7 @@
-use ast::Stmts;
-use parser::Parser;
 use crate::errors::ParseError;
 use crate::tokens::Token;
+use ast::Stmts;
+use parser::Parser;
 pub mod parser;
 
 mod errors;
@@ -10,9 +10,7 @@ mod token_source;
 mod tokens;
 
 pub fn parse_stmts(source: &str) -> Result<Parsed, ParseError> {
-    Parser::new(source)
-        .parse()
-        .into_result()
+    Parser::new(source).parse().into_result()
 }
 
 /// Represents the parsed source code.
@@ -24,7 +22,6 @@ pub struct Parsed {
 }
 
 impl Parsed {
-
     /// Returns all the tokens for the parsed output.
     pub fn tokens(&self) -> &Tokens {
         &self.tokens
@@ -52,7 +49,6 @@ impl Parsed {
             Err(self.into_errors().into_iter().next().unwrap())
         }
     }
-
 }
 
 /// Tokens represents a vector of lexed [`Token`].
@@ -62,11 +58,7 @@ pub struct Tokens {
 }
 
 impl Tokens {
-
     pub fn new(raw: Vec<Token>) -> Self {
-        Tokens {
-            raw,
-        }
+        Tokens { raw }
     }
 }
-

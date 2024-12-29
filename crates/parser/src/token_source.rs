@@ -14,7 +14,6 @@ pub struct TokenSource<'src> {
 }
 
 impl<'src> TokenSource<'src> {
-
     pub fn new(source: &'src str) -> Self {
         let lexer = Lexer::new(source);
         let mut token_source = Self {

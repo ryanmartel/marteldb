@@ -1,4 +1,4 @@
-use std::{fmt::Display, ops::Sub, ops::Add};
+use std::{fmt::Display, ops::Add, ops::Sub};
 
 #[derive(Debug, Copy, Clone, PartialEq, PartialOrd, Ord, Eq)]
 pub struct Location(usize);

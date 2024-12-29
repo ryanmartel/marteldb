@@ -2,11 +2,10 @@ use source_index::span::{Span, Spanned};
 
 use crate::name::Name;
 
-
 #[derive(Clone, Debug, PartialEq)]
 pub struct Stmts {
     pub span: Span,
-    pub body: Vec<Stmt>
+    pub body: Vec<Stmt>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -108,28 +107,24 @@ pub struct ExprStringLiteral {
 #[derive(Clone, Debug, PartialEq)]
 pub struct ExprBooleanLiteral {
     pub span: Span,
-    pub value: bool
-
+    pub value: bool,
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct ExprNullLiteral {
     pub span: Span,
-
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct ExprIntLiteral {
     pub span: Span,
     pub value: i64,
-
 }
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct ExprFloatLiteral {
     pub span: Span,
-    pub value: f64
-
+    pub value: f64,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -193,7 +188,7 @@ pub enum CmpOperator {
     Lt,
     LtE,
     NotEq,
-    Eq
+    Eq,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -202,4 +197,3 @@ pub enum UnaryOperator {
     Positive,
     Negative,
 }
-

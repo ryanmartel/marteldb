@@ -1,12 +1,14 @@
 use ast::prettyprinter::PrettyPrinter;
 use ast::visitor::Visitor;
 use parser::parse_stmts;
-use parser::parser::Parser;
 
 fn main() {
     let line = "BEGIN;
 SAVEPOINT s1;
-COMMIT;";
+COMMIT;
+ROLLBACK TRANSACTION;
+RELEASE s1;
+ROLLBACK TRANSACTION TO SAVEPOINT s1;";
 
     let mut printer = PrettyPrinter::new();
     let result = parse_stmts(line);

@@ -1,4 +1,4 @@
-use ast::{name::Name, Identifier, Stmt, StmtBegin};
+use ast::{Identifier, Stmt};
 
 use crate::{errors::ParseErrorKind, tokens::TokenKind};
 
@@ -57,10 +57,10 @@ impl<'src> Parser<'src> {
             _ => {
                 self.add_error(ParseErrorKind::InvalidDropTarget, self.current_token_span());
                 self.tokens.skip_bump(TokenKind::Semicolon);
-                return Stmt::Invalid(ast::StmtInvalid {span: self.node_span(start)})
-
+                return Stmt::Invalid(ast::StmtInvalid {
+                    span: self.node_span(start),
+                });
             }
-
         }
     }
 
@@ -79,7 +79,6 @@ impl<'src> Parser<'src> {
         let start = self.node_start();
         self.bump(TokenKind::Rollback);
         self.eat(TokenKind::Transaction);
-
         let id: Option<Identifier>;
         if self.eat(TokenKind::To) {
             self.eat(TokenKind::Savepoint);
@@ -93,7 +92,6 @@ impl<'src> Parser<'src> {
         }
     }
 
-
     pub fn parse_savepoint_statement(&mut self) -> ast::StmtSavepoint {
         let start = self.node_start();
         self.bump(TokenKind::Savepoint);
@@ -101,9 +99,9 @@ impl<'src> Parser<'src> {
         ast::StmtSavepoint {
             span: self.node_span(start),
             id,
-            }
         }
     }
+}
 
 #[cfg(test)]
 mod test {
@@ -118,14 +116,12 @@ mod test {
         let mut parser = Parser::new(source);
         let stmt = parser.parse_statement();
         let expected_span = Span::new(Location::new(0), Location::new(5));
-        assert_eq!(stmt,
-            Stmt::Begin(
-                ast::StmtBegin { 
-                    span: expected_span
-                }
-            )
+        assert_eq!(
+            stmt,
+            Stmt::Begin(ast::StmtBegin {
+                span: expected_span
+            })
         );
-            
     }
 
     #[test]
@@ -153,11 +149,14 @@ mod test {
         let source = "SAVEPOINT;";
         let mut parser = Parser::new(source);
         let stmt = parser.parse_statement();
-        assert!(matches!(stmt, Stmt::Savepoint(ast::StmtSavepoint { span: _ , id: _})));
-        assert!(parser.
-            errors
-            .first()
-            .is_some_and(|first| matches!(first.kind, ParseErrorKind::ExpectedIdentifier { found: _ })));
+        assert!(matches!(
+            stmt,
+            Stmt::Savepoint(ast::StmtSavepoint { span: _, id: _ })
+        ));
+        assert!(parser.errors.first().is_some_and(|first| matches!(
+            first.kind,
+            ParseErrorKind::ExpectedIdentifier { found: _ }
+        )));
     }
 
     #[test]
@@ -169,12 +168,13 @@ mod test {
         let expected_id_span = Span::new(Location::new(10), Location::new(12));
         let expected_id = ast::Identifier::new(Name::new("s1".to_string()), expected_id_span);
         assert!(parser.errors.len() == 0);
-        assert_eq!(stmt,
+        assert_eq!(
+            stmt,
             Stmt::Savepoint(ast::StmtSavepoint {
                 span: expected_span,
                 id: expected_id
             })
-            );
+        );
     }
 
     #[test]
@@ -185,50 +185,54 @@ mod test {
         let expected_span = Span::new(Location::new(0), Location::new(10));
         let expected_id_span = Span::new(Location::new(8), Location::new(10));
         let expected_id = ast::Identifier::new(Name::new("s1".to_string()), expected_id_span);
-        assert_eq!(stmt,
+        assert_eq!(
+            stmt,
             Stmt::Release(ast::StmtRelease {
                 span: expected_span,
                 id: expected_id
             })
-            );
+        );
         let source_opt = "RELEASE SAVEPOINT s1;";
         parser = Parser::new(source_opt);
         let stmt = parser.parse_statement();
         let expected_span = Span::new(Location::new(0), Location::new(20));
         let expected_id_span = Span::new(Location::new(18), Location::new(20));
         let expected_id = ast::Identifier::new(Name::new("s1".to_string()), expected_id_span);
-        assert_eq!(stmt,
+        assert_eq!(
+            stmt,
             Stmt::Release(ast::StmtRelease {
                 span: expected_span,
                 id: expected_id
             })
-            );
+        );
     }
 
     #[test]
     fn rollback_stmt() {
-        let source  = "ROLLBACK;";
+        let source = "ROLLBACK;";
         let mut parser = Parser::new(source);
         let stmt = parser.parse_statement();
         let expected_span = Span::new(Location::new(0), Location::new(8));
-        assert_eq!(stmt,
+        assert_eq!(
+            stmt,
             Stmt::Rollback(ast::StmtRollback {
                 span: expected_span,
                 id: None,
             })
-            );
+        );
         let source_opt = "ROLLBACK TRANSACTION TO SAVEPOINT s1;";
         parser = Parser::new(source_opt);
         let stmt = parser.parse_statement();
         let expected_span = Span::new(Location::new(0), Location::new(36));
         let expected_id_span = Span::new(Location::new(34), Location::new(36));
         let expected_id = ast::Identifier::new(Name::new("s1".to_string()), expected_id_span);
-        assert_eq!(stmt,
+        assert_eq!(
+            stmt,
             Stmt::Rollback(ast::StmtRollback {
                 span: expected_span,
                 id: Some(expected_id),
             })
-            );
+        );
     }
 
     #[test]
@@ -237,9 +241,15 @@ mod test {
         BEGIN;";
         let mut parser = Parser::new(source);
         let invalid_stmt = parser.parse_statement();
-        assert!(matches!(invalid_stmt, Stmt::Invalid(ast::StmtInvalid { span: _})));
+        assert!(matches!(
+            invalid_stmt,
+            Stmt::Invalid(ast::StmtInvalid { span: _ })
+        ));
         let next_token = parser.current_token_kind();
-        assert!(matches!(next_token, TokenKind::Begin),
-            "expected begin, got {}", next_token);
+        assert!(
+            matches!(next_token, TokenKind::Begin),
+            "expected begin, got {}",
+            next_token
+        );
     }
 }

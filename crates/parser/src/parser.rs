@@ -8,8 +8,8 @@ use crate::token_source::TokenSource;
 use crate::tokens::{TokenKind, TokenValue};
 use crate::{Parsed, Tokens};
 
-mod statement;
 mod expression;
+mod statement;
 
 pub struct Parser<'src> {
     // source string
@@ -33,10 +33,9 @@ impl<'src> Parser<'src> {
             errors: Vec::new(),
             tokens,
             prev_token_end: Location::new(0),
-            start_offset: Location::new(0)
+            start_offset: Location::new(0),
         }
     }
-
 
     fn node_start(&self) -> Location {
         self.tokens.current_span().start()
@@ -100,7 +99,7 @@ impl<'src> Parser<'src> {
         }
     }
 
-    // consume tokens until the current kind is found. 
+    // consume tokens until the current kind is found.
     // stops before eating stop_kind
     fn eat_until(&mut self, stop_kind: TokenKind) {
         self.tokens.skip_bump(stop_kind);
@@ -111,7 +110,6 @@ impl<'src> Parser<'src> {
     }
 
     pub fn parse(mut self) -> Parsed {
-
         let stmts = self.parse_stmts();
 
         assert_eq!(
@@ -127,7 +125,7 @@ impl<'src> Parser<'src> {
             stmts,
             tokens: Tokens::new(tokens),
             errors,
-        }
+        };
     }
 
     fn parse_stmts(&mut self) -> Stmts {
@@ -136,18 +134,20 @@ impl<'src> Parser<'src> {
 
         Stmts {
             body,
-            span: Span::new(self.start_offset, self.current_token_span().end())
+            span: Span::new(self.start_offset, self.current_token_span().end()),
         }
     }
 
-    fn parse_list_into_vec(&mut self, parse_element: impl Fn(&mut Parser<'src>) -> Stmt) -> Vec<Stmt> {
+    fn parse_list_into_vec(
+        &mut self,
+        parse_element: impl Fn(&mut Parser<'src>) -> Stmt,
+    ) -> Vec<Stmt> {
         let mut stmts = Vec::new();
         self.parse_list(|p| stmts.push(parse_element(p)));
         stmts
     }
 
     fn parse_list(&mut self, mut parse_element: impl FnMut(&mut Parser<'src>)) {
-
         loop {
             if self.at(TokenKind::EndOfFile) {
                 break;
@@ -175,7 +175,10 @@ mod test {
         let mut parser = Parser::new(source);
         parser.bump(TokenKind::Begin);
         parser.eat_until(TokenKind::Semicolon);
-        assert!(matches!(parser.current_token_kind(), TokenKind::Semicolon),
-            "should be semicolon, got {}", parser.current_token_kind());
+        assert!(
+            matches!(parser.current_token_kind(), TokenKind::Semicolon),
+            "should be semicolon, got {}",
+            parser.current_token_kind()
+        );
     }
 }

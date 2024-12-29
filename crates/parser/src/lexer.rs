@@ -167,7 +167,8 @@ impl<'src> Lexer<'src> {
             if self.cursor.eat_char('*') {
                 let text = self.token_text();
                 // Discard '.*' and just store table name
-                self.current_value = TokenValue::TableAll(Name::new(text[0..text.len()-2].to_string()));
+                self.current_value =
+                    TokenValue::TableAll(Name::new(text[0..text.len() - 2].to_string()));
                 return TokenKind::TableAll;
             } else if is_identifier_start(c) {
                 // table.column
@@ -177,12 +178,13 @@ impl<'src> Lexer<'src> {
                 let text = self.token_text();
                 let (table, col) = text.split_once('.').unwrap();
 
-                self.current_value = TokenValue::TableCol(Name::new(table.to_string()), Name::new(col.to_string()));
+                self.current_value =
+                    TokenValue::TableCol(Name::new(table.to_string()), Name::new(col.to_string()));
                 return TokenKind::TableCol;
             } else {
                 return self.push_error(LexicalError::new(
-                        LexicalErrorKind::InvalidToken,
-                        self.token_range(),
+                    LexicalErrorKind::InvalidToken,
+                    self.token_range(),
                 ));
             }
         }
@@ -479,7 +481,8 @@ mod tests {
     #[test]
     fn table_qualified_identifiers() {
         let source = "tble.col";
-        let _expected = TokenValue::TableCol(Name::new("tble".to_string()), Name::new("col".to_string()));
+        let _expected =
+            TokenValue::TableCol(Name::new("tble".to_string()), Name::new("col".to_string()));
         let mut lexer = Lexer::new(source);
         let token = lexer.next_token();
         assert!(
@@ -641,5 +644,4 @@ mod tests {
             "BEGIN token not found. Got {token}"
         );
     }
-
 }

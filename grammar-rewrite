@@ -8,7 +8,7 @@ d   | <commit-stmt>
     | <insert-stmt>
     | <reindex-stmt>
 d   | <release-stmt>
-    | <rollback-stmt>
+d   | <rollback-stmt>
 d   | <savepoint-stmt>
     | <select-stmt>
     | <update-stmt>
