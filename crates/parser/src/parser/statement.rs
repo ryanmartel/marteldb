@@ -1,4 +1,4 @@
-use ast::{Stmt, StmtBegin};
+use ast::{name::Name, Identifier, Stmt, StmtBegin};
 
 use crate::{errors::ParseErrorKind, tokens::TokenKind};
 
@@ -11,8 +11,11 @@ impl<'src> Parser<'src> {
             TokenKind::Commit => Stmt::Commit(self.parse_commit_statement()),
             TokenKind::Drop => self.parse_drop_statement(),
             TokenKind::Savepoint => Stmt::Savepoint(self.parse_savepoint_statement()),
+            TokenKind::Release => Stmt::Release(self.parse_release_statement()),
+            TokenKind::Rollback => Stmt::Rollback(self.parse_rollback_statement()),
             _ => {
-                print!("Tokenkind {}", self.current_token_kind());
+                println!("Tokenkind {}", self.current_token_kind());
+                println!("Current Span {}", self.current_token_span());
                 unimplemented!();
             }
         };
@@ -60,6 +63,36 @@ impl<'src> Parser<'src> {
 
         }
     }
+
+    pub fn parse_release_statement(&mut self) -> ast::StmtRelease {
+        let start = self.node_start();
+        self.bump(TokenKind::Release);
+        self.eat(TokenKind::Savepoint);
+        let id = self.parse_identifier();
+        ast::StmtRelease {
+            span: self.node_span(start),
+            id,
+        }
+    }
+
+    pub fn parse_rollback_statement(&mut self) -> ast::StmtRollback {
+        let start = self.node_start();
+        self.bump(TokenKind::Rollback);
+        self.eat(TokenKind::Transaction);
+
+        let id: Option<Identifier>;
+        if self.eat(TokenKind::To) {
+            self.eat(TokenKind::Savepoint);
+            id = Some(self.parse_identifier());
+        } else {
+            id = None;
+        }
+        ast::StmtRollback {
+            span: self.node_span(start),
+            id,
+        }
+    }
+
 
     pub fn parse_savepoint_statement(&mut self) -> ast::StmtSavepoint {
         let start = self.node_start();
@@ -140,6 +173,60 @@ mod test {
             Stmt::Savepoint(ast::StmtSavepoint {
                 span: expected_span,
                 id: expected_id
+            })
+            );
+    }
+
+    #[test]
+    fn release_stmt() {
+        let source = "RELEASE s1;";
+        let mut parser = Parser::new(source);
+        let stmt = parser.parse_statement();
+        let expected_span = Span::new(Location::new(0), Location::new(10));
+        let expected_id_span = Span::new(Location::new(8), Location::new(10));
+        let expected_id = ast::Identifier::new(Name::new("s1".to_string()), expected_id_span);
+        assert_eq!(stmt,
+            Stmt::Release(ast::StmtRelease {
+                span: expected_span,
+                id: expected_id
+            })
+            );
+        let source_opt = "RELEASE SAVEPOINT s1;";
+        parser = Parser::new(source_opt);
+        let stmt = parser.parse_statement();
+        let expected_span = Span::new(Location::new(0), Location::new(20));
+        let expected_id_span = Span::new(Location::new(18), Location::new(20));
+        let expected_id = ast::Identifier::new(Name::new("s1".to_string()), expected_id_span);
+        assert_eq!(stmt,
+            Stmt::Release(ast::StmtRelease {
+                span: expected_span,
+                id: expected_id
+            })
+            );
+    }
+
+    #[test]
+    fn rollback_stmt() {
+        let source  = "ROLLBACK;";
+        let mut parser = Parser::new(source);
+        let stmt = parser.parse_statement();
+        let expected_span = Span::new(Location::new(0), Location::new(8));
+        assert_eq!(stmt,
+            Stmt::Rollback(ast::StmtRollback {
+                span: expected_span,
+                id: None,
+            })
+            );
+        let source_opt = "ROLLBACK TRANSACTION TO SAVEPOINT s1;";
+        parser = Parser::new(source_opt);
+        let stmt = parser.parse_statement();
+        let expected_span = Span::new(Location::new(0), Location::new(36));
+        let expected_id_span = Span::new(Location::new(34), Location::new(36));
+        let expected_id = ast::Identifier::new(Name::new("s1".to_string()), expected_id_span);
+        assert_eq!(stmt,
+            Stmt::Rollback(ast::StmtRollback {
+                span: expected_span,
+                id: Some(expected_id),
             })
             );
     }

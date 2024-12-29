@@ -14,6 +14,8 @@ pub enum Stmt {
     Begin(StmtBegin),
     Commit(StmtCommit),
     Invalid(StmtInvalid),
+    Release(StmtRelease),
+    Rollback(StmtRollback),
     Savepoint(StmtSavepoint),
 }
 
@@ -47,6 +49,30 @@ pub struct StmtInvalid {
 impl From<StmtInvalid> for Stmt {
     fn from(value: StmtInvalid) -> Self {
         Stmt::Invalid(value)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct StmtRelease {
+    pub span: Span,
+    pub id: Identifier,
+}
+
+impl From<StmtRelease> for Stmt {
+    fn from(value: StmtRelease) -> Self {
+        Stmt::Release(value)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct StmtRollback {
+    pub span: Span,
+    pub id: Option<Identifier>,
+}
+
+impl From<StmtRollback> for Stmt {
+    fn from(value: StmtRollback) -> Self {
+        Stmt::Rollback(value)
     }
 }
 

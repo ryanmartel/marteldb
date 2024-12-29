@@ -30,14 +30,33 @@ impl Visitor for PrettyPrinter {
             }) => {
                 println!("INVALID (span {}, {})", span.start(), span.end());
             }
+            Stmt::Release(ast::StmtRelease {
+                span,
+                id,
+            }) => {
+                println!("RELEASE (span {}, {})", span.start(), span.end());
+                println!("\tid: {} (span {}, {})", &id.id, &id.span.start(), &id.span.end());
+            }
+            Stmt::Rollback(ast::StmtRollback {
+                span,
+                id,
+            }) => {
+                println!("ROLLBACK (span {}, {})", span.start(), span.end());
+                match id {
+                    Some(id) => {
+                        println!("\tid: {} (span {}, {})", &id.id, &id.span.start(), &id.span.end());
+                    }
+                    None => {}
+                }
+            }
             Stmt::Savepoint(ast::StmtSavepoint {
                 span,
                 id,
             }) => {
                 println!("SAVEPOINT (span {}, {})", span.start(), span.end());
                 println!("\tid: {} (span {}, {})", &id.id, &id.span.start(), &id.span.end());
-
             }
+
         }
     }
 }

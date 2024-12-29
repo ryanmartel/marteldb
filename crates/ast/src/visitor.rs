@@ -20,5 +20,11 @@ pub fn walk_stmt<V: Visitor>(visitor: &mut V, stmt: &Stmt) {
         Stmt::Savepoint(ast::StmtSavepoint{..}) => {
             
         }
+        Stmt::Release(ast::StmtRelease{..}) => {
+
+        }
+        Stmt::Rollback(ast::StmtRollback{..}) => {
+
+        }
     }
 }

@@ -1,15 +1,15 @@
 <stmt> :=
       <alter-table-stmt>
-    | <begin-stmt>
-    | <commit-stmt>
+d   | <begin-stmt>
+d   | <commit-stmt>
     | <create-stmt>
     | <delete-stmt>
     | <drop-stmt>
     | <insert-stmt>
     | <reindex-stmt>
-    | <release-stmt>
+d   | <release-stmt>
     | <rollback-stmt>
-    | <savepoint-stmt>
+d   | <savepoint-stmt>
     | <select-stmt>
     | <update-stmt>
     | <vacuum-stmt>
