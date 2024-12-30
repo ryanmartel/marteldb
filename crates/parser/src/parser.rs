@@ -74,6 +74,7 @@ impl<'src> Parser<'src> {
     }
 
     fn bump(&mut self, kind: TokenKind) {
+        assert_eq!(self.current_token_kind(), kind);
         self.prev_token_end = self.current_token_span().end();
         self.tokens.bump(kind);
     }
@@ -97,6 +98,20 @@ impl<'src> Parser<'src> {
         } else {
             false
         }
+    }
+
+    fn expect(&mut self, kind: TokenKind) -> bool {
+        if self.eat(kind) {
+            return true;
+        }
+        self.add_error(
+            ParseErrorKind::ExpectedToken { 
+                found: self.current_token_kind(),
+                expected: kind 
+            },
+            self.current_token_span()
+        );
+        return false;
     }
 
     // consume tokens until the current kind is found.

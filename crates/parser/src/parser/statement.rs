@@ -1,4 +1,4 @@
-use ast::{Identifier, Stmt};
+use ast::{name::Name, Identifier, Stmt};
 
 use crate::{errors::ParseErrorKind, tokens::TokenKind};
 
@@ -9,14 +9,14 @@ impl<'src> Parser<'src> {
         let stmt = match self.current_token_kind() {
             TokenKind::Begin => Stmt::Begin(self.parse_begin_statement()),
             TokenKind::Commit => Stmt::Commit(self.parse_commit_statement()),
-            TokenKind::Drop => self.parse_drop_statement(),
+            TokenKind::Drop => Stmt::Drop(self.parse_drop_statement()),
             TokenKind::Savepoint => Stmt::Savepoint(self.parse_savepoint_statement()),
             TokenKind::Release => Stmt::Release(self.parse_release_statement()),
             TokenKind::Rollback => Stmt::Rollback(self.parse_rollback_statement()),
             _ => {
                 println!("Tokenkind {}", self.current_token_kind());
                 println!("Current Span {}", self.current_token_span());
-                unimplemented!();
+                Stmt::Invalid(self.parse_invalid_statement())
             }
         };
         if !self.eat(TokenKind::Semicolon) {
@@ -44,23 +44,35 @@ impl<'src> Parser<'src> {
         }
     }
 
-    pub fn parse_drop_statement(&mut self) -> Stmt {
+    pub fn parse_drop_statement(&mut self) -> ast::StmtDrop {
         let start = self.node_start();
         self.bump(TokenKind::Drop);
-        match self.current_token_kind() {
-            TokenKind::Table => {
-                unimplemented!()
-            }
-            TokenKind::Index => {
-                unimplemented!()
-            }
-            _ => {
-                self.add_error(ParseErrorKind::InvalidDropTarget, self.current_token_span());
-                self.tokens.skip_bump(TokenKind::Semicolon);
-                return Stmt::Invalid(ast::StmtInvalid {
-                    span: self.node_span(start),
-                });
-            }
+        let kind: ast::DdlTargetKind;
+        if self.eat(TokenKind::Table) {
+            kind = ast::DdlTargetKind::Table;
+        } else if self.eat(TokenKind::Index) {
+            kind = ast::DdlTargetKind::Index;
+        } else {
+            self.add_error(ParseErrorKind::InvalidDropTarget, self.current_token_span());
+            self.tokens.skip_bump(TokenKind::Semicolon);
+            return ast::StmtDrop {
+                span: self.node_span(start),
+                kind: ast::DdlTargetKind::Table,
+                exist_check: false,
+                id: Identifier::new(Name::empty(), self.node_span(start))
+            };
+        };
+        let mut exist_check = false;
+        if self.eat(TokenKind::If) {
+            self.expect(TokenKind::Exists);
+            exist_check = true;
+        }
+        let id = self.parse_identifier();
+        ast::StmtDrop {
+            span: self.node_span(start),
+            kind,
+            exist_check,
+            id,
         }
     }
 
@@ -99,6 +111,14 @@ impl<'src> Parser<'src> {
         ast::StmtSavepoint {
             span: self.node_span(start),
             id,
+        }
+    }
+
+    pub fn parse_invalid_statement(&mut self) -> ast::StmtInvalid {
+        let start = self.node_start();
+        self.eat_until(TokenKind::Semicolon);
+        ast::StmtInvalid {
+            span: self.node_span(start),
         }
     }
 }
@@ -236,20 +256,55 @@ mod test {
     }
 
     #[test]
-    fn invalid_drop_stmt() {
-        let source = "DROP EGGS ON FLOOR;
-        BEGIN;";
+    fn drop_stmt() {
+        let source = "DROP TABLE t1;";
         let mut parser = Parser::new(source);
-        let invalid_stmt = parser.parse_statement();
-        assert!(matches!(
-            invalid_stmt,
-            Stmt::Invalid(ast::StmtInvalid { span: _ })
-        ));
-        let next_token = parser.current_token_kind();
-        assert!(
-            matches!(next_token, TokenKind::Begin),
-            "expected begin, got {}",
-            next_token
+        let stmt = parser.parse_statement();
+        let expected_span = Span::new(Location::new(0), Location::new(13));
+        let expected_id_span = Span::new(Location::new(11), Location::new(13));
+        let expected_id = ast::Identifier::new(Name::new("t1".to_string()), expected_id_span);
+        assert_eq!(
+            stmt,
+            Stmt::Drop(ast::StmtDrop {
+                span: expected_span,
+                kind: ast::DdlTargetKind::Table,
+                exist_check: false,
+                id: expected_id,
+            })
         );
+        let source = "DROP INDEX IF EXISTS i1;";
+        let mut parser = Parser::new(source);
+        let stmt = parser.parse_statement();
+        let expected_span = Span::new(Location::new(0), Location::new(23));
+        let expected_id_span = Span::new(Location::new(21), Location::new(23));
+        let expected_id = ast::Identifier::new(Name::new("i1".to_string()), expected_id_span);
+        assert_eq!(
+            stmt,
+            Stmt::Drop(ast::StmtDrop {
+                span: expected_span,
+                kind: ast::DdlTargetKind::Index,
+                exist_check: true,
+                id: expected_id,
+            })
+        );
+    }
+
+    #[test]
+    fn drop_error() {
+        let source = "DROP COLUMN t1;";
+        let mut parser = Parser::new(source);
+        let stmt = parser.parse_statement();
+        let expected_span = Span::new(Location::new(0), Location::new(4));
+        assert_eq!(
+            stmt,
+            Stmt::Drop(ast::StmtDrop {
+                span: expected_span,
+                kind: ast::DdlTargetKind::Table,
+                exist_check: false,
+                id: Identifier::new(Name::empty(), expected_span),
+            })
+        );
+        assert_eq!(parser.errors.len(), 1);
+
     }
 }

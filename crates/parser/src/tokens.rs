@@ -67,6 +67,7 @@ pub enum TokenKind {
     Full,
     Group,
     Having,
+    If,
     In,
     Index,
     Indexed,

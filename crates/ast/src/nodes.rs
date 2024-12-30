@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use source_index::span::{Span, Spanned};
 
 use crate::name::Name;
@@ -12,6 +14,7 @@ pub struct Stmts {
 pub enum Stmt {
     Begin(StmtBegin),
     Commit(StmtCommit),
+    Drop(StmtDrop),
     Invalid(StmtInvalid),
     Release(StmtRelease),
     Rollback(StmtRollback),
@@ -37,6 +40,31 @@ pub struct StmtCommit {
 impl From<StmtCommit> for Stmt {
     fn from(value: StmtCommit) -> Self {
         Stmt::Commit(value)
+    }
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct StmtDrop {
+    pub span: Span,
+    pub kind: DdlTargetKind,
+    pub exist_check: bool,
+    pub id: Identifier,
+
+}
+
+/// DDL target for CREATE and DROP statements
+#[derive(Clone, Debug, PartialEq)]
+pub enum DdlTargetKind {
+    Table,
+    Index,
+}
+
+impl Display for DdlTargetKind {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            Self::Table => write!(f, "TABLE"),
+            Self::Index => write!(f, "INDEX"),
+        }
     }
 }
 

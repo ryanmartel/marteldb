@@ -53,6 +53,19 @@ impl Visitor for PrettyPrinter {
                     &id.span.end()
                 );
             }
+            Stmt::Drop(ast::StmtDrop { span, kind, exist_check, id}) => {
+                println!("DROP (span {}, {})", span.start(), span.end());
+                println!(
+                    "\tkind: {}\n\texist check: {}",
+                    kind, exist_check
+                );
+                println!(
+                    "\tid: {} (span {}, {})",
+                    &id.id,
+                    &id.span.start(),
+                    &id.span.end()
+                );
+            }
         }
     }
 }

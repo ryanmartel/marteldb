@@ -9,7 +9,7 @@ mod lexer;
 mod token_source;
 mod tokens;
 
-pub fn parse_stmts(source: &str) -> Result<Parsed, ParseError> {
+pub fn parse_stmts(source: &str) -> Result<Parsed, Vec<ParseError>> {
     Parser::new(source).parse().into_result()
 }
 
@@ -42,11 +42,12 @@ impl Parsed {
         self.errors.is_empty()
     }
 
-    fn into_result(self) -> Result<Parsed, ParseError> {
+    fn into_result(self) -> Result<Parsed, Vec<ParseError>> {
         if self.is_valid() {
             Ok(self)
         } else {
-            Err(self.into_errors().into_iter().next().unwrap())
+            // Err(self.into_errors().into_iter().next().unwrap())
+            Err(self.into_errors())
         }
     }
 }

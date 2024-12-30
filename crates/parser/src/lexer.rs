@@ -217,6 +217,7 @@ impl<'src> Lexer<'src> {
             "FULL" => TokenKind::Full,
             "GROUP" => TokenKind::Group,
             "HAVING" => TokenKind::Having,
+            "IF" => TokenKind::If,
             "IN" => TokenKind::In,
             "INDEX" => TokenKind::Index,
             "INDEXED" => TokenKind::Indexed,

@@ -8,12 +8,22 @@ SAVEPOINT s1;
 COMMIT;
 ROLLBACK TRANSACTION;
 RELEASE s1;
-ROLLBACK TRANSACTION TO SAVEPOINT s1;";
+ROLLBACK TRANSACTION TO SAVEPOINT s1;
+DROP TABLE IF EXIST t1;";
 
     let mut printer = PrettyPrinter::new();
     let result = parse_stmts(line);
-    let parsed = result.unwrap();
-    for stmt in parsed.stmts.body {
-        printer.visit_stmt(&stmt);
+    match result {
+        Ok(parsed) => {
+            for stmt in parsed.stmts.body {
+                printer.visit_stmt(&stmt);
+            }
+        }
+        Err(parse_errors) => {
+            for err in parse_errors {
+                println!("Error: {}\n (span {}, {})", err.kind, err.span.start(), err.span.end());
+            }
+        }
     }
+    // let parsed = result.unwrap();
 }

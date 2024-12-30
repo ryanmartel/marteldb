@@ -73,8 +73,12 @@ d   | <savepoint-stmt>
     DROP <drop-stmt-types>
 
 <drop-stmt-types> :=
-      INDEX <not-exists-opt> index-name
-    | TABLE <not-exists-opt> table-name
+      INDEX <exists-opt> index-name
+    | TABLE <exists-opt> table-name
+
+<exists-opt> :=
+      IF EXISTS
+    | ε
 
 <insert-stmt> :=
       INSERT INTO table-name <table-as-alias> <column-list-opt> <insert-actions> <returning-opt>
