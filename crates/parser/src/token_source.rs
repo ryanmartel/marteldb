@@ -55,6 +55,9 @@ impl<'src> TokenSource<'src> {
     // Stops on stop token
     pub fn skip_bump(&mut self, stop_token: TokenKind) {
         loop {
+            if self.lexer.current_kind() == stop_token {
+                return;
+            }
             let kind = self.lexer.next_token();
             if kind == stop_token {
                 return;

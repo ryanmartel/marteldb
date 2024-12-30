@@ -197,10 +197,13 @@ mod test {
         let source = "SAVEPOINT;";
         let mut parser = Parser::new(source);
         let stmt = parser.parse_statement();
-        assert!(matches!(
+        let expected_span = Span::new(Location::new(0), Location::new(9));
+        assert_eq!(
             stmt,
-            Stmt::Savepoint(ast::StmtSavepoint { span: _, id: _ })
-        ));
+            Stmt::Invalid(ast::StmtInvalid {
+                span: expected_span
+            })
+        );
         assert!(parser.errors.first().is_some_and(|first| matches!(
             first.kind,
             ParseErrorKind::ExpectedIdentifier { found: _ }
@@ -325,14 +328,10 @@ mod test {
         let expected_span = Span::new(Location::new(0), Location::new(4));
         assert_eq!(
             stmt,
-            Stmt::Drop(ast::StmtDrop {
+            Stmt::Invalid(ast::StmtInvalid {
                 span: expected_span,
-                kind: ast::DdlTargetKind::Table,
-                exist_check: false,
-                id: Identifier::new(Name::empty(), expected_span),
             })
         );
         assert_eq!(parser.errors.len(), 1);
-
     }
 }
