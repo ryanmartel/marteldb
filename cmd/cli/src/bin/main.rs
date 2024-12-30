@@ -9,7 +9,7 @@ COMMIT;
 ROLLBACK TRANSACTION;
 RELEASE s1;
 ROLLBACK TRANSACTION TO SAVEPOINT s1;
-DROP TABLE IF EXIST t1;";
+DROP TABLE IF EXISTS t1;";
 
     let mut printer = PrettyPrinter::new();
     let result = parse_stmts(line);

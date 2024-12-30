@@ -73,6 +73,7 @@ impl<'src> Parser<'src> {
         }
     }
 
+
     fn bump(&mut self, kind: TokenKind) {
         assert_eq!(self.current_token_kind(), kind);
         self.prev_token_end = self.current_token_span().end();
