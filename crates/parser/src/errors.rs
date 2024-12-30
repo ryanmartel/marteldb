@@ -29,6 +29,9 @@ pub enum ParseErrorKind {
         found: TokenKind,
         expected: TokenKind,
     },
+    UnexpectedToken {
+        found: TokenKind,
+    },
     InvalidDropTarget,
     Lexical(LexicalErrorKind),
     MissingSemicolon,
@@ -42,6 +45,9 @@ impl Display for ParseErrorKind {
             }
             ParseErrorKind::ExpectedToken { found, expected } => {
                 write!(f, "Expected {expected}, Found {found}")
+            }
+            ParseErrorKind::UnexpectedToken { found } => {
+                write!(f, "Unexpected Token {found}. Can not start statement")
             }
             ParseErrorKind::InvalidDropTarget => {
                 f.write_str("Expected either TABLE or INDEX following DROP")

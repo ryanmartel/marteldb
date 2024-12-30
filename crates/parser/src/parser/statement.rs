@@ -6,45 +6,53 @@ use super::Parser;
 
 impl<'src> Parser<'src> {
     pub fn parse_statement(&mut self) -> Stmt {
-        let stmt = match self.current_token_kind() {
-            TokenKind::Begin => Stmt::Begin(self.parse_begin_statement()),
-            TokenKind::Commit => Stmt::Commit(self.parse_commit_statement()),
-            TokenKind::Drop => Stmt::Drop(self.parse_drop_statement()),
-            TokenKind::Savepoint => Stmt::Savepoint(self.parse_savepoint_statement()),
-            TokenKind::Release => Stmt::Release(self.parse_release_statement()),
-            TokenKind::Rollback => Stmt::Rollback(self.parse_rollback_statement()),
+        let stmt_res = match self.current_token_kind() {
+            TokenKind::Begin => self.parse_begin_statement(),
+            TokenKind::Commit => self.parse_commit_statement(),
+            TokenKind::Drop => self.parse_drop_statement(),
+            // TokenKind::Savepoint => Stmt::Savepoint(self.parse_savepoint_statement()),
+            // TokenKind::Release => Stmt::Release(self.parse_release_statement()),
+            // TokenKind::Rollback => Stmt::Rollback(self.parse_rollback_statement()),
             _ => {
                 println!("Tokenkind {}", self.current_token_kind());
                 println!("Current Span {}", self.current_token_span());
-                Stmt::Invalid(self.parse_invalid_statement())
+                self.parse_invalid_statement()
+            }
+        };
+        let stmt = match stmt_res {
+            Ok(stmt) => stmt,
+            Err(err) => {
+                self.eat_until(TokenKind::Semicolon);
+                Stmt::Invalid(err)
             }
         };
         if !self.eat(TokenKind::Semicolon) {
             self.add_error(ParseErrorKind::MissingSemicolon, self.current_token_span());
-        }
+        };
         stmt
+
     }
 
     //
-    pub fn parse_begin_statement(&mut self) -> ast::StmtBegin {
+    pub fn parse_begin_statement(&mut self) -> Result<Stmt, ast::StmtInvalid> {
         let start = self.node_start();
         self.bump(TokenKind::Begin);
         self.eat(TokenKind::Transaction);
-        ast::StmtBegin {
+        Ok(Stmt::Begin(ast::StmtBegin {
             span: self.node_span(start),
-        }
+        }))
     }
 
-    pub fn parse_commit_statement(&mut self) -> ast::StmtCommit {
+    pub fn parse_commit_statement(&mut self) -> Result<Stmt, ast::StmtInvalid> {
         let start = self.node_start();
         self.bump(TokenKind::Commit);
         self.eat(TokenKind::Transaction);
-        ast::StmtCommit {
+        Ok(Stmt::Commit(ast::StmtCommit {
             span: self.node_span(start),
-        }
+        }))
     }
 
-    pub fn parse_drop_statement(&mut self) -> ast::StmtDrop {
+    pub fn parse_drop_statement(&mut self) -> Result<Stmt, ast::StmtInvalid> {
         let start = self.node_start();
         self.bump(TokenKind::Drop);
         let kind: ast::DdlTargetKind;
@@ -55,71 +63,81 @@ impl<'src> Parser<'src> {
         } else {
             self.add_error(ParseErrorKind::InvalidDropTarget, self.current_token_span());
             self.tokens.skip_bump(TokenKind::Semicolon);
-            return ast::StmtDrop {
-                span: self.node_span(start),
-                kind: ast::DdlTargetKind::Table,
-                exist_check: false,
-                id: Identifier::new(Name::empty(), self.node_span(start))
-            };
+            return Err(ast::StmtInvalid {span: self.node_span(start)});
         };
         let mut exist_check = false;
         if self.eat(TokenKind::If) {
-            self.expect(TokenKind::Exists);
+            if !self.expect(TokenKind::Exists){
+                return Err(ast::StmtInvalid {span: self.node_span(start)});
+            };
             exist_check = true;
         }
-        let id = self.parse_identifier();
-        ast::StmtDrop {
+        let id = match self.parse_identifier() {
+            Ok(id) => id,
+            Err(err) => {
+                self.add_error(err.kind, err.span);
+                return Err(ast::StmtInvalid {span: self.node_span(start)});
+            }
+        };
+
+        Ok(Stmt::Drop(ast::StmtDrop {
             span: self.node_span(start),
             kind,
             exist_check,
             id,
-        }
+        }))
     }
+    //
+    // pub fn parse_release_statement(&mut self) -> ast::StmtRelease {
+    //     let start = self.node_start();
+    //     self.bump(TokenKind::Release);
+    //     self.eat(TokenKind::Savepoint);
+    //     let id = self.parse_identifier();
+    //     ast::StmtRelease {
+    //         span: self.node_span(start),
+    //         id,
+    //     }
+    // }
+    //
+    // pub fn parse_rollback_statement(&mut self) -> ast::StmtRollback {
+    //     let start = self.node_start();
+    //     self.bump(TokenKind::Rollback);
+    //     self.eat(TokenKind::Transaction);
+    //     let id: Option<Identifier>;
+    //     if self.eat(TokenKind::To) {
+    //         self.eat(TokenKind::Savepoint);
+    //         id = Some(self.parse_identifier());
+    //     } else {
+    //         id = None;
+    //     }
+    //     ast::StmtRollback {
+    //         span: self.node_span(start),
+    //         id,
+    //     }
+    // }
+    //
+    // pub fn parse_savepoint_statement(&mut self) -> ast::StmtSavepoint {
+    //     let start = self.node_start();
+    //     self.bump(TokenKind::Savepoint);
+    //     let id = self.parse_identifier();
+    //     ast::StmtSavepoint {
+    //         span: self.node_span(start),
+    //         id,
+    //     }
+    // }
 
-    pub fn parse_release_statement(&mut self) -> ast::StmtRelease {
+    pub fn parse_invalid_statement(&mut self) -> Result<Stmt, ast::StmtInvalid> {
         let start = self.node_start();
-        self.bump(TokenKind::Release);
-        self.eat(TokenKind::Savepoint);
-        let id = self.parse_identifier();
-        ast::StmtRelease {
-            span: self.node_span(start),
-            id,
-        }
-    }
-
-    pub fn parse_rollback_statement(&mut self) -> ast::StmtRollback {
-        let start = self.node_start();
-        self.bump(TokenKind::Rollback);
-        self.eat(TokenKind::Transaction);
-        let id: Option<Identifier>;
-        if self.eat(TokenKind::To) {
-            self.eat(TokenKind::Savepoint);
-            id = Some(self.parse_identifier());
-        } else {
-            id = None;
-        }
-        ast::StmtRollback {
-            span: self.node_span(start),
-            id,
-        }
-    }
-
-    pub fn parse_savepoint_statement(&mut self) -> ast::StmtSavepoint {
-        let start = self.node_start();
-        self.bump(TokenKind::Savepoint);
-        let id = self.parse_identifier();
-        ast::StmtSavepoint {
-            span: self.node_span(start),
-            id,
-        }
-    }
-
-    pub fn parse_invalid_statement(&mut self) -> ast::StmtInvalid {
-        let start = self.node_start();
+        // Bump whatever invalid token started this invalid statement
+        self.bump_any();
+        self.add_error(
+            ParseErrorKind::UnexpectedToken { found: self.current_token_kind() },
+            self.node_span(start)
+        );
         self.eat_until(TokenKind::Semicolon);
-        ast::StmtInvalid {
+        Err(ast::StmtInvalid {
             span: self.node_span(start),
-        }
+        })
     }
 }
 

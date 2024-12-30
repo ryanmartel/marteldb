@@ -79,6 +79,11 @@ impl<'src> Parser<'src> {
         self.tokens.bump(kind);
     }
 
+    fn bump_any(&mut self) {
+        self.prev_token_end = self.current_token_span().end();
+        self.tokens.bump_any();
+    }
+
     /// Take the token value from token source and bump the current token.
     fn bump_value(&mut self, kind: TokenKind) -> TokenValue {
         let value = self.tokens.take_value();
@@ -146,7 +151,6 @@ impl<'src> Parser<'src> {
     fn parse_stmts(&mut self) -> Stmts {
         let body = self.parse_list_into_vec(Parser::parse_statement);
         self.bump(TokenKind::EndOfFile);
-
         Stmts {
             body,
             span: Span::new(self.start_offset, self.current_token_span().end()),

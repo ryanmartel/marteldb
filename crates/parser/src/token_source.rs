@@ -42,6 +42,10 @@ impl<'src> TokenSource<'src> {
         self.do_bump();
     }
 
+    pub fn bump_any(&mut self) {
+        self.lexer.next_token();
+    }
+
     /// Calls underlying lexer's [`take_value`]
     pub fn take_value(&mut self) -> TokenValue {
         self.lexer.take_value()
