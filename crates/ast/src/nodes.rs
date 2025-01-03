@@ -282,8 +282,8 @@ pub enum ExternalType {
 #[derive(Clone, Debug, PartialEq)]
 pub struct TypeNameNumberField {
     pub span: Span,
-    pub first: IntLiteral,
-    pub second: Option<IntLiteral>
+    pub first: SignedNumber,
+    pub second: Option<SignedNumber>
 }
 
 
@@ -292,6 +292,12 @@ pub enum Expr {
     BinOp(ExprBinaryOp),
     UnaryOp(ExprUnaryOp),
     LiteralValue(LiteralValue),
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum SignedNumber {
+    Integer(IntLiteral),
+    Float(FloatLiteral),
 }
 
 #[derive(Clone, Debug, PartialEq)]

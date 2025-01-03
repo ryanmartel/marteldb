@@ -122,9 +122,42 @@ impl<'src> Parser<'src> {
                 })
             }
         };
-        if self.eat(TokenKind::LParen) {
-
+        if self.at(TokenKind::LParen) {
+            let number_field = Some(self.parse_type_name_number_field()?);
+            return Ok(ast::TypeName {
+                span: self.node_span(start),
+                external_type,
+                number_field,
+            })
         }
-        unimplemented!()
+        Ok(ast::TypeName {
+            span: self.node_span(start),
+            external_type,
+            number_field: None
+        })
     }
+
+    fn parse_type_name_number_field(&mut self) -> Result<ast::TypeNameNumberField, ParseError> {
+        let start = self.node_start();
+        self.bump(TokenKind::LParen);
+        let first = self.parse_signed_number()?;
+        let mut second = None;
+        if self.eat(TokenKind::Comma) {
+            second = Some(self.parse_signed_number()?);
+        }
+        if !self.eat(TokenKind::RParen) {
+            return Err(ParseError {
+                span: self.node_span(start),
+                kind: ParseErrorKind::ExpectedToken { 
+                    found: self.current_token_kind(),
+                    expected: TokenKind::RParen }
+            })
+        }
+        Ok(ast::TypeNameNumberField {
+            span: self.node_span(start),
+            first,
+            second,
+        })
+    }
+
 }

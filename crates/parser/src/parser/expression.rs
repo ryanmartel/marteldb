@@ -8,7 +8,7 @@ impl<'src> Parser<'src> {
     /// Parse an identifier.
     ///
     /// For invalid identifiers, the 'id' field will be an empty string.
-    pub fn parse_identifier(&mut self) -> Result<ast::Identifier, ParseError> {
+    pub(crate) fn parse_identifier(&mut self) -> Result<ast::Identifier, ParseError> {
         let start = self.node_start();
 
         if self.at(TokenKind::Name) {
@@ -28,5 +28,9 @@ impl<'src> Parser<'src> {
                 span: self.node_span(start),
             })
         }
+    }
+
+    pub(crate) fn parse_signed_number(&mut self) -> Result<ast::SignedNumber, ParseError> {
+        unimplemented!()
     }
 }
