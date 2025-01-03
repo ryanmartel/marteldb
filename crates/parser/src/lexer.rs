@@ -191,6 +191,7 @@ impl<'src> Lexer<'src> {
         let text = self.token_text();
         match text.to_uppercase().as_str() {
             "ABORT" => TokenKind::Abort,
+            "ADD" => TokenKind::Add,
             "ALL" => TokenKind::All,
             "ALTER" => TokenKind::Alter,
             "AND" => TokenKind::And,
@@ -200,7 +201,9 @@ impl<'src> Lexer<'src> {
             "BETWEEN" => TokenKind::Between,
             "BY" => TokenKind::By,
             "CASCADE" => TokenKind::Cascade,
+            "CHAR" => TokenKind::Char,
             "COLLATE" => TokenKind::Collate,
+            "COLUMN" => TokenKind::Column,
             "COMMIT" => TokenKind::Commit,
             "CONFLICT" => TokenKind::Conflict,
             "CONSTRAINT" => TokenKind::Constraint,
@@ -223,6 +226,7 @@ impl<'src> Lexer<'src> {
             "INDEXED" => TokenKind::Indexed,
             "INNER" => TokenKind::Inner,
             "INSERT" => TokenKind::Insert,
+            "INTEGER" => TokenKind::Integer,
             "IS" => TokenKind::Is,
             "JOIN" => TokenKind::Join,
             "KEY" => TokenKind::Key,
@@ -232,6 +236,7 @@ impl<'src> Lexer<'src> {
             "NATURAL" => TokenKind::Natural,
             "NOT" => TokenKind::Not,
             "NULL" => TokenKind::Null,
+            "NUMERIC" => TokenKind::Numeric,
             "OFFSET" => TokenKind::Offset,
             "ON" => TokenKind::On,
             "OR" => TokenKind::Or,
@@ -246,6 +251,7 @@ impl<'src> Lexer<'src> {
             "ROLLBACK" => TokenKind::Rollback,
             "SAVEPOINT" => TokenKind::Savepoint,
             "SELECT" => TokenKind::Select,
+            "SERIAL" => TokenKind::Serial,
             "SET" => TokenKind::Set,
             "TABLE" => TokenKind::Table,
             "TO" => TokenKind::To,
@@ -255,6 +261,7 @@ impl<'src> Lexer<'src> {
             "USING" => TokenKind::Using,
             "VACUUM" => TokenKind::Vacuum,
             "VALUES" => TokenKind::Values,
+            "VARCHAR" => TokenKind::Varchar,
             "WHERE" => TokenKind::Where,
             _ => {
                 self.current_value = TokenValue::Name(Name::new(text.to_string()));

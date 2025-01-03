@@ -29,6 +29,9 @@ pub enum ParseErrorKind {
         found: TokenKind,
         expected: TokenKind,
     },
+    ExpectedType {
+        found: TokenKind,
+    },
     UnexpectedToken {
         found: TokenKind,
     },
@@ -45,6 +48,9 @@ impl Display for ParseErrorKind {
             }
             ParseErrorKind::ExpectedToken { found, expected } => {
                 write!(f, "Expected {expected}, Found {found}")
+            }
+            ParseErrorKind::ExpectedType { found } => {
+                write!(f, "Expected A Type Token, Found {found}")
             }
             ParseErrorKind::UnexpectedToken { found } => {
                 write!(f, "Unexpected Token {found}. Can not start statement")

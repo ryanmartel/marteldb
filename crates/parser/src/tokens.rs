@@ -41,6 +41,7 @@ pub enum TokenKind {
 
     // Keywords -------------
     Abort,
+    Add,
     All,
     Alter,
     And,
@@ -51,6 +52,7 @@ pub enum TokenKind {
     By,
     Cascade,
     Collate,
+    Column,
     Commit,
     Conflict,
     Constraint,
@@ -140,7 +142,14 @@ pub enum TokenKind {
     // matches ','
     Comma,
 
-    // Types
+    // SQL Types
+    Char,
+    Integer,
+    Numeric,
+    Serial,
+    Varchar,
+
+    // Interior Types
     Float,
     Int,
     String,
@@ -148,6 +157,20 @@ pub enum TokenKind {
     Comment,
     Unknown,
     EndOfFile,
+}
+
+impl TokenKind {
+
+    pub fn is_type(self) -> bool {
+        matches!(
+            self,
+            TokenKind::Char
+            | TokenKind::Integer
+            | TokenKind::Numeric
+            | TokenKind::Serial
+            | TokenKind::Varchar
+        )
+    }
 }
 
 impl Display for TokenKind {

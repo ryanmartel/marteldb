@@ -8,6 +8,7 @@ use crate::token_source::TokenSource;
 use crate::tokens::{TokenKind, TokenValue};
 use crate::{Parsed, Tokens};
 
+mod clause;
 mod expression;
 mod statement;
 

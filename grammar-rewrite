@@ -4,7 +4,7 @@ d   | <begin-stmt>
 d   | <commit-stmt>
     | <create-stmt>
     | <delete-stmt>
-    | <drop-stmt>
+d   | <drop-stmt>
     | <insert-stmt>
     | <reindex-stmt>
 d   | <release-stmt>
@@ -212,11 +212,7 @@ d   | <savepoint-stmt>
     | ε
 
 <column-def> := 
-      column-name <column-def-type-name> <column-def-constraint-list>
-
-<column-def-type-name> :=
-      <type-name>
-    | ε
+      column-name <type-name> <column-def-constraint-list>
 
 <column-def-constraint-list> :=
       <column-constraint> <column-def-constraint-list>

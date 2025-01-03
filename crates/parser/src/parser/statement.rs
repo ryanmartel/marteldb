@@ -7,12 +7,14 @@ use super::Parser;
 impl<'src> Parser<'src> {
     pub fn parse_statement(&mut self) -> Stmt {
         let stmt_res = match self.current_token_kind() {
+            TokenKind::Alter => self.parse_alter_table_statement(),
             TokenKind::Begin => self.parse_begin_statement(),
             TokenKind::Commit => self.parse_commit_statement(),
             TokenKind::Drop => self.parse_drop_statement(),
-            TokenKind::Savepoint => self.parse_savepoint_statement(),
+            TokenKind::Reindex => self.parse_reindex_statement(),
             TokenKind::Release => self.parse_release_statement(),
             TokenKind::Rollback => self.parse_rollback_statement(),
+            TokenKind::Savepoint => self.parse_savepoint_statement(),
             _ => {
                 println!("Tokenkind {}", self.current_token_kind());
                 println!("Current Span {}", self.current_token_span());
@@ -33,6 +35,29 @@ impl<'src> Parser<'src> {
 
     }
 
+    pub fn parse_alter_table_statement(&mut self) -> Result<Stmt, ast::StmtInvalid> {
+        let start = self.node_start();
+        self.bump(TokenKind::Alter);
+        if !self.expect(TokenKind::Table) {
+            return Err(ast::StmtInvalid {span: self.node_span(start)});
+        };
+        let id = self.parse_identifier()
+            .map_err(|error| {
+            self.add_error(error.kind, error.span);
+            ast::StmtInvalid {span: self.node_span(start)}
+        })?;
+        let action = self.parse_alter_table_action()
+            .map_err(|error| {
+                self.add_error(error.kind, error.span);
+                ast::StmtInvalid {span: self.node_span(start)}
+            })?;
+        Ok(Stmt::Alter(ast::StmtAlter {
+            span: self.node_span(start),
+            id,
+            action,
+        }))
+    }
+
     //
     pub fn parse_begin_statement(&mut self) -> Result<Stmt, ast::StmtInvalid> {
         let start = self.node_start();
@@ -50,6 +75,14 @@ impl<'src> Parser<'src> {
         Ok(Stmt::Commit(ast::StmtCommit {
             span: self.node_span(start),
         }))
+    }
+
+    pub fn parse_create_statement(&mut self) -> Result<Stmt, ast::StmtInvalid> {
+        unimplemented!()
+    }
+
+    pub fn parse_delete_statement(&mut self) -> Result<Stmt, ast::StmtInvalid> {
+        unimplemented!()
     }
 
     pub fn parse_drop_statement(&mut self) -> Result<Stmt, ast::StmtInvalid> {
@@ -84,6 +117,30 @@ impl<'src> Parser<'src> {
             exist_check,
             id,
         }))
+    }
+
+    pub fn parse_insert_statement(&mut self) -> Result<Stmt, ast::StmtInvalid> {
+        unimplemented!()
+    }
+
+    pub fn parse_reindex_statement(&mut self) -> Result<Stmt, ast::StmtInvalid> {
+        let start = self.node_start();
+        self.bump(TokenKind::Reindex);
+        let id;
+        if self.current_token_kind() == TokenKind::Name {
+            id = Some(self.parse_identifier()
+                .map_err(|error| {
+                    self.add_error(error.kind, error.span);
+                    ast::StmtInvalid {span: self.node_span(start)}
+                })?);
+        } else {
+            id = None
+        }
+        Ok(Stmt::Reindex(ast::StmtReindex {
+            span: self.node_span(start),
+            id,
+        }))
+
     }
 
     pub fn parse_release_statement(&mut self) -> Result<Stmt, ast::StmtInvalid> {
@@ -134,6 +191,18 @@ impl<'src> Parser<'src> {
             span: self.node_span(start),
             id,
         }))
+    }
+
+    pub fn parse_select_statement(&mut self) -> Result<Stmt, ast::StmtInvalid> {
+        unimplemented!()
+    }
+
+    pub fn parse_update_statement(&mut self) -> Result<Stmt, ast::StmtInvalid> {
+        unimplemented!()
+    }
+
+    pub fn parse_vacuum_statement(&mut self) -> Result<Stmt, ast::StmtInvalid> {
+        unimplemented!()
     }
 
     pub fn parse_invalid_statement(&mut self) -> Result<Stmt, ast::StmtInvalid> {
@@ -316,6 +385,35 @@ mod test {
                 kind: ast::DdlTargetKind::Index,
                 exist_check: true,
                 id: expected_id,
+            })
+        );
+    }
+
+    #[test]
+    fn alter_stmt_rename() {
+        let source = "ALTER TABLE t1 RENAME COLUMN c1 TO c2;";
+        let mut parser = Parser::new(source);
+        let stmt = parser.parse_statement();
+        let expected_span = Span::new(Location::new(0), Location::new(37));
+        let rename_span = Span::new(Location::new(15), Location::new(37));
+        let id_span = Span::new(Location::new(12), Location::new(14));
+        let id = ast::Identifier::new(Name::new("t1".to_string()), id_span);
+        let id_from_span = Span::new(Location::new(29), Location::new(31));
+        let id_from = ast::Identifier::new(Name::new("c1".to_string()), id_from_span);
+        let id_to_span = Span::new(Location::new(35), Location::new(37));
+        let id_to = ast::Identifier::new(Name::new("c2".to_string()), id_to_span);
+        assert_eq!(
+            stmt,
+            Stmt::Alter(ast::StmtAlter {
+                span: expected_span,
+                id,
+                action: ast::AlterTableAction {
+                    span: rename_span,
+                    kind: ast::AlterTableActionKind::Rename(ast::AlterTableRename {
+                        span: rename_span,
+                        kind: ast::AlterTableRenameKind::Column(id_from,id_to)
+                    })
+                }
             })
         );
     }

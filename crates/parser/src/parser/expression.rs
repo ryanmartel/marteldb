@@ -9,13 +9,13 @@ impl<'src> Parser<'src> {
     ///
     /// For invalid identifiers, the 'id' field will be an empty string.
     pub fn parse_identifier(&mut self) -> Result<ast::Identifier, ParseError> {
-        let span = self.current_token_span();
+        let start = self.node_start();
 
         if self.at(TokenKind::Name) {
             let TokenValue::Name(name) = self.bump_value(TokenKind::Name) else {
                 unreachable!();
             };
-            Ok(ast::Identifier { id: name, span })
+            Ok(ast::Identifier {id: name, span: self.node_span(start)})
         } else {
             // self.add_error(
             //     ParseErrorKind::ExpectedIdentifier {
@@ -25,7 +25,7 @@ impl<'src> Parser<'src> {
             // );
             Err(ParseError {
                 kind: ParseErrorKind::ExpectedIdentifier { found: self.current_token_kind() },
-                span,
+                span: self.node_span(start),
             })
         }
     }

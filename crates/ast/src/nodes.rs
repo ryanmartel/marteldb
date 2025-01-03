@@ -12,13 +12,28 @@ pub struct Stmts {
 
 #[derive(Clone, Debug, PartialEq)]
 pub enum Stmt {
+    Alter(StmtAlter),
     Begin(StmtBegin),
     Commit(StmtCommit),
     Drop(StmtDrop),
     Invalid(StmtInvalid),
+    Reindex(StmtReindex),
     Release(StmtRelease),
     Rollback(StmtRollback),
     Savepoint(StmtSavepoint),
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct StmtAlter {
+    pub span: Span,
+    pub id: Identifier,
+    pub action: AlterTableAction
+}
+
+impl From<StmtAlter> for Stmt {
+    fn from(value: StmtAlter) -> Self {
+        Stmt::Alter(value)
+    }
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -79,6 +94,17 @@ impl From<StmtInvalid> for Stmt {
     }
 }
 
+#[derive(Clone, Debug, PartialEq)]
+pub struct StmtReindex {
+    pub span: Span,
+    pub id: Option<Identifier>
+}
+
+impl From<StmtReindex> for Stmt {
+    fn from(value: StmtReindex) -> Self {
+        Stmt::Reindex(value)
+    }
+}
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct StmtRelease {
@@ -117,41 +143,191 @@ impl From<StmtSavepoint> for Stmt {
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub enum Expr {
-    BinOp(ExprBinaryOp),
-    UnaryOp(ExprUnaryOp),
-    StringLiteral(ExprStringLiteral),
-    BooleanLiteral(ExprBooleanLiteral),
-    NullLiteral(ExprNullLiteral),
-    IntLiteral(ExprIntLiteral),
-    FloatLiteral(ExprFloatLiteral),
+pub struct AlterTableAction {
+    pub span: Span,
+    pub kind: AlterTableActionKind
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct ExprStringLiteral {
+pub enum AlterTableActionKind {
+    Rename(AlterTableRename),
+    Add(AlterTableAdd),
+    Drop(AlterTableDrop)
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct AlterTableRename {
+    pub span: Span,
+    pub kind: AlterTableRenameKind,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum AlterTableRenameKind {
+    Table(Identifier),
+    Column(Identifier, Identifier)
+}
+
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct AlterTableAdd {
+    pub span: Span,
+    pub column: ColumnDef
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct AlterTableDrop {
+    pub span: Span,
+    pub id: Identifier,
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ColumnDef {
+    pub span: Span,
+    pub id: Identifier,
+    pub type_name: TypeName,
+
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum ColumnConstraintKind {
+    PrimaryKey(ColumnConstraintPrimaryKey),
+    NotNull(Option<ConflictAction>),
+    Unique(Option<ConflictAction>),
+    Check(Expr),
+    Default(ColumnConstraintDefault),
+    Collate(Identifier),
+    Foreign(ForeignKeyClause),
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ColumnConstraintPrimaryKey {
+    pub span: Span,
+    pub order: Option<Order>,
+    pub conflict_action: Option<ConflictAction>
+
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum ColumnConstraintDefault {
+    ParenExpr(Expr),
+    LiteralValue(LiteralValue)
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ForeignKeyClause {
+    pub span: Span,
+    pub id: Identifier,
+    pub column_names: Vec<Identifier>,
+    pub foreign_key_clause_on: Option<ForeignKeyClauseOn>
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ForeignKeyClauseOn {
+    pub span: Span,
+    pub kind: ForeignKeyClauseOnKind
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum ForeignKeyClauseOnKind {
+    Delete,
+    Update
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum ForeignKeyClauseActions {
+    Set(ForeignKeyClauseActionSet),
+    Cascade,
+    Restrict,
+    NoAction
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum ForeignKeyClauseActionSet {
+    Null,
+    Default
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum ConflictAction {
+    Rollback,
+    Abort,
+    Fail,
+    Ignore,
+    Replace
+}
+
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum Order {
+    Asc,
+    Desc
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct TypeName {
+    pub span: Span,
+    pub external_type: ExternalType,
+    pub number_field: Option<TypeNameNumberField>
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum ExternalType {
+    Char,
+    Integer,
+    Numeric,
+    Serial,
+    Varchar
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct TypeNameNumberField {
+    pub span: Span,
+    pub first: IntLiteral,
+    pub second: Option<IntLiteral>
+}
+
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum Expr {
+    BinOp(ExprBinaryOp),
+    UnaryOp(ExprUnaryOp),
+    LiteralValue(LiteralValue),
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub enum LiteralValue {
+    StringLiteral(StringLiteral),
+    IntLiteral(IntLiteral),
+    FloatLiteral(FloatLiteral),
+    NullLiteral(NullLiteral),
+    BoolLiteral(BoolLiteral),
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct StringLiteral {
     pub span: Span,
     pub value: String,
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct ExprBooleanLiteral {
+pub struct BoolLiteral {
     pub span: Span,
     pub value: bool,
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct ExprNullLiteral {
+pub struct NullLiteral {
     pub span: Span,
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct ExprIntLiteral {
+pub struct IntLiteral {
     pub span: Span,
     pub value: i64,
 }
 
 #[derive(Clone, Debug, PartialEq)]
-pub struct ExprFloatLiteral {
+pub struct FloatLiteral {
     pub span: Span,
     pub value: f64,
 }

@@ -12,6 +12,16 @@ impl PrettyPrinter {
 impl Visitor for PrettyPrinter {
     fn visit_stmt(&mut self, stmt: &Stmt) {
         match stmt {
+            Stmt::Alter(ast::StmtAlter { span, id, action }) => {
+                println!("ALTER (span {}, {})", span.start(), span.end());
+                println!(
+                    "\tid: {} (span {}, {})",
+                    &id.id,
+                    &id.span.start(),
+                    &id.span.end()
+                );
+
+            }
             Stmt::Begin(ast::StmtBegin { span }) => {
                 println!("BEGIN (span {}, {})", span.start(), span.end());
             }
@@ -20,6 +30,20 @@ impl Visitor for PrettyPrinter {
             }
             Stmt::Invalid(ast::StmtInvalid { span }) => {
                 println!("INVALID (span {}, {})", span.start(), span.end());
+            }
+            Stmt::Reindex(ast::StmtReindex { span, id }) => {
+                println!("REINDEX (span {}, {})", span.start(), span.end());
+                match id {
+                    Some(id) => {
+                        println!(
+                            "\tid: {} (span {}, {})",
+                            &id.id,
+                            &id.span.start(),
+                            &id.span.end()
+                        );
+                    }
+                    None => {}
+                }
             }
             Stmt::Release(ast::StmtRelease { span, id }) => {
                 println!("RELEASE (span {}, {})", span.start(), span.end());
