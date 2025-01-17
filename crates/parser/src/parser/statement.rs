@@ -222,7 +222,7 @@ impl<'src> Parser<'src> {
 
 #[cfg(test)]
 mod test {
-    use ast::name::Name;
+    use ast::{name::Name, ColumnConstraintKind};
     use source_index::{location::Location, span::Span};
 
     use super::*;
@@ -416,6 +416,69 @@ mod test {
                 }
             })
         );
+    }
+
+    #[test]
+    fn alter_stmt_add() {
+        let source = "ALTER TABLE t1 ADD COLUMN c1 NUMERIC(7,4) UNIQUE ON CONFLICT ABORT;";
+        let mut parser = Parser::new(source);
+        let stmt = parser.parse_statement();
+        let expected_span = Span::new(Location::new(0), Location::new(66));
+        let add_span = Span::new(Location::new(15), Location::new(66));
+        let id_span = Span::new(Location::new(12), Location::new(14));
+        let id = ast::Identifier::new(Name::new("t1".to_string()), id_span);
+        let id_col_span = Span::new(Location::new(26), Location::new(28));
+        let id_col = ast::Identifier::new(Name::new("c1".to_string()), id_col_span);
+        let column_def_span = Span::new(Location::new(26), Location::new(66));
+        let type_name_span = Span::new(Location::new(29), Location::new(41));
+        let number_field_span = Span::new(Location::new(36), Location::new(41));
+        let first_number_span = Span::new(Location::new(37), Location::new(38));
+        let second_number_span = Span::new(Location::new(39), Location::new(40));
+        let constraint_span = Span::new(Location::new(42), Location::new(66));
+
+        assert_eq!(
+            stmt,
+            Stmt::Alter(ast::StmtAlter {
+                span: expected_span,
+                id,
+                action: ast::AlterTableAction {
+                    span: add_span,
+                    kind: ast::AlterTableActionKind::Add(ast::AlterTableAdd {
+                        span: add_span,
+                        column: ast::ColumnDef {
+                            span: column_def_span,
+                            id: id_col,
+                            type_name: ast::TypeName {
+                                span: type_name_span,
+                                external_type: ast::ExternalType::Numeric,
+                                number_field: Some(ast::TypeNameNumberField {
+                                    span: number_field_span,
+                                    first: ast::SignedNumber::Integer(ast::IntLiteral {
+                                        span: first_number_span,
+                                        value: 7
+                                    }),
+                                    second: Some(ast::SignedNumber::Integer(ast::IntLiteral {
+                                        span: second_number_span,
+                                        value: 4
+                                    }))
+                                })
+                            },
+                            constraint_list: ast::ColumnConstraintList {
+                                span: constraint_span,
+                                constraints: vec!(
+                                    ast::ColumnConstraint {
+                                        span: constraint_span,
+                                        kind: ColumnConstraintKind::Unique(Some(
+                                                ast::ConflictAction::Abort
+                                        ))
+                                    }
+                                )
+                            }
+                        }
+                    })
+                }
+            })
+        )
     }
 
     #[test]

@@ -51,6 +51,7 @@ pub enum TokenKind {
     Between,
     By,
     Cascade,
+    Check,
     Collate,
     Column,
     Commit,
@@ -65,11 +66,13 @@ pub enum TokenKind {
     Drop,
     Except,
     Exists,
+    Fail,
     From,
     Full,
     Group,
     Having,
     If,
+    Ignore,
     In,
     Index,
     Indexed,
@@ -94,6 +97,7 @@ pub enum TokenKind {
     Reindex,
     Release,
     Rename,
+    Replace,
     Right,
     Rollback,
     Savepoint,
@@ -171,6 +175,19 @@ impl TokenKind {
             | TokenKind::Varchar
         )
     }
+    
+    pub fn is_column_constraint(self) -> bool {
+        matches!(
+            self,
+            TokenKind::Primary
+            | TokenKind::Not
+            | TokenKind::Unique
+            | TokenKind::Check
+            | TokenKind::Default
+            | TokenKind::Collate
+            | TokenKind::References
+        )
+    }
 }
 
 impl Display for TokenKind {
@@ -189,6 +206,6 @@ pub enum TokenValue {
     TableCol(Name, Name),
 
     Float(f64),
-    Int(i32),
+    Int(i64),
     String(String),
 }

@@ -25,6 +25,9 @@ pub enum ParseErrorKind {
     ExpectedIdentifier {
         found: TokenKind,
     },
+    ExpectedNumeric {
+        found: TokenKind,
+    },
     ExpectedToken {
         found: TokenKind,
         expected: TokenKind,
@@ -32,6 +35,7 @@ pub enum ParseErrorKind {
     ExpectedType {
         found: TokenKind,
     },
+    ExpectedValue,
     UnexpectedToken {
         found: TokenKind,
     },
@@ -46,11 +50,17 @@ impl Display for ParseErrorKind {
             ParseErrorKind::ExpectedIdentifier { found } => {
                 write!(f, "Expected an identifier, found {found} instead.")
             }
+            ParseErrorKind::ExpectedNumeric { found } => {
+                write!(f, "Expected Numeric, found {found} instead.")
+            }
             ParseErrorKind::ExpectedToken { found, expected } => {
                 write!(f, "Expected {expected}, Found {found}")
             }
             ParseErrorKind::ExpectedType { found } => {
                 write!(f, "Expected A Type Token, Found {found}")
+            }
+            ParseErrorKind::ExpectedValue => {
+                write!(f, "Expected a value to be attached to this token")
             }
             ParseErrorKind::UnexpectedToken { found } => {
                 write!(f, "Unexpected Token {found}. Can not start statement")

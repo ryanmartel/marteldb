@@ -185,7 +185,19 @@ pub struct ColumnDef {
     pub span: Span,
     pub id: Identifier,
     pub type_name: TypeName,
+    pub constraint_list: ColumnConstraintList
+}
 
+#[derive(Clone, Debug, PartialEq)]
+pub struct ColumnConstraintList {
+    pub span: Span,
+    pub constraints: Vec<ColumnConstraint>
+}
+
+#[derive(Clone, Debug, PartialEq)]
+pub struct ColumnConstraint {
+    pub span: Span,
+    pub kind: ColumnConstraintKind
 }
 
 #[derive(Clone, Debug, PartialEq)]

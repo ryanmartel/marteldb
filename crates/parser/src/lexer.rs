@@ -202,6 +202,7 @@ impl<'src> Lexer<'src> {
             "BY" => TokenKind::By,
             "CASCADE" => TokenKind::Cascade,
             "CHAR" => TokenKind::Char,
+            "CHECK" => TokenKind::Check,
             "COLLATE" => TokenKind::Collate,
             "COLUMN" => TokenKind::Column,
             "COMMIT" => TokenKind::Commit,
@@ -216,11 +217,13 @@ impl<'src> Lexer<'src> {
             "DROP" => TokenKind::Drop,
             "EXCEPT" => TokenKind::Except,
             "EXISTS" => TokenKind::Exists,
+            "FAIL" => TokenKind::Fail,
             "FROM" => TokenKind::From,
             "FULL" => TokenKind::Full,
             "GROUP" => TokenKind::Group,
             "HAVING" => TokenKind::Having,
             "IF" => TokenKind::If,
+            "IGNORE" => TokenKind::Ignore,
             "IN" => TokenKind::In,
             "INDEX" => TokenKind::Index,
             "INDEXED" => TokenKind::Indexed,
@@ -247,6 +250,7 @@ impl<'src> Lexer<'src> {
             "REINDEX" => TokenKind::Reindex,
             "RELEASE" => TokenKind::Release,
             "RENAME" => TokenKind::Rename,
+            "REPLACE" => TokenKind::Replace,
             "RIGHT" => TokenKind::Right,
             "ROLLBACK" => TokenKind::Rollback,
             "SAVEPOINT" => TokenKind::Savepoint,
@@ -313,7 +317,7 @@ impl<'src> Lexer<'src> {
             self.current_value = TokenValue::Float(val);
             return TokenKind::Float;
         }
-        let Ok(val) = i32::from_str(&owned) else {
+        let Ok(val) = i64::from_str(&owned) else {
             return self.push_error(LexicalError::new(
                 LexicalErrorKind::InvalidInt,
                 self.token_range(),
