@@ -41,6 +41,7 @@ pub enum TokenKind {
 
     // Keywords -------------
     Abort,
+    Action,
     Add,
     All,
     Alter,
@@ -85,6 +86,7 @@ pub enum TokenKind {
     Like,
     Limit,
     Natural,
+    No,
     Not,
     Null,
     Offset,
@@ -98,6 +100,7 @@ pub enum TokenKind {
     Release,
     Rename,
     Replace,
+    Restrict,
     Right,
     Rollback,
     Savepoint,
@@ -108,6 +111,7 @@ pub enum TokenKind {
     Transaction,
     Union,
     Unique,
+    Update,
     Using,
     Vacuum,
     Values,

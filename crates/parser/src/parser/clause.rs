@@ -295,7 +295,11 @@ impl<'src> Parser<'src> {
             }
             TokenKind::References => {
                 self.bump(TokenKind::References);
-                unimplemented!()
+                let foreign_key_clause = self.parse_foreign_key_clause()?;
+                return Ok(ast::ColumnConstraint {
+                    span: self.node_span(start),
+                    kind: ast::ColumnConstraintKind::Foreign(foreign_key_clause)
+                });
             }
             _ => {
                 return Err(ParseError {
@@ -307,6 +311,119 @@ impl<'src> Parser<'src> {
             }
         }
 
+    }
+
+    fn parse_foreign_key_clause(&mut self) -> Result<ast::ForeignKeyClause, ParseError> {
+        let start = self.node_start();
+        let id = self.parse_identifier()?;
+        if !self.eat(TokenKind::LParen) {
+            return Err(ParseError {
+                span: self.node_span(start),
+                kind: ParseErrorKind::ExpectedToken {
+                    found: self.current_token_kind(),
+                    expected: TokenKind::LParen,
+                }
+            })
+        };
+
+        let column_names = self.parse_column_name_list()?;
+
+        if !self.eat(TokenKind::RParen) {
+            return Err(ParseError {
+                span: self.node_span(start),
+                kind: ParseErrorKind::ExpectedToken {
+                    found: self.current_token_kind(),
+                    expected: TokenKind::RParen,
+                }
+            })
+        };
+
+        let mut foreign_key_clause_on = None;
+        if self.eat(TokenKind::On) {
+            foreign_key_clause_on = Some(self.parse_foreign_key_clause_on()?);
+        };
+        Ok(ast::ForeignKeyClause {
+            span: self.node_span(start),
+            id,
+            column_names,
+            foreign_key_clause_on,
+        })
+    }
+
+    fn parse_foreign_key_clause_on(&mut self) -> Result<ast::ForeignKeyClauseOn, ParseError> {
+        let start = self.node_start();
+        let kind = match self.current_token_kind() {
+            TokenKind::Delete => {
+                self.bump(TokenKind::Delete);
+                ast::ForeignKeyClauseOnKind::Delete
+            }
+            TokenKind::Update => {
+                self.bump(TokenKind::Update);
+                ast::ForeignKeyClauseOnKind::Update
+            }
+            _ => {
+                return Err(ParseError {
+                    span: self.node_span(start),
+                    kind: ParseErrorKind::UnexpectedToken {
+                        found: self.current_token_kind()
+                    }
+                })
+            }
+        };
+        let action = match self.current_token_kind() {
+            TokenKind::Set => {
+                self.bump(TokenKind::Set);
+                match self.current_token_kind() {
+                    TokenKind::Null => ast::ForeignKeyClauseActions::Set(
+                        ast::ForeignKeyClauseActionSet::Null),
+                    TokenKind::Default => ast::ForeignKeyClauseActions::Set(
+                        ast::ForeignKeyClauseActionSet::Default
+                    ),
+                    _ => {
+                        return Err(ParseError {
+                            span: self.node_span(start),
+                            kind: ParseErrorKind::UnexpectedToken {
+                                found: self.current_token_kind()
+                            }
+                        })
+                    }
+                }
+            }
+            TokenKind::Cascade => {
+                self.bump(TokenKind::Cascade);
+                ast::ForeignKeyClauseActions::Cascade
+            }
+            TokenKind::Restrict => {
+                self.bump(TokenKind::Restrict);
+                ast::ForeignKeyClauseActions::Restrict
+            }
+            TokenKind::No => {
+                self.bump(TokenKind::No);
+                if !self.eat(TokenKind::Action) {
+                    return Err(ParseError {
+                        span: self.node_span(start),
+                        kind: ParseErrorKind::ExpectedToken {
+                            found: self.current_token_kind(),
+                            expected: TokenKind::Action
+                        }
+                    })
+                }
+                ast::ForeignKeyClauseActions::NoAction
+            }
+            _ => {
+                return Err(ParseError {
+                    span: self.node_span(start),
+                    kind: ParseErrorKind::UnexpectedToken {
+                        found: self.current_token_kind()
+                    }
+                })
+            }
+        };
+        Ok(ast::ForeignKeyClauseOn {
+            span: self.node_span(start),
+            kind,
+            action,
+        })
     }
 
     fn parse_conflict_action(&mut self) -> Result<ast::ConflictAction, ParseError> {
@@ -342,5 +459,19 @@ impl<'src> Parser<'src> {
             }
         }
     }
+    
+    fn parse_column_name_list(&mut self) -> Result<Vec<ast::Identifier>, ParseError> {
+        let mut name_list: Vec<ast::Identifier> = Vec::new();
+
+        let first = self.parse_identifier()?;
+        name_list.push(first);
+
+        while self.eat(TokenKind::Comma) {
+            let column_name = self.parse_identifier()?;
+            name_list.push(column_name);
+        }
+        Ok(name_list)
+    }
+
 
 }

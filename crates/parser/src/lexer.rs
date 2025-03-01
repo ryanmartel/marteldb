@@ -191,6 +191,7 @@ impl<'src> Lexer<'src> {
         let text = self.token_text();
         match text.to_uppercase().as_str() {
             "ABORT" => TokenKind::Abort,
+            "ACTION" => TokenKind::Action,
             "ADD" => TokenKind::Add,
             "ALL" => TokenKind::All,
             "ALTER" => TokenKind::Alter,
@@ -237,6 +238,7 @@ impl<'src> Lexer<'src> {
             "LIKE" => TokenKind::Like,
             "LIMIT" => TokenKind::Limit,
             "NATURAL" => TokenKind::Natural,
+            "NO" => TokenKind::No,
             "NOT" => TokenKind::Not,
             "NULL" => TokenKind::Null,
             "NUMERIC" => TokenKind::Numeric,
@@ -251,6 +253,7 @@ impl<'src> Lexer<'src> {
             "RELEASE" => TokenKind::Release,
             "RENAME" => TokenKind::Rename,
             "REPLACE" => TokenKind::Replace,
+            "RESTRICT" => TokenKind::Restrict,
             "RIGHT" => TokenKind::Right,
             "ROLLBACK" => TokenKind::Rollback,
             "SAVEPOINT" => TokenKind::Savepoint,
@@ -262,6 +265,7 @@ impl<'src> Lexer<'src> {
             "TRANSACTION" => TokenKind::Transaction,
             "UNION" => TokenKind::Union,
             "UNIQUE" => TokenKind::Unique,
+            "UPDATE" => TokenKind::Update,
             "USING" => TokenKind::Using,
             "VACUUM" => TokenKind::Vacuum,
             "VALUES" => TokenKind::Values,

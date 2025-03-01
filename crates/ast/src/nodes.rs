@@ -236,7 +236,8 @@ pub struct ForeignKeyClause {
 #[derive(Clone, Debug, PartialEq)]
 pub struct ForeignKeyClauseOn {
     pub span: Span,
-    pub kind: ForeignKeyClauseOnKind
+    pub kind: ForeignKeyClauseOnKind,
+    pub action: ForeignKeyClauseActions,
 }
 
 #[derive(Clone, Debug, PartialEq)]

@@ -443,6 +443,13 @@ d   | <savepoint-stmt>
     | USING ( <column-name-list> )
     | ε
 
+<expr-list> :=
+      <expr> <expr-rest>
+
+<expr-rest> :=
+      , <expr> <expr-rest>
+    | ε
+
 <expr> := 
       <literal-value> <expr'>
     | table-name.column-name <expr'>

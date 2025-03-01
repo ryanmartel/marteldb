@@ -1,5 +1,3 @@
-use ast::name::Name;
-
 use super::Parser;
 use crate::errors::{ParseError, ParseErrorKind};
 use crate::tokens::{TokenKind, TokenValue};
@@ -17,17 +15,15 @@ impl<'src> Parser<'src> {
             };
             Ok(ast::Identifier {id: name, span: self.node_span(start)})
         } else {
-            // self.add_error(
-            //     ParseErrorKind::ExpectedIdentifier {
-            //         found: self.current_token_kind(),
-            //     },
-            //     span,
-            // );
             Err(ParseError {
                 kind: ParseErrorKind::ExpectedIdentifier { found: self.current_token_kind() },
                 span: self.node_span(start),
             })
         }
+    }
+
+    pub(crate) fn parse_literal(&mut self) -> Result<ast::LiteralValue, ParseError> {
+
     }
 
     pub(crate) fn parse_signed_number(&mut self) -> Result<ast::SignedNumber, ParseError> {
